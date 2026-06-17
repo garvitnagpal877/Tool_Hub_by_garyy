@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Excel Sheet Merger</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #222536;
+    --surface3: #2a2e42;
+    --border: #333650;
+    --accent: #6c63ff;
+    --accent2: #a78bfa;
+    --success: #34d399;
+    --warning: #fbbf24;
+    --danger: #f87171;
+    --text: #e2e8f0;
+    --text2: #94a3b8;
+    --text3: #64748b;
+    --font: 'Inter', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', 'Fira Code', monospace;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* ── Header ── */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 28px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 8px;
+    display: grid; place-items: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  header h1 { font-size: 17px; font-weight: 700; letter-spacing: -.3px; }
+  header p  { font-size: 12px; color: var(--text2); }
+
+  .step-pills {
+    margin-left: auto;
+    display: flex;
+    gap: 6px;
+  }
+
+  .pill {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    background: var(--surface2);
+    color: var(--text3);
+    border: 1px solid var(--border);
+    transition: all .2s;
+  }
+  .pill.active  { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .pill.done    { background: var(--surface3); color: var(--success); border-color: var(--success); }
+
+  /* ── Layout ── */
+  .app { display: flex; gap: 0; height: calc(100vh - 65px); overflow: hidden; }
+
+  .sidebar {
+    width: 320px;
+    flex-shrink: 0;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .main {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+
+  .card-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    color: var(--text2);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-title .badge {
+    width: 20px; height: 20px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: grid; place-items: center;
+    font-size: 11px;
+    color: #fff;
+    font-style: normal;
+  }
+
+  /* ── Upload Zone ── */
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 36px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all .2s;
+    background: var(--surface2);
+    position: relative;
+  }
+  .upload-zone:hover, .upload-zone.drag { border-color: var(--accent); background: rgba(108,99,255,.06); }
+  .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .upload-icon { font-size: 36px; margin-bottom: 10px; }
+  .upload-zone h3 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+  .upload-zone p  { font-size: 12px; color: var(--text2); }
+  .file-badge {
+    margin-top: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    background: rgba(52,211,153,.1);
+    color: var(--success);
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid rgba(52,211,153,.3);
+  }
+
+  /* ── Sheet Info ── */
+  .sheet-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+  .sheet-tab {
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text2);
+    transition: all .15s;
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+  .sheet-tab:hover   { border-color: var(--accent2); color: var(--accent2); }
+  .sheet-tab.active  { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  /* ── Data Table ── */
+  .table-wrap { overflow: auto; border-radius: var(--radius-sm); border: 1px solid var(--border); max-height: 260px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  thead th {
+    background: var(--surface3);
+    padding: 9px 12px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: var(--text2);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+  tbody td {
+    padding: 7px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    white-space: nowrap;
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  tbody tr:hover td { background: var(--surface2); }
+  tbody tr:last-child td { border-bottom: none; }
+
+  .meta-row {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .meta-chip {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    background: var(--surface3);
+    color: var(--text2);
+    font-family: var(--mono);
+  }
+  .meta-chip span { color: var(--accent2); }
+
+  /* ── Form Controls ── */
+  .form-group { margin-bottom: 14px; }
+  .form-group:last-child { margin-bottom: 0; }
+
+  label { display: block; font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 6px; }
+
+  select, input[type="number"] {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: var(--radius-sm);
+    padding: 9px 12px;
+    font-size: 13px;
+    font-family: var(--font);
+    outline: none;
+    transition: border-color .15s;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2364748b'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+  }
+  select:focus, input[type="number"]:focus { border-color: var(--accent); }
+  select option { background: var(--surface2); }
+
+  /* Radio pills */
+  .radio-group { display: flex; flex-wrap: wrap; gap: 6px; }
+  .radio-group input { display: none; }
+  .radio-group label {
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text2);
+    font-size: 12px;
+    font-weight: 600;
+    margin: 0;
+    transition: all .15s;
+    user-select: none;
+  }
+  .radio-group input:checked + label {
+    background: rgba(108,99,255,.18);
+    border-color: var(--accent);
+    color: var(--accent2);
+  }
+  .radio-group label:hover { border-color: var(--accent2); }
+
+  /* Checkbox */
+  .check-group { display: flex; flex-direction: column; gap: 6px; }
+  .check-item { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+  .check-item input[type="checkbox"] { accent-color: var(--accent); width: 14px; height: 14px; }
+  .check-item span { font-size: 12px; color: var(--text); }
+
+  /* ── Key Columns ── */
+  .key-col-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    background: var(--surface2);
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+  }
+  .key-num {
+    width: 22px; height: 22px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: grid; place-items: center;
+    font-size: 11px; font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .key-col-row select { flex: 1; margin: 0; }
+  .arrow { color: var(--text3); font-size: 16px; flex-shrink: 0; }
+
+  /* ── Buttons ── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    transition: all .15s;
+    font-family: var(--font);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    width: 100%;
+    justify-content: center;
+    font-size: 14px;
+    padding: 13px;
+    border-radius: var(--radius);
+  }
+  .btn-primary:hover:not(:disabled) { background: #5a52e0; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(108,99,255,.4); }
+  .btn-primary:disabled { opacity: .4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-outline:hover { border-color: var(--accent2); color: var(--accent2); }
+
+  .btn-success {
+    background: var(--success);
+    color: #000;
+  }
+  .btn-success:hover { background: #2cba87; }
+
+  /* ── Stats Grid ── */
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .stat-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    text-align: center;
+  }
+  .stat-val { font-size: 28px; font-weight: 800; font-family: var(--mono); line-height: 1; margin-bottom: 6px; }
+  .stat-lbl { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .6px; color: var(--text2); }
+  .stat-val.green { color: var(--success); }
+  .stat-val.amber { color: var(--warning); }
+  .stat-val.red   { color: var(--danger); }
+  .stat-val.blue  { color: var(--accent2); }
+
+  /* ── Alerts ── */
+  .alert {
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .alert-info    { background: rgba(108,99,255,.12); border: 1px solid rgba(108,99,255,.3); color: var(--accent2); }
+  .alert-success { background: rgba(52,211,153,.1);  border: 1px solid rgba(52,211,153,.3); color: var(--success); }
+  .alert-warning { background: rgba(251,191,36,.1);  border: 1px solid rgba(251,191,36,.3); color: var(--warning); }
+
+  /* ── Empty state ── */
+  .empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text3);
+  }
+  .empty .icon { font-size: 48px; margin-bottom: 12px; }
+  .empty h3 { font-size: 16px; font-weight: 700; color: var(--text2); margin-bottom: 6px; }
+  .empty p  { font-size: 13px; }
+
+  /* ── Spinner ── */
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner {
+    width: 18px; height: 18px;
+    border: 2px solid rgba(255,255,255,.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+  }
+
+  /* ── Column selector ── */
+  .col-multi-select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    max-height: 140px;
+    overflow-y: auto;
+    padding: 6px;
+  }
+  .col-multi-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background .1s;
+  }
+  .col-multi-item:hover { background: var(--surface3); }
+  .col-multi-item input { accent-color: var(--accent); }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text3); }
+
+  /* ── Hidden ── */
+  .hidden { display: none !important; }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 4px 0; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">⚡</div>
+  <div>
+    <h1>Excel Sheet Merger</h1>
+    <p>Upload · Configure · Merge · Export</p>
+  </div>
+  <div class="step-pills">
+    <div class="pill active" id="pill1">1 Upload</div>
+    <div class="pill" id="pill2">2 Configure</div>
+    <div class="pill" id="pill3">3 Results</div>
+  </div>
+</header>
+
+<div class="app">
+
+  <!-- ══ SIDEBAR ══ -->
+  <aside class="sidebar">
+
+    <!-- Upload -->
+    <div class="card">
+      <div class="card-title"><em class="badge">1</em>Load File</div>
+      <div class="upload-zone" id="dropZone">
+        <input type="file" id="fileInput" accept=".xlsx,.xlsm,.xls,.csv">
+        <div class="upload-icon">📂</div>
+        <h3>Drop Excel file here</h3>
+        <p>or click to browse</p>
+        <p style="margin-top:6px;font-size:11px;color:var(--text3);">.xlsx · .xlsm · .xls · .csv</p>
+        <div id="fileBadge" class="file-badge hidden">✅ <span id="fileName"></span></div>
+      </div>
+    </div>
+
+    <!-- Merge Config -->
+    <div id="configPanel" class="hidden">
+      <div class="card">
+        <div class="card-title"><em class="badge">2</em>Merge Settings</div>
+
+        <div class="form-group">
+          <label>Sheet 1 (Left)</label>
+          <select id="sheet1Select"></select>
+        </div>
+
+        <div class="form-group">
+          <label>Sheet 2 (Right)</label>
+          <select id="sheet2Select"></select>
+        </div>
+
+        <hr class="divider">
+
+        <div class="form-group">
+          <label>Number of matching columns</label>
+          <div class="radio-group" id="numKeysGroup">
+            <input type="radio" name="numKeys" id="nk1" value="1" checked><label for="nk1">1</label>
+            <input type="radio" name="numKeys" id="nk2" value="2"><label for="nk2">2</label>
+            <input type="radio" name="numKeys" id="nk3" value="3"><label for="nk3">3</label>
+            <input type="radio" name="numKeys" id="nkC" value="custom"><label for="nkC">Custom</label>
+          </div>
+        </div>
+
+        <div id="customNumWrap" class="form-group hidden">
+          <label>Custom count</label>
+          <input type="number" id="customNum" min="1" max="10" value="1" style="background-image:none;padding-right:12px;">
+        </div>
+
+        <div id="keyColsContainer"></div>
+
+        <hr class="divider" style="margin:14px 0;">
+
+        <div class="form-group">
+          <label>Match type</label>
+          <div class="radio-group">
+            <input type="radio" name="matchType" id="mtExact" value="exact" checked><label for="mtExact">Exact</label>
+            <input type="radio" name="matchType" id="mtPartial" value="partial"><label for="mtPartial">Partial</label>
+            <input type="radio" name="matchType" id="mtFuzzy" value="fuzzy"><label for="mtFuzzy">Fuzzy</label>
+          </div>
+        </div>
+
+        <div id="fuzzyOpts" class="form-group hidden">
+          <label>Fuzzy threshold (<span id="threshVal">70</span>%)</label>
+          <input type="range" id="fuzzyThresh" min="50" max="99" value="70"
+            style="width:100%;accent-color:var(--accent);cursor:pointer;">
+        </div>
+
+        <div class="form-group">
+          <label>Duplicate handling</label>
+          <div class="radio-group">
+            <input type="radio" name="dupeHandling" id="dhAll" value="all" checked><label for="dhAll">Return all matches</label>
+            <input type="radio" name="dupeHandling" id="dhFirst" value="first"><label for="dhFirst">First match only</label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Merge mode</label>
+          <div class="radio-group">
+            <input type="radio" name="mergeMode" id="mmInner" value="inner" checked><label for="mmInner">Inner</label>
+            <input type="radio" name="mergeMode" id="mmLeft" value="left"><label for="mmLeft">Left</label>
+            <input type="radio" name="mergeMode" id="mmRight" value="right"><label for="mmRight">Right</label>
+            <input type="radio" name="mergeMode" id="mmFull" value="full"><label for="mmFull">Full outer</label>
+          </div>
+        </div>
+
+        <hr class="divider" style="margin:14px 0;">
+
+        <div class="form-group">
+          <label>Columns to include from Sheet 2</label>
+          <div class="col-multi-select" id="colReturnList">
+            <div style="color:var(--text3);font-size:12px;padding:8px;">Select Sheet 2 first</div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" id="runBtn" disabled>
+          <span id="runBtnTxt">▶ Run Merge</span>
+          <div id="runSpinner" class="spinner hidden"></div>
+        </button>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ══ MAIN PANEL ══ -->
+  <main class="main">
+
+    <!-- Welcome -->
+    <div id="welcomeMsg" class="empty">
+      <div class="icon">🧩</div>
+      <h3>Load an Excel file to get started</h3>
+      <p>Upload a .xlsx or .xlsm file — all sheets will be read automatically.</p>
+    </div>
+
+    <!-- Sheet Explorer -->
+    <div id="explorerSection" class="hidden">
+      <div class="card">
+        <div class="card-title">📋 Sheet Explorer</div>
+        <div class="sheet-tabs" id="sheetTabs"></div>
+        <div class="meta-row" id="sheetMeta"></div>
+        <div class="table-wrap">
+          <table id="previewTable"><thead></thead><tbody></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div id="resultsSection" class="hidden">
+
+      <div class="card">
+        <div class="card-title">📊 Match Statistics</div>
+        <div class="stats-grid" id="statsGrid"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🔍 Merged Preview <span style="color:var(--text3);font-size:11px;font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px;">(first 200 rows)</span></div>
+        <div id="mergeAlert" class="alert alert-info" style="margin-bottom:14px;"></div>
+        <div class="table-wrap" style="max-height:380px;">
+          <table id="mergeTable"><thead></thead><tbody></tbody></table>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <button class="btn btn-success" id="downloadBtn">⬇ Download Merged Excel</button>
+        <button class="btn btn-outline" id="resetBtn">↺ New Merge</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+/* ── State ── */
+let wb = null;
+let sheets = {};      // { sheetName: [[row...], ...] }
+let headers = {};     // { sheetName: [col...] }
+let rowCounts = {};
+let mergedData = [];
+let mergedHeaders = [];
+let activeExplorer = null;
+
+/* ── Helpers ── */
+const $ = id => document.getElementById(id);
+const qs = s => document.querySelector(s);
+
+function setPill(n) {
+  ['pill1','pill2','pill3'].forEach((id,i) => {
+    const el = $(id);
+    el.className = 'pill' + (i+1 < n ? ' done' : i+1 === n ? ' active' : '');
+  });
+}
+
+/* ── File Drop / Upload ── */
+const dropZone = $('dropZone');
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('drag');
+  const f = e.dataTransfer.files[0];
+  if (f) readFile(f);
+});
+$('fileInput').addEventListener('change', e => { if (e.target.files[0]) readFile(e.target.files[0]); });
+
+function readFile(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = new Uint8Array(e.target.result);
+      wb = XLSX.read(data, { type: 'array', cellDates: true });
+      parseWorkbook();
+      $('fileName').textContent = file.name;
+      $('fileBadge').classList.remove('hidden');
+      $('configPanel').classList.remove('hidden');
+      $('welcomeMsg').classList.add('hidden');
+      $('explorerSection').classList.remove('hidden');
+      $('resultsSection').classList.add('hidden');
+      populateSheetDropdowns();
+      renderExplorer(wb.SheetNames[0]);
+      setPill(2);
+    } catch(err) {
+      alert('Could not read file: ' + err.message);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function parseWorkbook() {
+  sheets = {}; headers = {}; rowCounts = {};
+  wb.SheetNames.forEach(name => {
+    const ws = wb.Sheets[name];
+    const raw = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+    if (!raw.length) { sheets[name] = []; headers[name] = []; rowCounts[name] = 0; return; }
+    const head = raw[0].map(String);
+    const rows = raw.slice(1);
+    headers[name] = head;
+    sheets[name] = rows.map(r => {
+      const obj = {};
+      head.forEach((h,i) => obj[h] = r[i] !== undefined ? r[i] : '');
+      return obj;
+    });
+    rowCounts[name] = rows.length;
+  });
+}
+
+/* ── Explorer ── */
+function renderExplorer(name) {
+  activeExplorer = name;
+
+  // Tabs
+  const tabsEl = $('sheetTabs');
+  tabsEl.innerHTML = '';
+  wb.SheetNames.forEach(n => {
+    const t = document.createElement('div');
+    t.className = 'sheet-tab' + (n === name ? ' active' : '');
+    t.textContent = n;
+    t.onclick = () => renderExplorer(n);
+    tabsEl.appendChild(t);
+  });
+
+  // Meta
+  const head = headers[name] || [];
+  const rc   = rowCounts[name] || 0;
+  $('sheetMeta').innerHTML = `
+    <div class="meta-chip">Rows: <span>${rc.toLocaleString()}</span></div>
+    <div class="meta-chip">Columns: <span>${head.length}</span></div>
+    <div class="meta-chip">Cols: <span>${head.slice(0,4).join(', ')}${head.length>4?' …':''}</span></div>
+  `;
+
+  // Table
+  const tbl   = $('previewTable');
+  const thead = tbl.querySelector('thead');
+  const tbody = tbl.querySelector('tbody');
+  thead.innerHTML = '<tr>' + head.map(h => `<th>${esc(h)}</th>`).join('') + '</tr>';
+  const rows = sheets[name] || [];
+  tbody.innerHTML = rows.slice(0,10).map(r =>
+    '<tr>' + head.map(h => `<td>${esc(String(r[h] ?? ''))}</td>`).join('') + '</tr>'
+  ).join('');
+}
+
+/* ── Config Panel ── */
+function populateSheetDropdowns() {
+  const s1 = $('sheet1Select');
+  const s2 = $('sheet2Select');
+  const opts = wb.SheetNames.map(n => `<option value="${n}">${n}</option>`).join('');
+  s1.innerHTML = opts;
+  s2.innerHTML = opts;
+  if (wb.SheetNames.length > 1) s2.value = wb.SheetNames[1];
+  s1.onchange = s2.onchange = () => { updateKeyColDropdowns(); updateColReturnList(); };
+  updateKeyColDropdowns();
+  updateColReturnList();
+  $('runBtn').disabled = false;
+}
+
+function getNumKeys() {
+  const sel = document.querySelector('input[name="numKeys"]:checked')?.value;
+  if (sel === 'custom') return parseInt($('customNum').value) || 1;
+  return parseInt(sel) || 1;
+}
+
+document.querySelectorAll('input[name="numKeys"]').forEach(r => r.addEventListener('change', () => {
+  $('customNumWrap').classList.toggle('hidden', r.value !== 'custom');
+  updateKeyColDropdowns();
+}));
+$('customNum').addEventListener('input', updateKeyColDropdowns);
+
+function updateKeyColDropdowns() {
+  const n  = getNumKeys();
+  const h1 = headers[$('sheet1Select').value] || [];
+  const h2 = headers[$('sheet2Select').value] || [];
+  const container = $('keyColsContainer');
+  container.innerHTML = n > 0 ? '<div class="card-title" style="margin-bottom:10px;margin-top:8px;">🔑 Key Columns</div>' : '';
+  for (let i = 0; i < n; i++) {
+    const opts1 = h1.map(c => `<option>${esc(c)}</option>`).join('');
+    const opts2 = h2.map(c => `<option>${esc(c)}</option>`).join('');
+    container.innerHTML += `
+      <div class="key-col-row">
+        <div class="key-num">${i+1}</div>
+        <select id="key1_${i}">${opts1}</select>
+        <div class="arrow">↔</div>
+        <select id="key2_${i}">${opts2}</select>
+      </div>`;
+  }
+}
+
+function updateColReturnList() {
+  const h2 = headers[$('sheet2Select').value] || [];
+  const el = $('colReturnList');
+  if (!h2.length) { el.innerHTML = '<div style="color:var(--text3);font-size:12px;padding:8px;">No columns found</div>'; return; }
+  el.innerHTML = h2.map((c,i) => `
+    <label class="col-multi-item">
+      <input type="checkbox" value="${esc(c)}" checked>
+      <span>${esc(c)}</span>
+    </label>`).join('');
+}
+
+/* ── Match type / fuzzy ── */
+document.querySelectorAll('input[name="matchType"]').forEach(r => r.addEventListener('change', () => {
+  $('fuzzyOpts').classList.toggle('hidden', r.value !== 'fuzzy');
+}));
+$('fuzzyThresh').addEventListener('input', function(){ $('threshVal').textContent = this.value; });
+
+/* ── Fuzzy helpers ── */
+function levenshtein(a, b) {
+  a = String(a).toLowerCase().trim(); b = String(b).toLowerCase().trim();
+  const m = a.length, n = b.length;
+  const dp = Array.from({length:m+1}, (_,i) => Array.from({length:n+1}, (_,j) => i===0?j:j===0?i:0));
+  for (let i=1;i<=m;i++) for (let j=1;j<=n;j++)
+    dp[i][j] = a[i-1]===b[j-1] ? dp[i-1][j-1] : 1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);
+  return dp[m][n];
+}
+function similarity(a, b) {
+  a = String(a).toLowerCase().trim(); b = String(b).toLowerCase().trim();
+  if (!a && !b) return 100;
+  const maxLen = Math.max(a.length, b.length);
+  if (!maxLen) return 100;
+  return Math.round((1 - levenshtein(a,b)/maxLen)*100);
+}
+
+/* ── RUN MERGE ── */
+$('runBtn').addEventListener('click', runMerge);
+
+async function runMerge() {
+  const s1Name = $('sheet1Select').value;
+  const s2Name = $('sheet2Select').value;
+  const matchType = document.querySelector('input[name="matchType"]:checked').value;
+  const dupeMode  = document.querySelector('input[name="dupeHandling"]:checked').value;
+  const mergeMode = document.querySelector('input[name="mergeMode"]:checked').value;
+  const fuzzyThresh = parseInt($('fuzzyThresh').value);
+  const numKeys = getNumKeys();
+
+  const keyPairs = [];
+  for (let i=0;i<numKeys;i++) {
+    const k1 = document.getElementById(`key1_${i}`)?.value;
+    const k2 = document.getElementById(`key2_${i}`)?.value;
+    if (k1 && k2) keyPairs.push([k1,k2]);
+  }
+  if (!keyPairs.length) { alert('Please define at least one matching column pair.'); return; }
+
+  const returnCols = [...document.querySelectorAll('#colReturnList input:checked')].map(c=>c.value);
+
+  // Loading state
+  $('runBtnTxt').textContent = 'Merging…';
+  $('runSpinner').classList.remove('hidden');
+  $('runBtn').disabled = true;
+
+  await new Promise(r => setTimeout(r,30));
+
+  const rows1 = sheets[s1Name] || [];
+  const rows2 = sheets[s2Name] || [];
+  const head1 = headers[s1Name] || [];
+  const head2 = returnCols.length ? returnCols : (headers[s2Name] || []);
+  const keySet2 = new Set(keyPairs.map(p=>p[1]));
+  const extraCols = head2.filter(c => !keySet2.has(c));
+
+  // Build index on sheet2
+  const idx2 = new Map();
+  rows2.forEach(r => {
+    const key = keyPairs.map(([,k2])=>String(r[k2]??'')).join('|||');
+    if (!idx2.has(key)) idx2.set(key, []);
+    idx2.get(key).push(r);
+  });
+
+  const merged = [];
+  let matched=0, unmatchedLeft=0, unmatchedRight=0, duplicates=0;
+  const matchedKeys2 = new Set();
+
+  rows1.forEach(r1 => {
+    const key1 = keyPairs.map(([k1])=>String(r1[k1]??'')).join('|||');
+    let found = [];
+
+    if (matchType === 'exact') {
+      found = idx2.get(key1) || [];
+    } else {
+      // partial / fuzzy — scan
+      idx2.forEach((rows, key2) => {
+        const parts1 = key1.split('|||');
+        const parts2 = key2.split('|||');
+        const ok = parts1.every((p1,i) => {
+          const p2 = parts2[i]||'';
+          if (matchType === 'partial')
+            return p2.toLowerCase().includes(p1.toLowerCase()) || p1.toLowerCase().includes(p2.toLowerCase());
+          return similarity(p1,p2) >= fuzzyThresh;
+        });
+        if (ok) found.push(...rows);
+      });
+    }
+
+    if (found.length > 0) {
+      matched++;
+      if (found.length > 1) duplicates++;
+      const toMerge = dupeMode === 'first' ? [found[0]] : found;
+      toMerge.forEach(r2 => {
+        const row = { ...r1 };
+        extraCols.forEach(c => { row[c + (keySet2.has(c)?'':'')] = r2[c] ?? ''; });
+        merged.push(row);
+        matchedKeys2.add(keyPairs.map(([,k2])=>String(r2[k2]??'')).join('|||'));
+      });
+    } else {
+      unmatchedLeft++;
+      if (['left','full'].includes(mergeMode)) {
+        const row = { ...r1 };
+        extraCols.forEach(c => row[c] = '');
+        merged.push(row);
+      }
+    }
+  });
+
+  if (['right','full'].includes(mergeMode)) {
+    idx2.forEach((rows, key) => {
+      rows.forEach(r2 => {
+        const k = keyPairs.map(([,k2])=>String(r2[k2]??'')).join('|||');
+        if (!matchedKeys2.has(k)) {
+          unmatchedRight++;
+          const row = {};
+          head1.forEach(c => row[c] = '');
+          extraCols.forEach(c => row[c] = r2[c] ?? '');
+          merged.push(row);
+        }
+      });
+    });
+  }
+
+  // Build final headers
+  const finalCols = [...head1, ...extraCols.filter(c => !head1.includes(c))];
+  mergedData = merged;
+  mergedHeaders = finalCols;
+
+  // Reset button
+  $('runBtnTxt').textContent = '▶ Run Merge';
+  $('runSpinner').classList.add('hidden');
+  $('runBtn').disabled = false;
+
+  renderResults({ matched, unmatchedLeft, unmatchedRight, duplicates, total: merged.length });
+  setPill(3);
+}
+
+function renderResults({ matched, unmatchedLeft, unmatchedRight, duplicates, total }) {
+  $('resultsSection').classList.remove('hidden');
+  $('resultsSection').scrollIntoView({ behavior: 'smooth' });
+
+  const matchRate = rows1Len() ? Math.round(matched/rows1Len()*100) : 0;
+
+  $('statsGrid').innerHTML = `
+    <div class="stat-card"><div class="stat-val green">${matched.toLocaleString()}</div><div class="stat-lbl">Matched rows</div></div>
+    <div class="stat-card"><div class="stat-val blue">${total.toLocaleString()}</div><div class="stat-lbl">Output rows</div></div>
+    <div class="stat-card"><div class="stat-val amber">${unmatchedLeft.toLocaleString()}</div><div class="stat-lbl">Unmatched (Left)</div></div>
+    <div class="stat-card"><div class="stat-val ${duplicates?'amber':'green'}">${duplicates.toLocaleString()}</div><div class="stat-lbl">Duplicate keys</div></div>
+  `;
+
+  $('mergeAlert').innerHTML = `✅ Merge complete — <strong>${total.toLocaleString()} rows</strong> · <strong>${matchRate}% match rate</strong> · ${mergedHeaders.length} columns`;
+
+  // Table
+  const tbl  = $('mergeTable');
+  const cols = mergedHeaders;
+  tbl.querySelector('thead').innerHTML = '<tr>' + cols.map(c=>`<th>${esc(c)}</th>`).join('') + '</tr>';
+  tbl.querySelector('tbody').innerHTML = mergedData.slice(0,200).map(r =>
+    '<tr>' + cols.map(c=>`<td>${esc(String(r[c]??''))}</td>`).join('') + '</tr>'
+  ).join('');
+}
+
+function rows1Len() {
+  return (sheets[$('sheet1Select')?.value] || []).length;
+}
+
+/* ── Download ── */
+$('downloadBtn').addEventListener('click', () => {
+  if (!mergedData.length) return;
+  const ws = XLSX.utils.json_to_sheet(mergedData, { header: mergedHeaders });
+  const newWb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(newWb, ws, 'Merged');
+  XLSX.writeFile(newWb, 'merged_output.xlsx');
+});
+
+/* ── Reset ── */
+$('resetBtn').addEventListener('click', () => {
+  $('resultsSection').classList.add('hidden');
+  setPill(2);
+});
+
+/* ── Utility ── */
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>

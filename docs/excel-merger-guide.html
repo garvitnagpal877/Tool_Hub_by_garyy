@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Excel Sheet Merger - User Guide</title>
+
+<style>
+
+:root{
+    --bg:#0f1117;
+    --surface:#1a1d27;
+    --surface2:#222536;
+    --border:#333650;
+    --accent:#6c63ff;
+    --accent2:#a78bfa;
+    --text:#e2e8f0;
+    --text2:#94a3b8;
+}
+
+body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:Segoe UI,sans-serif;
+    margin:0;
+    padding:30px;
+}
+
+.container{
+    max-width:1000px;
+    margin:auto;
+}
+
+.card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:25px;
+    margin-bottom:20px;
+}
+
+h1{
+    margin-bottom:10px;
+}
+
+h2{
+    color:var(--accent2);
+}
+
+p,li{
+    color:var(--text2);
+    line-height:1.7;
+}
+
+.btn{
+    display:inline-block;
+    background:var(--accent);
+    color:white;
+    text-decoration:none;
+    padding:12px 20px;
+    border-radius:8px;
+    margin-top:10px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+table th,
+table td{
+    border:1px solid var(--border);
+    padding:10px;
+}
+
+table th{
+    background:var(--surface2);
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Excel Sheet Merger</h1>
+
+<p>
+Merge two Excel sheets using Exact Match, Partial Match, Fuzzy Match and Multiple Key Columns.
+</p>
+
+<div class="card">
+
+<h2>Purpose</h2>
+
+<p>
+This tool helps combine data from two Excel sheets by matching one or more columns and returning selected information from another sheet.
+</p>
+
+</div>
+
+<div class="card">
+
+<h2>Key Features</h2>
+
+<ul>
+<li>Exact Matching</li>
+<li>Partial Matching</li>
+<li>Fuzzy Matching</li>
+<li>Multiple Key Columns</li>
+<li>Duplicate Handling</li>
+<li>Inner Join</li>
+<li>Left Join</li>
+<li>Right Join</li>
+<li>Full Outer Join</li>
+<li>Excel Export</li>
+</ul>
+
+</div>
+
+<div class="card">
+
+<h2>How To Use</h2>
+
+<ol>
+
+<li>
+Upload Excel Workbook (.xlsx, .xlsm, .xls or .csv)
+</li>
+
+<li>
+Select Sheet 1 (Source Sheet)
+</li>
+
+<li>
+Select Sheet 2 (Lookup Sheet)
+</li>
+
+<li>
+Choose matching columns between both sheets
+</li>
+
+<li>
+Select Match Type:
+<ul>
+<li>Exact</li>
+<li>Partial</li>
+<li>Fuzzy</li>
+</ul>
+</li>
+
+<li>
+Choose Duplicate Handling:
+<ul>
+<li>Return All Matches</li>
+<li>First Match Only</li>
+</ul>
+</li>
+
+<li>
+Choose Merge Mode:
+<ul>
+<li>Inner Join</li>
+<li>Left Join</li>
+<li>Right Join</li>
+<li>Full Outer Join</li>
+</ul>
+</li>
+
+<li>
+Select columns to return from Sheet 2
+</li>
+
+<li>
+Click Run Merge
+</li>
+
+<li>
+Review results and download output file
+</li>
+
+</ol>
+
+</div>
+
+<div class="card">
+
+<h2>Example</h2>
+
+<table>
+
+<tr>
+<th>Sheet 1</th>
+<th>Sheet 2</th>
+</tr>
+
+<tr>
+<td>Vendor Code</td>
+<td>Vendor Name</td>
+</tr>
+
+<tr>
+<td>V001</td>
+<td>ABC Pvt Ltd</td>
+</tr>
+
+<tr>
+<td>V002</td>
+<td>XYZ Pvt Ltd</td>
+</tr>
+
+</table>
+
+<br>
+
+<p>
+The tool will match Vendor Code and return Vendor Name from Sheet 2.
+</p>
+
+</div>
+
+<div class="card">
+
+<h2>Frequently Asked Questions</h2>
+
+<p><b>What is Exact Match?</b></p>
+<p>Values must be identical.</p>
+
+<p><b>What is Partial Match?</b></p>
+<p>One value can contain another value.</p>
+
+<p><b>What is Fuzzy Match?</b></p>
+<p>Similar text values are matched even with minor spelling differences.</p>
+
+<p><b>Can I use multiple columns?</b></p>
+<p>Yes. You can match using 1, 2, 3 or custom number of columns.</p>
+
+</div>
+
+<a href="../index.html" class="btn">
+← Back To Home
+</a>
+
+</div>
+
+</body>
+</html>
