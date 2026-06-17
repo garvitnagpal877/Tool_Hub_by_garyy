@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MSME Interest Calculator</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #222536;
+    --surface3: #2a2e42;
+    --border: #333650;
+    --accent: #6c63ff;
+    --accent2: #a78bfa;
+    --success: #34d399;
+    --warning: #fbbf24;
+    --danger: #f87171;
+    --text: #e2e8f0;
+    --text2: #94a3b8;
+    --text3: #64748b;
+    --font: 'Inter', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', 'Fira Code', monospace;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 28px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 8px;
+    display: grid; place-items: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  header h1 { font-size: 17px; font-weight: 700; letter-spacing: -.3px; }
+  header p  { font-size: 12px; color: var(--text2); }
+
+  .step-pills {
+    margin-left: auto;
+    display: flex;
+    gap: 6px;
+  }
+
+  .pill {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    background: var(--surface2);
+    color: var(--text3);
+    border: 1px solid var(--border);
+    transition: all .2s;
+  }
+  .pill.active  { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .pill.done    { background: var(--surface3); color: var(--success); border-color: var(--success); }
+
+  .app { display: flex; gap: 0; height: calc(100vh - 65px); overflow: hidden; }
+
+  .sidebar {
+    width: 340px;
+    flex-shrink: 0;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .main {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+
+  .card-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    color: var(--text2);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-title .badge {
+    width: 20px; height: 20px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: grid; place-items: center;
+    font-size: 11px;
+    color: #fff;
+    font-style: normal;
+  }
+
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 36px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all .2s;
+    background: var(--surface2);
+    position: relative;
+  }
+  .upload-zone:hover, .upload-zone.drag { border-color: var(--accent); background: rgba(108,99,255,.06); }
+  .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .upload-icon { font-size: 36px; margin-bottom: 10px; }
+  .upload-zone h3 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+  .upload-zone p  { font-size: 12px; color: var(--text2); }
+  .file-badge {
+    margin-top: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    background: rgba(52,211,153,.1);
+    color: var(--success);
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid rgba(52,211,153,.3);
+  }
+
+  .sheet-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+  .sheet-tab {
+    padding: 5px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text2);
+    transition: all .15s;
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+  .sheet-tab:hover   { border-color: var(--accent2); color: var(--accent2); }
+  .sheet-tab.active  { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  .table-wrap { overflow: auto; border-radius: var(--radius-sm); border: 1px solid var(--border); max-height: 260px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  thead th {
+    background: var(--surface3);
+    padding: 9px 12px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: var(--text2);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+  tbody td {
+    padding: 7px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    white-space: nowrap;
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  tbody tr:hover td { background: var(--surface2); }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr.total-row td {
+    font-weight: 700;
+    background: rgba(220, 230, 241, .12);
+    color: var(--accent2);
+  }
+
+  .meta-row {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .meta-chip {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    background: var(--surface3);
+    color: var(--text2);
+    font-family: var(--mono);
+  }
+  .meta-chip span { color: var(--accent2); }
+
+  .form-group { margin-bottom: 14px; }
+  .form-group:last-child { margin-bottom: 0; }
+
+  label { display: block; font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 6px; }
+
+  select, input[type="number"], input[type="date"], input[type="text"] {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: var(--radius-sm);
+    padding: 9px 12px;
+    font-size: 13px;
+    font-family: var(--font);
+    outline: none;
+    transition: border-color .15s;
+  }
+  select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2364748b'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+  }
+  select:focus, input:focus { border-color: var(--accent); }
+  select option { background: var(--surface2); }
+
+  .radio-group { display: flex; flex-wrap: wrap; gap: 6px; }
+  .radio-group input { display: none; }
+  .radio-group label {
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text2);
+    font-size: 12px;
+    font-weight: 600;
+    margin: 0;
+    transition: all .15s;
+    user-select: none;
+  }
+  .radio-group input:checked + label {
+    background: rgba(108,99,255,.18);
+    border-color: var(--accent);
+    color: var(--accent2);
+  }
+  .radio-group label:hover { border-color: var(--accent2); }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    transition: all .15s;
+    font-family: var(--font);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    width: 100%;
+    justify-content: center;
+    font-size: 14px;
+    padding: 13px;
+    border-radius: var(--radius);
+  }
+  .btn-primary:hover:not(:disabled) { background: #5a52e0; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(108,99,255,.4); }
+  .btn-primary:disabled { opacity: .4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-outline:hover { border-color: var(--accent2); color: var(--accent2); }
+
+  .btn-success {
+    background: var(--success);
+    color: #000;
+  }
+  .btn-success:hover { background: #2cba87; }
+
+  .btn-sm {
+    padding: 4px 10px;
+    font-size: 11px;
+  }
+
+  .btn-danger {
+    background: transparent;
+    color: var(--danger);
+    border: 1px solid rgba(248,113,113,.4);
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+  .btn-danger:hover { background: rgba(248,113,113,.1); }
+
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .stat-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    text-align: center;
+  }
+  .stat-val { font-size: 28px; font-weight: 800; font-family: var(--mono); line-height: 1; margin-bottom: 6px; }
+  .stat-lbl { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .6px; color: var(--text2); }
+  .stat-val.green { color: var(--success); }
+  .stat-val.amber { color: var(--warning); }
+  .stat-val.red   { color: var(--danger); }
+  .stat-val.blue  { color: var(--accent2); }
+
+  .alert {
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .alert-info    { background: rgba(108,99,255,.12); border: 1px solid rgba(108,99,255,.3); color: var(--accent2); }
+  .alert-success { background: rgba(52,211,153,.1);  border: 1px solid rgba(52,211,153,.3); color: var(--success); }
+  .alert-warning { background: rgba(251,191,36,.1);  border: 1px solid rgba(251,191,36,.3); color: var(--warning); }
+
+  .empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text3);
+  }
+  .empty .icon { font-size: 48px; margin-bottom: 12px; }
+  .empty h3 { font-size: 16px; font-weight: 700; color: var(--text2); margin-bottom: 6px; }
+  .empty p  { font-size: 13px; }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner {
+    width: 18px; height: 18px;
+    border: 2px solid rgba(255,255,255,.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+  }
+
+  .rate-table-wrap {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    margin-bottom: 10px;
+  }
+  .rate-table-wrap table { font-size: 11px; }
+  .rate-table-wrap input[type="date"],
+  .rate-table-wrap input[type="number"] {
+    padding: 6px 8px;
+    font-size: 12px;
+    background-image: none;
+    padding-right: 8px;
+  }
+  .rate-readonly {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text);
+  }
+
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text3); }
+
+  .hidden { display: none !important; }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 4px 0; }
+
+  @media (max-width: 900px) {
+    .app { flex-direction: column; height: auto; }
+    .sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border); }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">₹</div>
+  <div>
+    <h1>MSME Interest Calculator</h1>
+    <p>Upload · Configure · Calculate · Export</p>
+  </div>
+  <div class="step-pills">
+    <div class="pill active" id="pill1">1 Upload</div>
+    <div class="pill" id="pill2">2 Configure</div>
+    <div class="pill" id="pill3">3 Results</div>
+  </div>
+</header>
+
+<div class="app">
+
+  <aside class="sidebar">
+
+    <div class="card">
+      <div class="card-title"><em class="badge">1</em>Load File</div>
+      <div class="upload-zone" id="dropZone">
+        <input type="file" id="fileInput" accept=".xlsx,.xlsm,.xls,.csv">
+        <div class="upload-icon">📂</div>
+        <h3>Drop Excel file here</h3>
+        <p>or click to browse</p>
+        <p style="margin-top:6px;font-size:11px;color:var(--text3);">.xlsx · .xlsm · .xls · .csv</p>
+        <div id="fileBadge" class="file-badge hidden">✅ <span id="fileName"></span></div>
+      </div>
+    </div>
+
+    <div id="configPanel" class="hidden">
+      <div class="card">
+        <div class="card-title"><em class="badge">2</em>Data Settings</div>
+
+        <div class="form-group">
+          <label>Source Sheet</label>
+          <select id="sheetSelect"></select>
+        </div>
+
+        <div class="form-group">
+          <label>Starting Row Number</label>
+          <input type="number" id="startRow" min="1" value="2" style="background-image:none;padding-right:12px;">
+        </div>
+
+        <hr class="divider" style="margin:14px 0;">
+
+        <div class="form-group">
+          <label>Invoice No Column</label>
+          <select id="colInvNo"></select>
+        </div>
+        <div class="form-group">
+          <label>Vendor Name Column</label>
+          <select id="colVendor"></select>
+        </div>
+        <div class="form-group">
+          <label>Invoice Amount Column</label>
+          <select id="colInvAmt"></select>
+        </div>
+        <div class="form-group">
+          <label>GRN Date Column</label>
+          <select id="colGRN"></select>
+        </div>
+        <div class="form-group">
+          <label>Payment Terms Column</label>
+          <select id="colPT"></select>
+        </div>
+        <div class="form-group">
+          <label>Payment Date Column</label>
+          <select id="colPay"></select>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><em class="badge">3</em>RBI Bank Rate</div>
+
+        <div class="alert alert-info" style="margin-bottom:12px;">
+          MSME rate = RBI rate × 3. Review rates below before running.
+        </div>
+
+        <div class="form-group">
+          <label>Do you want to change bank rates?</label>
+          <div class="radio-group">
+            <input type="radio" name="rateChange" id="rateNo" value="no" checked>
+            <label for="rateNo">No — use existing</label>
+            <input type="radio" name="rateChange" id="rateYes" value="yes">
+            <label for="rateYes">Yes — edit rates</label>
+          </div>
+        </div>
+
+        <div class="rate-table-wrap">
+          <table id="rateTable">
+            <thead>
+              <tr>
+                <th>Effective From</th>
+                <th>Rate (%)</th>
+                <th id="rateActionHead" class="hidden"></th>
+              </tr>
+            </thead>
+            <tbody id="rateTableBody"></tbody>
+          </table>
+        </div>
+
+        <button type="button" class="btn btn-outline btn-sm hidden" id="addRateRow" style="width:100%;margin-bottom:14px;">
+          + Add Rate Row
+        </button>
+
+        <button class="btn btn-primary" id="runBtn" disabled>
+          <span id="runBtnTxt">▶ Generate MSME Working</span>
+          <div id="runSpinner" class="spinner hidden"></div>
+        </button>
+      </div>
+    </div>
+
+  </aside>
+
+  <main class="main">
+
+    <div id="welcomeMsg" class="empty">
+      <div class="icon">📊</div>
+      <h3>Load an Excel file to get started</h3>
+      <p>Upload invoice data — the tool will generate detailed MSME interest working with monthly compounding.</p>
+    </div>
+
+    <div id="explorerSection" class="hidden">
+      <div class="card">
+        <div class="card-title">📋 Sheet Explorer</div>
+        <div class="sheet-tabs" id="sheetTabs"></div>
+        <div class="meta-row" id="sheetMeta"></div>
+        <div class="table-wrap">
+          <table id="previewTable"><thead></thead><tbody></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <div id="resultsSection" class="hidden">
+
+      <div class="card">
+        <div class="card-title">📊 Calculation Summary</div>
+        <div class="stats-grid" id="statsGrid"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📑 MSME Working Preview <span style="color:var(--text3);font-size:11px;font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px;">(first 200 rows)</span></div>
+        <div id="resultAlert" class="alert alert-success" style="margin-bottom:14px;"></div>
+        <div class="table-wrap" style="max-height:420px;">
+          <table id="resultTable"><thead></thead><tbody></tbody></table>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <button class="btn btn-success" id="downloadBtn">⬇ Download MSME Working Excel</button>
+        <button class="btn btn-outline" id="resetBtn">↺ New Calculation</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+let wb = null;
+let sheets = {};
+let headers = {};
+let rowCounts = {};
+let rawRows = {};
+let activeExplorer = null;
+let outputData = [];
+
+const OUTPUT_HEADERS = [
+  'Invoice No', 'Vendor Name', 'GRN Date', 'Due Date', 'Payment Date',
+  'Period Start', 'Period End', 'Opening Principal', 'RBI Rate', 'MSME Rate',
+  'Days', 'Formula', 'Interest', 'Closing Principal'
+];
+
+const DEFAULT_BANK_RATES = [
+  { date: new Date(2025, 11, 5), rate: 0.055 },
+  { date: new Date(2025, 5, 6), rate: 0.0575 },
+  { date: new Date(2025, 3, 9), rate: 0.0625 },
+  { date: new Date(2025, 1, 7), rate: 0.065 },
+  { date: new Date(1900, 0, 1), rate: 0.0675 }
+];
+
+let bankRates = DEFAULT_BANK_RATES.map(r => ({ date: new Date(r.date), rate: r.rate }));
+
+const $ = id => document.getElementById(id);
+
+function setPill(n) {
+  ['pill1','pill2','pill3'].forEach((id, i) => {
+    const el = $(id);
+    el.className = 'pill' + (i + 1 < n ? ' done' : i + 1 === n ? ' active' : '');
+  });
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function stripTime(d) {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+}
+
+function addDays(d, n) {
+  const x = new Date(d);
+  x.setDate(x.getDate() + n);
+  return stripTime(x);
+}
+
+function diffDays(a, b) {
+  return Math.round((stripTime(b) - stripTime(a)) / 86400000);
+}
+
+function endOfMonth(d) {
+  return new Date(d.getFullYear(), d.getMonth() + 1, 0);
+}
+
+function minDate(...dates) {
+  return new Date(Math.min(...dates.map(d => d.getTime())));
+}
+
+function round2(n) {
+  return Math.round(n * 100) / 100;
+}
+
+function formatDate(d) {
+  if (!d) return '';
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${String(d.getDate()).padStart(2,'0')}-${months[d.getMonth()]}-${d.getFullYear()}`;
+}
+
+function formatPct(rate) {
+  return (rate * 100).toFixed(2) + '%';
+}
+
+function toInputDate(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+function parseDate(val) {
+  if (val instanceof Date && !isNaN(val)) return stripTime(val);
+  if (typeof val === 'number' && val > 0) {
+    const epoch = new Date(Date.UTC(1899, 11, 30));
+    return stripTime(new Date(epoch.getTime() + val * 86400000));
+  }
+  if (typeof val === 'string' && val.trim()) {
+    const d = new Date(val);
+    if (!isNaN(d)) return stripTime(d);
+  }
+  return null;
+}
+
+function sortBankRates() {
+  bankRates.sort((a, b) => b.date - a.date);
+}
+
+function getBankRateForDate(d) {
+  const t = stripTime(d).getTime();
+  for (const r of bankRates) {
+    if (t >= stripTime(r.date).getTime()) return r.rate;
+  }
+  return bankRates[bankRates.length - 1].rate;
+}
+
+function getNextRateChangeDate(d) {
+  const t = stripTime(d).getTime();
+  const changes = bankRates
+    .filter(r => stripTime(r.date).getTime() > t)
+    .map(r => r.date)
+    .sort((a, b) => a - b);
+  return changes[0] || new Date(2099, 11, 31);
+}
+
+function isRateEditMode() {
+  return document.querySelector('input[name="rateChange"]:checked')?.value === 'yes';
+}
+
+function renderRateTable() {
+  const editable = isRateEditMode();
+  const tbody = $('rateTableBody');
+  $('rateActionHead').classList.toggle('hidden', !editable);
+  $('addRateRow').classList.toggle('hidden', !editable);
+
+  tbody.innerHTML = bankRates.map((r, i) => {
+    if (editable) {
+      return `<tr>
+        <td><input type="date" class="rate-date" data-idx="${i}" value="${toInputDate(r.date)}"></td>
+        <td><input type="number" class="rate-pct" data-idx="${i}" value="${(r.rate * 100).toFixed(4)}" step="0.0001" min="0" max="100" style="width:90px;"></td>
+        <td>${bankRates.length > 1 ? `<button type="button" class="btn btn-danger rate-del" data-idx="${i}">✕</button>` : ''}</td>
+      </tr>`;
+    }
+    return `<tr>
+      <td><span class="rate-readonly">${formatDate(r.date)}</span></td>
+      <td><span class="rate-readonly">${(r.rate * 100).toFixed(2)}%</span></td>
+    </tr>`;
+  }).join('');
+
+  if (editable) {
+    tbody.querySelectorAll('.rate-del').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.idx);
+        if (bankRates.length > 1) {
+          bankRates.splice(idx, 1);
+          renderRateTable();
+        }
+      });
+    });
+  }
+}
+
+function readRatesFromTable() {
+  if (!isRateEditMode()) return true;
+
+  const dates = [...document.querySelectorAll('.rate-date')];
+  const pcts = [...document.querySelectorAll('.rate-pct')];
+  const newRates = [];
+
+  for (let i = 0; i < dates.length; i++) {
+    const dateStr = dates[i].value;
+    const pct = parseFloat(pcts[i].value);
+    if (!dateStr) { alert('Please enter an effective date for all rate rows.'); return false; }
+    if (isNaN(pct) || pct < 0) { alert('Please enter a valid rate percentage.'); return false; }
+    const parts = dateStr.split('-');
+    const d = new Date(+parts[0], +parts[1] - 1, +parts[2]);
+    newRates.push({ date: d, rate: pct / 100 });
+  }
+
+  const seen = new Set();
+  for (const r of newRates) {
+    const key = toInputDate(r.date);
+    if (seen.has(key)) { alert('Duplicate effective dates found. Each rate must have a unique date.'); return false; }
+    seen.add(key);
+  }
+
+  bankRates = newRates;
+  sortBankRates();
+  return true;
+}
+
+document.querySelectorAll('input[name="rateChange"]').forEach(r => {
+  r.addEventListener('change', renderRateTable);
+});
+
+$('addRateRow').addEventListener('click', () => {
+  if (!isRateEditMode()) return;
+  readRatesFromTable();
+  const today = stripTime(new Date());
+  bankRates.unshift({ date: today, rate: bankRates[0]?.rate || 0.055 });
+  sortBankRates();
+  renderRateTable();
+});
+
+renderRateTable();
+
+const dropZone = $('dropZone');
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('drag');
+  const f = e.dataTransfer.files[0];
+  if (f) readFile(f);
+});
+$('fileInput').addEventListener('change', e => { if (e.target.files[0]) readFile(e.target.files[0]); });
+
+function readFile(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = new Uint8Array(e.target.result);
+      wb = XLSX.read(data, { type: 'array', cellDates: true });
+      parseWorkbook();
+      $('fileName').textContent = file.name;
+      $('fileBadge').classList.remove('hidden');
+      $('configPanel').classList.remove('hidden');
+      $('welcomeMsg').classList.add('hidden');
+      $('explorerSection').classList.remove('hidden');
+      $('resultsSection').classList.add('hidden');
+      populateConfig();
+      renderExplorer(wb.SheetNames[0]);
+      setPill(2);
+    } catch (err) {
+      alert('Could not read file: ' + err.message);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function parseWorkbook() {
+  sheets = {}; headers = {}; rowCounts = {}; rawRows = {};
+  wb.SheetNames.forEach(name => {
+    const ws = wb.Sheets[name];
+    const raw = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '', raw: false });
+    if (!raw.length) {
+      sheets[name] = []; headers[name] = []; rowCounts[name] = 0; rawRows[name] = [];
+      return;
+    }
+    const head = raw[0].map((h, i) => h !== '' && h !== null && h !== undefined ? String(h) : `Column ${i + 1}`);
+    const rows = raw.slice(1);
+    headers[name] = head;
+    rawRows[name] = rows;
+    sheets[name] = rows.map(r => {
+      const obj = {};
+      head.forEach((h, i) => obj[h] = r[i] !== undefined ? r[i] : '');
+      return obj;
+    });
+    rowCounts[name] = rows.length;
+  });
+}
+
+function renderExplorer(name) {
+  activeExplorer = name;
+
+  const tabsEl = $('sheetTabs');
+  tabsEl.innerHTML = '';
+  wb.SheetNames.forEach(n => {
+    const t = document.createElement('div');
+    t.className = 'sheet-tab' + (n === name ? ' active' : '');
+    t.textContent = n;
+    t.onclick = () => { renderExplorer(n); $('sheetSelect').value = n; updateColumnDropdowns(); };
+    tabsEl.appendChild(t);
+  });
+
+  const head = headers[name] || [];
+  const rc = rowCounts[name] || 0;
+  $('sheetMeta').innerHTML = `
+    <div class="meta-chip">Rows: <span>${rc.toLocaleString()}</span></div>
+    <div class="meta-chip">Columns: <span>${head.length}</span></div>
+    <div class="meta-chip">Cols: <span>${head.slice(0, 4).join(', ')}${head.length > 4 ? ' …' : ''}</span></div>
+  `;
+
+  const tbl = $('previewTable');
+  tbl.querySelector('thead').innerHTML = '<tr>' + head.map(h => `<th>${esc(h)}</th>`).join('') + '</tr>';
+  const rows = sheets[name] || [];
+  tbl.querySelector('tbody').innerHTML = rows.slice(0, 10).map(r =>
+    '<tr>' + head.map(h => `<td>${esc(String(r[h] ?? ''))}</td>`).join('') + '</tr>'
+  ).join('');
+}
+
+const COL_MAP = [
+  { id: 'colInvNo', keys: ['invoice', 'inv no', 'inv_no', 'bill'] },
+  { id: 'colVendor', keys: ['vendor', 'supplier', 'party', 'name'] },
+  { id: 'colInvAmt', keys: ['amount', 'invoice amount', 'inv amt', 'value', 'principal'] },
+  { id: 'colGRN', keys: ['grn', 'grn date', 'receipt', 'goods receipt'] },
+  { id: 'colPT', keys: ['payment term', 'terms', 'credit', 'pt', 'days'] },
+  { id: 'colPay', keys: ['payment date', 'pay date', 'paid', 'payment'] }
+];
+
+function guessColumn(head, keys) {
+  const lower = head.map(h => h.toLowerCase());
+  for (const k of keys) {
+    const idx = lower.findIndex(h => h.includes(k));
+    if (idx >= 0) return head[idx];
+  }
+  return head[0] || '';
+}
+
+function populateConfig() {
+  const sel = $('sheetSelect');
+  sel.innerHTML = wb.SheetNames.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('');
+  sel.onchange = () => {
+    renderExplorer(sel.value);
+    updateColumnDropdowns();
+  };
+
+  updateColumnDropdowns();
+  $('runBtn').disabled = false;
+}
+
+function updateColumnDropdowns() {
+  const head = headers[$('sheetSelect').value] || [];
+  const opts = head.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
+
+  COL_MAP.forEach(({ id, keys }) => {
+    const el = $(id);
+    el.innerHTML = opts;
+    if (head.length) el.value = guessColumn(head, keys);
+  });
+}
+
+function runMSME() {
+  if (!readRatesFromTable()) return null;
+
+  const sheetName = $('sheetSelect').value;
+  const rows = rawRows[sheetName] || [];
+  const head = headers[sheetName] || [];
+  const startRow = parseInt($('startRow').value) || 2;
+
+  const colInvNo = $('colInvNo').value;
+  const colVendor = $('colVendor').value;
+  const colInvAmt = $('colInvAmt').value;
+  const colGRN = $('colGRN').value;
+  const colPT = $('colPT').value;
+  const colPay = $('colPay').value;
+
+  const colIdx = {
+    invNo: head.indexOf(colInvNo),
+    vendor: head.indexOf(colVendor),
+    amt: head.indexOf(colInvAmt),
+    grn: head.indexOf(colGRN),
+    pt: head.indexOf(colPT),
+    pay: head.indexOf(colPay)
+  };
+
+  if (Object.values(colIdx).some(i => i < 0)) {
+    alert('Please map all required columns.');
+    return null;
+  }
+
+  const output = [];
+  let processed = 0, delayed = 0, skipped = 0, totalInterest = 0;
+
+  for (let i = startRow - 2; i < rows.length; i++) {
+    const row = rows[i];
+    const grnDate = parseDate(row[colIdx.grn]);
+    const paymentDate = parseDate(row[colIdx.pay]);
+
+    if (!grnDate || !paymentDate) {
+      skipped++;
+      continue;
+    }
+
+    processed++;
+
+    const invoiceNo = row[colIdx.invNo] ?? '';
+    const vendorName = row[colIdx.vendor] ?? '';
+    let newPrincipal = parseFloat(String(row[colIdx.amt]).replace(/,/g, '')) || 0;
+
+    let pTerms = parseInt(String(row[colIdx.pt]).replace(/,/g, ''), 10) || 0;
+    if (pTerms > 45) pTerms = 45;
+
+    const dueDate = addDays(grnDate, pTerms);
+
+    if (paymentDate <= dueDate) {
+      skipped++;
+      continue;
+    }
+
+    delayed++;
+    let d = new Date(dueDate);
+    let invoiceTotalInterest = 0;
+
+    while (d <= paymentDate) {
+      const rbiRate = getBankRateForDate(d);
+      const msmeRate = rbiRate * 3;
+      const nextChange = getNextRateChangeDate(d);
+
+      const periodEnd = minDate(
+        endOfMonth(d),
+        addDays(nextChange, -1),
+        paymentDate
+      );
+
+      const daysCnt = diffDays(d, periodEnd) + 1;
+      const interest = newPrincipal * msmeRate * (daysCnt / 365);
+
+      output.push({
+        'Invoice No': invoiceNo,
+        'Vendor Name': vendorName,
+        'GRN Date': grnDate,
+        'Due Date': dueDate,
+        'Payment Date': paymentDate,
+        'Period Start': new Date(d),
+        'Period End': periodEnd,
+        'Opening Principal': round2(newPrincipal),
+        'RBI Rate': rbiRate,
+        'MSME Rate': msmeRate,
+        'Days': daysCnt,
+        'Formula': `${round2(newPrincipal)} × ${(msmeRate * 100).toFixed(2)}% × ${daysCnt} ÷ 365`,
+        'Interest': round2(interest),
+        'Closing Principal': round2(newPrincipal + interest),
+        _isTotal: false
+      });
+
+      newPrincipal += interest;
+      invoiceTotalInterest += interest;
+      d = addDays(periodEnd, 1);
+    }
+
+    output.push({
+      'Invoice No': invoiceNo,
+      'Vendor Name': 'Interest Total',
+      'Interest': round2(invoiceTotalInterest),
+      _isTotal: true
+    });
+
+    totalInterest += invoiceTotalInterest;
+  }
+
+  return { output, processed, delayed, skipped, totalInterest };
+}
+
+$('runBtn').addEventListener('click', async () => {
+  $('runBtnTxt').textContent = 'Calculating…';
+  $('runSpinner').classList.remove('hidden');
+  $('runBtn').disabled = true;
+
+  await new Promise(r => setTimeout(r, 30));
+
+  const result = runMSME();
+
+  $('runBtnTxt').textContent = '▶ Generate MSME Working';
+  $('runSpinner').classList.add('hidden');
+  $('runBtn').disabled = false;
+
+  if (!result) return;
+
+  outputData = result.output;
+
+  if (!outputData.length) {
+    alert('No delayed payments found. All invoices were paid on or before the due date, or dates were invalid.');
+    return;
+  }
+
+  renderResults(result);
+  setPill(3);
+});
+
+function renderResults({ output, processed, delayed, skipped, totalInterest }) {
+  $('resultsSection').classList.remove('hidden');
+  $('resultsSection').scrollIntoView({ behavior: 'smooth' });
+
+  const detailRows = output.filter(r => !r._isTotal).length;
+  const totalRows = output.filter(r => r._isTotal).length;
+
+  $('statsGrid').innerHTML = `
+    <div class="stat-card"><div class="stat-val blue">${processed.toLocaleString()}</div><div class="stat-lbl">Rows Processed</div></div>
+    <div class="stat-card"><div class="stat-val amber">${delayed.toLocaleString()}</div><div class="stat-lbl">Delayed Invoices</div></div>
+    <div class="stat-card"><div class="stat-val green">₹${totalInterest.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div><div class="stat-lbl">Total Interest</div></div>
+    <div class="stat-card"><div class="stat-val blue">${output.length.toLocaleString()}</div><div class="stat-lbl">Output Rows</div></div>
+  `;
+
+  $('resultAlert').innerHTML = `✅ MSME Working generated — <strong>${detailRows.toLocaleString()} period rows</strong> · <strong>${totalRows.toLocaleString()} invoice totals</strong> · ${skipped.toLocaleString()} rows skipped (no delay / invalid dates)`;
+
+  const tbl = $('resultTable');
+  tbl.querySelector('thead').innerHTML = '<tr>' + OUTPUT_HEADERS.map(c => `<th>${esc(c)}</th>`).join('') + '</tr>';
+
+  const dateCols = new Set(['GRN Date', 'Due Date', 'Payment Date', 'Period Start', 'Period End']);
+  const pctCols = new Set(['RBI Rate', 'MSME Rate']);
+  const numCols = new Set(['Opening Principal', 'Interest', 'Closing Principal']);
+
+  tbl.querySelector('tbody').innerHTML = outputData.slice(0, 200).map(r => {
+    const cls = r._isTotal ? ' class="total-row"' : '';
+    const cells = OUTPUT_HEADERS.map(c => {
+      let val = r[c];
+      if (val === undefined || val === null || val === '') return '<td></td>';
+      if (dateCols.has(c) && val instanceof Date) val = formatDate(val);
+      else if (pctCols.has(c) && typeof val === 'number') val = formatPct(val);
+      else if (numCols.has(c) && typeof val === 'number') val = val.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      return `<td>${esc(String(val))}</td>`;
+    }).join('');
+    return `<tr${cls}>${cells}</tr>`;
+  }).join('');
+}
+
+$('downloadBtn').addEventListener('click', () => {
+  if (!outputData.length) return;
+
+  const exportRows = outputData.map(r => {
+    const row = {};
+    OUTPUT_HEADERS.forEach(c => { row[c] = r[c] ?? ''; });
+    return row;
+  });
+
+  const ws = XLSX.utils.json_to_sheet(exportRows, { header: OUTPUT_HEADERS });
+  const newWb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(newWb, ws, 'MSME Working');
+  XLSX.writeFile(newWb, 'MSME_Working.xlsx');
+});
+
+$('resetBtn').addEventListener('click', () => {
+  $('resultsSection').classList.add('hidden');
+  setPill(2);
+});
+</script>
+</body>
+</html>
