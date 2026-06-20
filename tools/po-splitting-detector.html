@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PO Splitting Detection Tool</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #222536;
+    --surface3: #2a2e42;
+    --border: #333650;
+    --accent: #6c63ff;
+    --accent2: #a78bfa;
+    --success: #34d399;
+    --warning: #fbbf24;
+    --danger: #f87171;
+    --text: #e2e8f0;
+    --text2: #94a3b8;
+    --text3: #64748b;
+    --font: 'Inter', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', 'Fira Code', monospace;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* ── Header ── */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 28px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 8px;
+    display: grid; place-items: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  header h1 { font-size: 17px; font-weight: 700; letter-spacing: -.3px; }
+  header p  { font-size: 12px; color: var(--text2); }
+
+  .step-pills {
+    margin-left: auto;
+    display: flex;
+    gap: 6px;
+  }
+
+  .pill {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    background: var(--surface2);
+    color: var(--text3);
+    border: 1px solid var(--border);
+    transition: all .2s;
+    white-space: nowrap;
+  }
+  .pill.active  { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .pill.done    { background: var(--surface3); color: var(--success); border-color: var(--success); }
+
+  /* ── Layout ── */
+  .app { display: flex; gap: 0; height: calc(100vh - 65px); overflow: hidden; }
+
+  .sidebar {
+    width: 360px;
+    flex-shrink: 0;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .main {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+
+  .card-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    color: var(--text2);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-title .badge {
+    width: 20px; height: 20px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: grid; place-items: center;
+    font-size: 11px;
+    color: #fff;
+    font-style: normal;
+    flex-shrink: 0;
+  }
+
+  /* ── Upload Zone ── */
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 36px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all .2s;
+    background: var(--surface2);
+    position: relative;
+  }
+  .upload-zone:hover, .upload-zone.drag { border-color: var(--accent); background: rgba(108,99,255,.06); }
+  .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .upload-icon { font-size: 36px; margin-bottom: 10px; }
+  .upload-zone h3 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+  .upload-zone p  { font-size: 12px; color: var(--text2); }
+  .upload-zone.small { padding: 20px 14px; }
+  .upload-zone.small .upload-icon { font-size: 24px; margin-bottom: 6px; }
+  .upload-zone.small h3 { font-size: 13px; }
+  .file-badge {
+    margin-top: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    background: rgba(52,211,153,.1);
+    color: var(--success);
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid rgba(52,211,153,.3);
+  }
+
+  /* ── Sheet Info ── */
+  .sheet-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+  .sheet-tab {
+    padding: 5px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text2);
+    transition: all .15s;
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+  .sheet-tab:hover   { border-color: var(--accent2); color: var(--accent2); }
+  .sheet-tab.active  { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  /* ── Data Table ── */
+  .table-wrap { overflow: auto; border-radius: var(--radius-sm); border: 1px solid var(--border); max-height: 260px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  thead th {
+    background: var(--surface3);
+    padding: 9px 12px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: var(--text2);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+  tbody td {
+    padding: 7px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    white-space: nowrap;
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  tbody tr:hover td { background: var(--surface2); }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr.case-row { cursor: pointer; }
+  tbody tr.detail-row td { background: var(--surface2); padding: 0; }
+  tbody tr.detail-row .detail-wrap { padding: 14px 16px; }
+  tbody tr.detail-row table thead th { background: var(--surface3); position: static; }
+
+  .meta-row {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .meta-chip {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    background: var(--surface3);
+    color: var(--text2);
+    font-family: var(--mono);
+  }
+  .meta-chip span { color: var(--accent2); }
+
+  /* ── Form Controls ── */
+  .form-group { margin-bottom: 14px; }
+  .form-group:last-child { margin-bottom: 0; }
+
+  label { display: block; font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 6px; }
+  .hint { font-size: 11px; color: var(--text3); margin-top: 5px; }
+
+  select, input[type="number"], input[type="text"] {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: var(--radius-sm);
+    padding: 9px 12px;
+    font-size: 13px;
+    font-family: var(--font);
+    outline: none;
+    transition: border-color .15s;
+  }
+  select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2364748b'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+  }
+  select:focus, input[type="number"]:focus, input[type="text"]:focus { border-color: var(--accent); }
+  select option { background: var(--surface2); }
+
+  /* Radio pills */
+  .radio-group { display: flex; flex-wrap: wrap; gap: 6px; }
+  .radio-group input { display: none; }
+  .radio-group label {
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text2);
+    font-size: 12px;
+    font-weight: 600;
+    margin: 0;
+    transition: all .15s;
+    user-select: none;
+  }
+  .radio-group input:checked + label {
+    background: rgba(108,99,255,.18);
+    border-color: var(--accent);
+    color: var(--accent2);
+  }
+  .radio-group label:hover { border-color: var(--accent2); }
+
+  /* ── Buttons ── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    transition: all .15s;
+    font-family: var(--font);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    width: 100%;
+    justify-content: center;
+    font-size: 14px;
+    padding: 13px;
+    border-radius: var(--radius);
+  }
+  .btn-primary:hover:not(:disabled) { background: #5a52e0; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(108,99,255,.4); }
+  .btn-primary:disabled { opacity: .4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-outline:hover { border-color: var(--accent2); color: var(--accent2); }
+
+  .btn-success {
+    background: var(--success);
+    color: #000;
+  }
+  .btn-success:hover { background: #2cba87; }
+
+  .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: var(--radius-sm); }
+  .btn-icon {
+    width: 28px; height: 28px;
+    display: grid; place-items: center;
+    padding: 0;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text2);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .btn-icon:hover { border-color: var(--danger); color: var(--danger); }
+
+  /* ── Stats Grid ── */
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .stat-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    text-align: center;
+  }
+  .stat-val { font-size: 28px; font-weight: 800; font-family: var(--mono); line-height: 1; margin-bottom: 6px; }
+  .stat-lbl { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .6px; color: var(--text2); }
+  .stat-val.green { color: var(--success); }
+  .stat-val.amber { color: var(--warning); }
+  .stat-val.red   { color: var(--danger); }
+  .stat-val.blue  { color: var(--accent2); }
+
+  /* ── Alerts ── */
+  .alert {
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .alert-info    { background: rgba(108,99,255,.12); border: 1px solid rgba(108,99,255,.3); color: var(--accent2); }
+  .alert-success { background: rgba(52,211,153,.1);  border: 1px solid rgba(52,211,153,.3); color: var(--success); }
+  .alert-warning { background: rgba(251,191,36,.1);  border: 1px solid rgba(251,191,36,.3); color: var(--warning); }
+
+  /* ── Empty state ── */
+  .empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text3);
+  }
+  .empty .icon { font-size: 48px; margin-bottom: 12px; }
+  .empty h3 { font-size: 16px; font-weight: 700; color: var(--text2); margin-bottom: 6px; }
+  .empty p  { font-size: 13px; }
+
+  /* ── Spinner ── */
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner {
+    width: 18px; height: 18px;
+    border: 2px solid rgba(255,255,255,.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+  }
+
+  /* ── Badges ── */
+  .badge-pill {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .badge-high   { background: rgba(248,113,113,.15); color: var(--danger);  border: 1px solid rgba(248,113,113,.35); }
+  .badge-medium { background: rgba(251,191,36,.15);  color: var(--warning); border: 1px solid rgba(251,191,36,.35); }
+  .badge-low    { background: rgba(52,211,153,.15);  color: var(--success); border: 1px solid rgba(52,211,153,.35); }
+  .badge-yes    { background: rgba(248,113,113,.15); color: var(--danger);  border: 1px solid rgba(248,113,113,.35); }
+  .badge-no     { background: rgba(148,163,184,.12); color: var(--text2);  border: 1px solid var(--border); }
+
+  /* ── Matrix table ── */
+  .matrix-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+  .matrix-table th { font-size: 10px; text-transform: uppercase; letter-spacing: .5px; color: var(--text3); text-align: left; padding: 4px 6px; }
+  .matrix-table td { padding: 4px 6px; }
+  .matrix-table input { padding: 7px 9px; font-size: 12px; }
+  .matrix-row-actions { display: flex; justify-content: center; }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text3); }
+
+  /* ── Hidden ── */
+  .hidden { display: none !important; }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 4px 0; }
+
+  .case-id-link { color: var(--accent2); font-weight: 700; cursor: pointer; }
+  .case-id-link:hover { text-decoration: underline; }
+
+  @media (max-width: 900px) {
+    .app { flex-direction: column; height: auto; }
+    .sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border); }
+    .stats-grid { grid-template-columns: repeat(2,1fr); }
+  }
+
+  /* ── Print / A4 export friendly ── */
+  @media print {
+    .sidebar, header, .btn { display: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🧾</div>
+  <div>
+    <h1>PO Splitting Detection Tool</h1>
+    <p>Upload · Map · Configure · Detect · Export</p>
+  </div>
+  <div class="step-pills">
+    <div class="pill active" id="pill1">1 Upload</div>
+    <div class="pill" id="pill2">2 Map Columns</div>
+    <div class="pill" id="pill3">3 Configure</div>
+    <div class="pill" id="pill4">4 Results</div>
+  </div>
+</header>
+
+<div class="app">
+
+  <!-- ══ SIDEBAR ══ -->
+  <aside class="sidebar">
+
+    <!-- Step 1: Upload -->
+    <div class="card">
+      <div class="card-title"><em class="badge">1</em>Load PO Data</div>
+      <div class="upload-zone" id="dropZone">
+        <input type="file" id="fileInput" accept=".xlsx,.xlsm,.xls,.csv">
+        <div class="upload-icon">📂</div>
+        <h3>Drop PO dump file here</h3>
+        <p>or click to browse</p>
+        <p style="margin-top:6px;font-size:11px;color:var(--text3);">.xlsx · .xlsm · .xls · .csv</p>
+        <div id="fileBadge" class="file-badge hidden">✅ <span id="fileName"></span></div>
+      </div>
+    </div>
+
+    <!-- Step 2: Column Mapping -->
+    <div id="mappingPanel" class="hidden">
+      <div class="card">
+        <div class="card-title"><em class="badge">2</em>Column Mapping</div>
+
+        <div class="form-group">
+          <label>Source Sheet</label>
+          <select id="sourceSheetSelect"></select>
+        </div>
+        <hr class="divider" style="margin-bottom:14px;">
+
+        <p class="hint" style="margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;font-weight:700;color:var(--text3);">Mandatory fields</p>
+        <div class="form-group"><label>PO Number *</label><select id="map_poNumber"></select></div>
+        <div class="form-group"><label>PO Date *</label><select id="map_poDate"></select></div>
+        <div class="form-group"><label>Supplier Name *</label><select id="map_supplier"></select></div>
+        <div class="form-group"><label>PO Value *</label><select id="map_poValue"></select></div>
+
+        <hr class="divider" style="margin:14px 0;">
+        <p class="hint" style="margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;font-weight:700;color:var(--text3);">Optional fields</p>
+        <div class="form-group"><label>Supplier Code</label><select id="map_supplierCode"></select></div>
+        <div class="form-group"><label>Department</label><select id="map_department"></select></div>
+        <div class="form-group"><label>Cost Center</label><select id="map_costCenter"></select></div>
+        <div class="form-group"><label>Requisition Number</label><select id="map_reqNumber"></select></div>
+        <div class="form-group"><label>Item Code</label><select id="map_itemCode"></select></div>
+      </div>
+    </div>
+
+    <!-- Step 3: Test Window + Approval Matrix -->
+    <div id="configPanel" class="hidden">
+      <div class="card">
+        <div class="card-title"><em class="badge">3</em>PO Splitting Test Window</div>
+        <div class="form-group">
+          <label>Rolling Window (± Days)</label>
+          <input type="number" id="windowDays" min="0" value="3">
+          <p class="hint">For each PO, all POs of the same supplier falling within PO Date − N days to PO Date + N days are checked for clustering. Overlapping windows are chained into a single case.</p>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:20px;">
+        <div class="card-title"><em class="badge">4</em>Approval Matrix</div>
+
+        <div class="form-group">
+          <div class="radio-group">
+            <input type="radio" name="matrixMode" id="mmManual" value="manual" checked><label for="mmManual">Manual Entry</label>
+            <input type="radio" name="matrixMode" id="mmUpload" value="upload"><label for="mmUpload">Upload Excel</label>
+          </div>
+        </div>
+
+        <div id="matrixManualWrap">
+          <table class="matrix-table" id="matrixTable">
+            <thead><tr><th>From (₹)</th><th>To (₹)</th><th>Approval Level</th><th></th></tr></thead>
+            <tbody id="matrixTbody"></tbody>
+          </table>
+          <button class="btn btn-outline btn-sm" id="addMatrixRowBtn" style="width:100%;justify-content:center;">+ Add Row</button>
+        </div>
+
+        <div id="matrixUploadWrap" class="hidden">
+          <div class="upload-zone small" id="matrixDropZone">
+            <input type="file" id="matrixFileInput" accept=".xlsx,.xlsm,.xls,.csv">
+            <div class="upload-icon">📑</div>
+            <h3>Drop matrix file</h3>
+            <p>Columns: From Amount, To Amount, Approval Level</p>
+            <div id="matrixFileBadge" class="file-badge hidden">✅ <span id="matrixFileName"></span></div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" id="runBtn" disabled style="margin-top:20px;">
+        <span id="runBtnTxt">▶ Generate PO Splitting Cases</span>
+        <div id="runSpinner" class="spinner hidden"></div>
+      </button>
+    </div>
+
+  </aside>
+
+  <!-- ══ MAIN PANEL ══ -->
+  <main class="main">
+
+    <!-- Welcome -->
+    <div id="welcomeMsg" class="empty">
+      <div class="icon">🧾</div>
+      <h3>Upload a PO dump to get started</h3>
+      <p>Upload a .xlsx, .xls, .xlsm or .csv file — all sheets will be read automatically.</p>
+    </div>
+
+    <!-- Sheet Explorer -->
+    <div id="explorerSection" class="hidden">
+      <div class="card">
+        <div class="card-title">📋 Sheet Explorer</div>
+        <div class="sheet-tabs" id="sheetTabs"></div>
+        <div class="meta-row" id="sheetMeta"></div>
+        <div class="table-wrap">
+          <table id="previewTable"><thead></thead><tbody></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div id="resultsSection" class="hidden">
+
+      <div class="card">
+        <div class="card-title">📊 Detection Summary</div>
+        <div class="stats-grid" id="statsGrid"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🚩 PO Splitting Cases <span style="color:var(--text3);font-size:11px;font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px;">(click a Case ID to view PO-level detail)</span></div>
+        <div id="casesAlert" class="alert alert-info" style="margin-bottom:14px;"></div>
+        <div class="table-wrap" style="max-height:520px;">
+          <table id="casesTable"><thead></thead><tbody></tbody></table>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <button class="btn btn-success" id="downloadBtn">⬇ Export to Excel</button>
+        <button class="btn btn-outline" id="resetBtn">↺ New Detection Run</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+/* ══════════════ STATE ══════════════ */
+let wb = null;
+let sheets = {};      // { sheetName: [rowObj...] }
+let headers = {};     // { sheetName: [col...] }
+let rowCounts = {};
+let activeExplorer = null;
+let selectedSourceSheet = null;
+
+let matrixWb = null;
+let approvalMatrix = []; // [{from, to, level}]
+
+let casesResult = []; // computed cases
+
+const OPTIONAL_FIELDS = ['supplierCode','department','costCenter','reqNumber','itemCode'];
+const MANDATORY_FIELDS = ['poNumber','poDate','supplier','poValue'];
+
+/* ══════════════ Helpers ══════════════ */
+const $ = id => document.getElementById(id);
+
+function setPill(n) {
+  ['pill1','pill2','pill3','pill4'].forEach((id,i) => {
+    const el = $(id);
+    el.className = 'pill' + (i+1 < n ? ' done' : i+1 === n ? ' active' : '');
+  });
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function fmtMoney(n) {
+  if (n === null || n === undefined || isNaN(n)) return '';
+  return '₹' + Number(n).toLocaleString('en-IN', { maximumFractionDigits: 0 });
+}
+
+function fmtDate(d) {
+  if (!d) return '';
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return String(d.getDate()).padStart(2,'0') + '-' + months[d.getMonth()] + '-' + d.getFullYear();
+}
+
+function parseDateVal(v) {
+  if (v === null || v === undefined || v === '') return null;
+  if (v instanceof Date && !isNaN(v)) return new Date(v.getFullYear(), v.getMonth(), v.getDate());
+  if (typeof v === 'number') {
+    // Excel serial date
+    const d = XLSX.SSF.parse_date_code(v);
+    if (d) return new Date(d.y, d.m - 1, d.d);
+  }
+  const s = String(v).trim();
+  // try dd-mmm-yyyy / dd/mm/yyyy / yyyy-mm-dd etc.
+  let d = new Date(s);
+  if (!isNaN(d)) return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const m1 = s.match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{2,4})$/);
+  if (m1) {
+    let [_, dd, mm, yy] = m1;
+    yy = yy.length === 2 ? '20'+yy : yy;
+    return new Date(parseInt(yy), parseInt(mm)-1, parseInt(dd));
+  }
+  return null;
+}
+
+function parseNum(v) {
+  if (v === null || v === undefined || v === '') return 0;
+  if (typeof v === 'number') return v;
+  const n = parseFloat(String(v).replace(/[₹,\s]/g,''));
+  return isNaN(n) ? 0 : n;
+}
+
+/* ══════════════ File Upload (PO Data) ══════════════ */
+const dropZone = $('dropZone');
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('drag');
+  const f = e.dataTransfer.files[0];
+  if (f) readFile(f);
+});
+$('fileInput').addEventListener('change', e => { if (e.target.files[0]) readFile(e.target.files[0]); });
+
+function readFile(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = new Uint8Array(e.target.result);
+      wb = XLSX.read(data, { type: 'array', cellDates: true });
+      parseWorkbook();
+      $('fileName').textContent = file.name;
+      $('fileBadge').classList.remove('hidden');
+      $('mappingPanel').classList.remove('hidden');
+      $('configPanel').classList.remove('hidden');
+      $('welcomeMsg').classList.add('hidden');
+      $('explorerSection').classList.remove('hidden');
+      $('resultsSection').classList.add('hidden');
+      populateSourceSheetDropdown();
+      renderExplorer(wb.SheetNames[0]);
+      setPill(2);
+      checkRunReady();
+    } catch(err) {
+      alert('Could not read file: ' + err.message);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function parseWorkbook() {
+  sheets = {}; headers = {}; rowCounts = {};
+  wb.SheetNames.forEach(name => {
+    const ws = wb.Sheets[name];
+    const raw = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+    if (!raw.length) { sheets[name] = []; headers[name] = []; rowCounts[name] = 0; return; }
+    const head = raw[0].map(String);
+    const rows = raw.slice(1).filter(r => r.some(c => c !== ''));
+    headers[name] = head;
+    sheets[name] = rows.map(r => {
+      const obj = {};
+      head.forEach((h,i) => obj[h] = r[i] !== undefined ? r[i] : '');
+      return obj;
+    });
+    rowCounts[name] = rows.length;
+  });
+}
+
+/* ══════════════ Explorer ══════════════ */
+function renderExplorer(name) {
+  activeExplorer = name;
+  const tabsEl = $('sheetTabs');
+  tabsEl.innerHTML = '';
+  wb.SheetNames.forEach(n => {
+    const t = document.createElement('div');
+    t.className = 'sheet-tab' + (n === name ? ' active' : '');
+    t.textContent = n;
+    t.onclick = () => renderExplorer(n);
+    tabsEl.appendChild(t);
+  });
+
+  const head = headers[name] || [];
+  const rc   = rowCounts[name] || 0;
+  $('sheetMeta').innerHTML = `
+    <div class="meta-chip">Rows: <span>${rc.toLocaleString()}</span></div>
+    <div class="meta-chip">Columns: <span>${head.length}</span></div>
+    <div class="meta-chip">Cols: <span>${head.slice(0,5).join(', ')}${head.length>5?' …':''}</span></div>
+  `;
+
+  const tbl   = $('previewTable');
+  const thead = tbl.querySelector('thead');
+  const tbody = tbl.querySelector('tbody');
+  thead.innerHTML = '<tr>' + head.map(h => `<th>${esc(h)}</th>`).join('') + '</tr>';
+  const rows = sheets[name] || [];
+  tbody.innerHTML = rows.slice(0,10).map(r =>
+    '<tr>' + head.map(h => `<td>${esc(String(r[h] ?? ''))}</td>`).join('') + '</tr>'
+  ).join('');
+}
+
+/* ══════════════ Column Mapping ══════════════ */
+function populateSourceSheetDropdown() {
+  const sel = $('sourceSheetSelect');
+  sel.innerHTML = wb.SheetNames.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('');
+  selectedSourceSheet = wb.SheetNames[0];
+  sel.onchange = () => { selectedSourceSheet = sel.value; renderExplorer(selectedSourceSheet); populateMappingDropdowns(); };
+  populateMappingDropdowns();
+}
+
+function populateMappingDropdowns() {
+  const head = headers[selectedSourceSheet] || [];
+  const mandatoryGuess = {
+    poNumber: head.find(h => /po\s*number|po\s*no/i.test(h)),
+    poDate: head.find(h => /po\s*date/i.test(h)),
+    supplier: head.find(h => /supplier/i.test(h)),
+    poValue: head.find(h => /value|amount/i.test(h)),
+    supplierCode: head.find(h => /supplier\s*code/i.test(h)),
+    department: head.find(h => /department/i.test(h)),
+    costCenter: head.find(h => /cost\s*center|cost\s*centre/i.test(h)),
+    reqNumber: head.find(h => /requisition/i.test(h)),
+    itemCode: head.find(h => /item\s*code/i.test(h)),
+  };
+
+  MANDATORY_FIELDS.forEach(f => {
+    const sel = $('map_' + f);
+    sel.innerHTML = head.map(h => `<option value="${esc(h)}">${esc(h)}</option>`).join('');
+    if (mandatoryGuess[f]) sel.value = mandatoryGuess[f];
+    sel.onchange = checkRunReady;
+  });
+
+  OPTIONAL_FIELDS.forEach(f => {
+    const sel = $('map_' + f);
+    sel.innerHTML = '<option value="">— None —</option>' + head.map(h => `<option value="${esc(h)}">${esc(h)}</option>`).join('');
+    if (mandatoryGuess[f]) sel.value = mandatoryGuess[f];
+  });
+
+  checkRunReady();
+}
+
+function getMapping() {
+  const m = {};
+  [...MANDATORY_FIELDS, ...OPTIONAL_FIELDS].forEach(f => { m[f] = $('map_' + f).value; });
+  return m;
+}
+
+/* ══════════════ Approval Matrix ══════════════ */
+function defaultMatrix() {
+  return [
+    { from: 0, to: 20000, level: 'Manager' },
+    { from: 20001, to: 100000, level: 'AGM' },
+    { from: 100001, to: 250000, level: 'Head Commercial' },
+    { from: 250001, to: 999999999, level: 'President' },
+  ];
+}
+approvalMatrix = defaultMatrix();
+
+function renderMatrixTable() {
+  const tbody = $('matrixTbody');
+  tbody.innerHTML = approvalMatrix.map((row, i) => `
+    <tr>
+      <td><input type="number" data-i="${i}" data-f="from" value="${row.from}"></td>
+      <td><input type="number" data-i="${i}" data-f="to" value="${row.to}"></td>
+      <td><input type="text" data-i="${i}" data-f="level" value="${esc(row.level)}"></td>
+      <td class="matrix-row-actions"><button class="btn-icon" data-del="${i}" title="Remove row">✕</button></td>
+    </tr>
+  `).join('');
+
+  tbody.querySelectorAll('input').forEach(inp => {
+    inp.addEventListener('input', () => {
+      const i = parseInt(inp.dataset.i), f = inp.dataset.f;
+      approvalMatrix[i][f] = (f === 'level') ? inp.value : parseNum(inp.value);
+      checkRunReady();
+    });
+  });
+  tbody.querySelectorAll('[data-del]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      approvalMatrix.splice(parseInt(btn.dataset.del), 1);
+      renderMatrixTable();
+      checkRunReady();
+    });
+  });
+}
+renderMatrixTable();
+
+$('addMatrixRowBtn').addEventListener('click', () => {
+  const last = approvalMatrix[approvalMatrix.length - 1];
+  approvalMatrix.push({ from: last ? last.to + 1 : 0, to: last ? last.to + 100000 : 100000, level: '' });
+  renderMatrixTable();
+});
+
+document.querySelectorAll('input[name="matrixMode"]').forEach(r => r.addEventListener('change', () => {
+  const upload = r.value === 'upload' && r.checked;
+  if (r.checked) {
+    $('matrixManualWrap').classList.toggle('hidden', r.value !== 'manual');
+    $('matrixUploadWrap').classList.toggle('hidden', r.value !== 'upload');
+  }
+  checkRunReady();
+}));
+
+const matrixDropZone = $('matrixDropZone');
+matrixDropZone.addEventListener('dragover', e => { e.preventDefault(); matrixDropZone.classList.add('drag'); });
+matrixDropZone.addEventListener('dragleave', () => matrixDropZone.classList.remove('drag'));
+matrixDropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  matrixDropZone.classList.remove('drag');
+  const f = e.dataTransfer.files[0];
+  if (f) readMatrixFile(f);
+});
+$('matrixFileInput').addEventListener('change', e => { if (e.target.files[0]) readMatrixFile(e.target.files[0]); });
+
+function readMatrixFile(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = new Uint8Array(e.target.result);
+      matrixWb = XLSX.read(data, { type: 'array' });
+      const ws = matrixWb.Sheets[matrixWb.SheetNames[0]];
+      const json = XLSX.utils.sheet_to_json(ws, { defval: '' });
+      const fromKey = Object.keys(json[0] || {}).find(k => /from/i.test(k)) || 'From Amount';
+      const toKey   = Object.keys(json[0] || {}).find(k => /to/i.test(k)) || 'To Amount';
+      const lvlKey  = Object.keys(json[0] || {}).find(k => /approval|level/i.test(k)) || 'Approval Level';
+      approvalMatrix = json.map(r => ({
+        from: parseNum(r[fromKey]),
+        to: parseNum(r[toKey]),
+        level: String(r[lvlKey] ?? '').trim()
+      })).filter(r => r.level);
+      $('matrixFileName').textContent = file.name;
+      $('matrixFileBadge').classList.remove('hidden');
+      checkRunReady();
+    } catch(err) {
+      alert('Could not read matrix file: ' + err.message);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+/* ══════════════ Run readiness ══════════════ */
+function checkRunReady() {
+  const mapped = wb && MANDATORY_FIELDS.every(f => $('map_' + f) && $('map_' + f).value);
+  const matrixOk = approvalMatrix.length > 0 && approvalMatrix.every(r => r.level);
+  $('runBtn').disabled = !(mapped && matrixOk);
+}
+
+/* ══════════════ Approval Level lookup ══════════════ */
+function sortedMatrix() {
+  return [...approvalMatrix].sort((a,b) => a.from - b.from);
+}
+function getApprovalLevel(value) {
+  const sm = sortedMatrix();
+  for (let i = 0; i < sm.length; i++) {
+    if (value >= sm[i].from && value <= sm[i].to) return { level: sm[i].level, to: sm[i].to, index: i };
+  }
+  // value above highest band
+  if (sm.length && value > sm[sm.length-1].to) {
+    return { level: sm[sm.length-1].level, to: sm[sm.length-1].to, index: sm.length-1 };
+  }
+  return { level: sm.length ? sm[0].level : 'N/A', to: sm.length ? sm[0].to : 0, index: 0 };
+}
+
+/* ══════════════ CORE LOGIC: Generate Cases ══════════════ */
+$('runBtn').addEventListener('click', runDetection);
+
+async function runDetection() {
+  const mapping = getMapping();
+  const windowDays = parseInt($('windowDays').value) || 0;
+  const rows = sheets[selectedSourceSheet] || [];
+
+  $('runBtnTxt').textContent = 'Analyzing…';
+  $('runSpinner').classList.remove('hidden');
+  $('runBtn').disabled = true;
+  await new Promise(r => setTimeout(r, 30));
+
+  // Build PO records
+  const pos = rows.map((r, idx) => ({
+    rowIndex: idx,
+    poNumber: r[mapping.poNumber] ?? '',
+    poDate: parseDateVal(r[mapping.poDate]),
+    supplier: String(r[mapping.supplier] ?? '').trim(),
+    value: parseNum(r[mapping.poValue]),
+    supplierCode: mapping.supplierCode ? r[mapping.supplierCode] : '',
+    department: mapping.department ? r[mapping.department] : '',
+    costCenter: mapping.costCenter ? r[mapping.costCenter] : '',
+    reqNumber: mapping.reqNumber ? r[mapping.reqNumber] : '',
+    itemCode: mapping.itemCode ? r[mapping.itemCode] : '',
+  })).filter(p => p.poDate && p.supplier);
+
+  // STEP 1: group by supplier (Supplier Clusters)
+  const bySupplier = {};
+  pos.forEach(p => {
+    if (!bySupplier[p.supplier]) bySupplier[p.supplier] = [];
+    bySupplier[p.supplier].push(p);
+  });
+
+  const matrixUsed = sortedMatrix();
+  const minThreshold = matrixUsed.length ? matrixUsed[0].to : 0;
+
+  let caseCounter = 0;
+  const allCases = [];
+
+  Object.keys(bySupplier).forEach(supplier => {
+    const list = bySupplier[supplier].slice().sort((a,b) => a.poDate - b.poDate);
+
+    // STEP 2/3: rolling window chain-merge clustering
+    let clusters = [];
+    let current = [];
+    list.forEach(po => {
+      if (current.length === 0) {
+        current.push(po);
+      } else {
+        const lastDate = current[current.length - 1].poDate;
+        const diffDays = Math.round((po.poDate - lastDate) / 86400000);
+        if (diffDays <= windowDays) {
+          current.push(po);
+        } else {
+          clusters.push(current);
+          current = [po];
+        }
+      }
+    });
+    if (current.length) clusters.push(current);
+
+    clusters.forEach(cluster => {
+      if (cluster.length <= 1) return; // exclude single PO cases
+
+      const values = cluster.map(c => c.value);
+      const dates = cluster.map(c => c.poDate);
+      const startDate = new Date(Math.min(...dates));
+      const endDate = new Date(Math.max(...dates));
+      const daysSpan = Math.round((endDate - startDate) / 86400000);
+      const aggregateValue = values.reduce((a,b) => a+b, 0);
+      const highestValue = Math.max(...values);
+      const lowestValue = Math.min(...values);
+      const avgValue = aggregateValue / cluster.length;
+
+      // EXCEPTION FILTER: aggregate value must exceed at least one approval threshold
+      if (matrixUsed.length && aggregateValue <= minThreshold) return;
+
+      const individualApproval = getApprovalLevel(highestValue);
+      const aggregateApproval = getApprovalLevel(aggregateValue);
+      const escalation = aggregateApproval.index > individualApproval.index;
+
+      let caseType;
+      if (daysSpan === 0) caseType = 'Same Day PO Splitting';
+      else if (daysSpan === 1) caseType = '1 Day PO Splitting';
+      else if (daysSpan === 2) caseType = '2 Day PO Splitting';
+      else if (daysSpan === 3) caseType = '3 Day PO Splitting';
+      else caseType = 'Multi Day PO Splitting';
+
+      let riskLevel;
+      if (individualApproval.index === aggregateApproval.index) {
+        riskLevel = 'LOW';
+      } else {
+        const edge = individualApproval.to || 1;
+        const pctExceed = ((aggregateValue - edge) / edge) * 100;
+        riskLevel = pctExceed < 25 ? 'MEDIUM' : 'HIGH';
+      }
+
+      caseCounter++;
+      allCases.push({
+        caseId: 'PS-' + String(caseCounter).padStart(3, '0'),
+        supplier,
+        caseType,
+        startDate, endDate, daysSpan,
+        poCount: cluster.length,
+        aggregateValue, highestValue, lowestValue, avgValue,
+        individualApproval: individualApproval.level,
+        aggregateApproval: aggregateApproval.level,
+        escalation,
+        riskLevel,
+        pos: cluster,
+      });
+    });
+  });
+
+  // Re-number sequentially by start date for readability
+  allCases.sort((a,b) => a.startDate - b.startDate);
+  allCases.forEach((c, i) => c.caseId = 'PS-' + String(i+1).padStart(3,'0'));
+
+  casesResult = allCases;
+
+  $('runBtnTxt').textContent = '▶ Generate PO Splitting Cases';
+  $('runSpinner').classList.add('hidden');
+  $('runBtn').disabled = false;
+
+  renderResults();
+  setPill(4);
+}
+
+/* ══════════════ Render Results ══════════════ */
+function renderResults() {
+  $('resultsSection').classList.remove('hidden');
+  $('resultsSection').scrollIntoView({ behavior: 'smooth' });
+
+  const totalCases = casesResult.length;
+  const totalPOs = casesResult.reduce((s,c) => s + c.poCount, 0);
+  const highRisk = casesResult.filter(c => c.riskLevel === 'HIGH').length;
+  const escalations = casesResult.filter(c => c.escalation).length;
+
+  $('statsGrid').innerHTML = `
+    <div class="stat-card"><div class="stat-val blue">${totalCases.toLocaleString()}</div><div class="stat-lbl">PO Splitting Cases</div></div>
+    <div class="stat-card"><div class="stat-val amber">${totalPOs.toLocaleString()}</div><div class="stat-lbl">POs Involved</div></div>
+    <div class="stat-card"><div class="stat-val red">${highRisk.toLocaleString()}</div><div class="stat-lbl">High Risk Cases</div></div>
+    <div class="stat-card"><div class="stat-val ${escalations?'red':'green'}">${escalations.toLocaleString()}</div><div class="stat-lbl">Approval Escalations</div></div>
+  `;
+
+  $('casesAlert').innerHTML = totalCases
+    ? `🚩 <strong>${totalCases}</strong> potential PO splitting case(s) detected across <strong>${totalPOs}</strong> purchase orders.`
+    : `✅ No PO splitting cases detected with the current window and approval matrix.`;
+
+  const cols = ['Case ID','Supplier','Case Type','Start Date','End Date','Days Span','PO Count','Aggregate Value','Highest PO Value','Lowest PO Value','Average PO Value','Highest PO Approval','Aggregate Approval','Escalation Required','Risk Level'];
+  const tbl = $('casesTable');
+  tbl.querySelector('thead').innerHTML = '<tr>' + cols.map(c => `<th>${c}</th>`).join('') + '</tr>';
+
+  const tbody = tbl.querySelector('tbody');
+  tbody.innerHTML = '';
+  casesResult.forEach(c => {
+    const row = document.createElement('tr');
+    row.className = 'case-row';
+    row.innerHTML = `
+      <td><span class="case-id-link">${c.caseId}</span></td>
+      <td>${esc(c.supplier)}</td>
+      <td>${c.caseType}</td>
+      <td>${fmtDate(c.startDate)}</td>
+      <td>${fmtDate(c.endDate)}</td>
+      <td>${c.daysSpan}</td>
+      <td>${c.poCount}</td>
+      <td>${fmtMoney(c.aggregateValue)}</td>
+      <td>${fmtMoney(c.highestValue)}</td>
+      <td>${fmtMoney(c.lowestValue)}</td>
+      <td>${fmtMoney(Math.round(c.avgValue))}</td>
+      <td>${esc(c.individualApproval)}</td>
+      <td>${esc(c.aggregateApproval)}</td>
+      <td><span class="badge-pill ${c.escalation?'badge-yes':'badge-no'}">${c.escalation?'YES':'NO'}</span></td>
+      <td><span class="badge-pill badge-${c.riskLevel.toLowerCase()}">${c.riskLevel}</span></td>
+    `;
+
+    const detailRow = document.createElement('tr');
+    detailRow.className = 'detail-row hidden';
+    const detailCols = ['PO Number','Date','Supplier','Value'];
+    if (getMapping().department) detailCols.splice(3,0,'Department');
+    detailRow.innerHTML = `
+      <td colspan="${cols.length}">
+        <div class="detail-wrap">
+          <table>
+            <thead><tr>${detailCols.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
+            <tbody>
+              ${c.pos.slice().sort((a,b)=>a.poDate-b.poDate).map(p => `
+                <tr>
+                  <td>${esc(p.poNumber)}</td>
+                  <td>${fmtDate(p.poDate)}</td>
+                  <td>${esc(p.supplier)}</td>
+                  ${getMapping().department ? `<td>${esc(p.department)}</td>` : ''}
+                  <td>${fmtMoney(p.value)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </td>
+    `;
+
+    row.addEventListener('click', () => detailRow.classList.toggle('hidden'));
+    tbody.appendChild(row);
+    tbody.appendChild(detailRow);
+  });
+}
+
+/* ══════════════ Export to Excel ══════════════ */
+$('downloadBtn').addEventListener('click', () => {
+  if (!casesResult.length) { alert('No cases to export.'); return; }
+
+  const sheet1 = casesResult.map(c => ({
+    'Case ID': c.caseId,
+    'Supplier Name': c.supplier,
+    'Case Type': c.caseType,
+    'Start Date': fmtDate(c.startDate),
+    'End Date': fmtDate(c.endDate),
+    'Days Span': c.daysSpan,
+    'PO Count': c.poCount,
+    'Aggregate Value': c.aggregateValue,
+    'Highest PO Value': c.highestValue,
+    'Lowest PO Value': c.lowestValue,
+    'Average PO Value': Math.round(c.avgValue),
+    'Highest PO Approval': c.individualApproval,
+    'Aggregate Approval': c.aggregateApproval,
+    'Approval Escalation Required': c.escalation ? 'YES' : 'NO',
+    'Risk Level': c.riskLevel,
+  }));
+
+  const sheet2 = [];
+  casesResult.forEach(c => {
+    c.pos.slice().sort((a,b)=>a.poDate-b.poDate).forEach(p => {
+      sheet2.push({
+        'Case ID': c.caseId,
+        'PO Number': p.poNumber,
+        'PO Date': fmtDate(p.poDate),
+        'Supplier Name': p.supplier,
+        'PO Value': p.value,
+        'Supplier Code': p.supplierCode,
+        'Department': p.department,
+        'Cost Center': p.costCenter,
+        'Requisition Number': p.reqNumber,
+        'Item Code': p.itemCode,
+      });
+    });
+  });
+
+  const sheet3 = sortedMatrix().map(r => ({ 'From Amount': r.from, 'To Amount': r.to, 'Approval Level': r.level }));
+
+  const newWb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(newWb, XLSX.utils.json_to_sheet(sheet1), 'PO Splitting Cases');
+  XLSX.utils.book_append_sheet(newWb, XLSX.utils.json_to_sheet(sheet2), 'Case Details');
+  XLSX.utils.book_append_sheet(newWb, XLSX.utils.json_to_sheet(sheet3), 'Approval Matrix Used');
+  XLSX.writeFile(newWb, 'po_splitting_cases.xlsx');
+});
+
+/* ══════════════ Reset ══════════════ */
+$('resetBtn').addEventListener('click', () => {
+  $('resultsSection').classList.add('hidden');
+  setPill(3);
+});
+</script>
+</body>
+</html>
