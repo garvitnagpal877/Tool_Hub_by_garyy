@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MSME Interest Calculator - User Guide</title>
+
+<style>
+
+:root{
+    --bg:#0f1117;
+    --surface:#1a1d27;
+    --surface2:#222536;
+    --border:#333650;
+    --accent:#6c63ff;
+    --accent2:#a78bfa;
+    --text:#e2e8f0;
+    --text2:#94a3b8;
+}
+
+body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:Segoe UI,sans-serif;
+    margin:0;
+    padding:30px;
+}
+
+.container{
+    max-width:1000px;
+    margin:auto;
+}
+
+.card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:25px;
+    margin-bottom:20px;
+}
+
+h1{
+    margin-bottom:10px;
+}
+
+h2{
+    color:var(--accent2);
+}
+
+h3{
+    color:var(--text);
+    margin-top:18px;
+    margin-bottom:6px;
+}
+
+p,li{
+    color:var(--text2);
+    line-height:1.7;
+}
+
+.btn{
+    display:inline-block;
+    background:var(--accent);
+    color:white;
+    text-decoration:none;
+    padding:12px 20px;
+    border-radius:8px;
+    margin-top:10px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+table th,
+table td{
+    border:1px solid var(--border);
+    padding:10px;
+}
+
+table th{
+    background:var(--surface2);
+}
+
+.formula{
+    background:var(--surface2);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:12px 16px;
+    color:var(--accent2);
+    font-weight:600;
+    margin:10px 0;
+    display:inline-block;
+}
+
+.usecases{
+    list-style:none;
+    padding:0;
+}
+
+.usecases li{
+    padding:6px 0;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>MSME Interest Calculator</h1>
+
+<p>
+Calculate MSME Interest under the MSMED Act using monthly compounding and RBI Bank Rates.
+</p>
+
+<div class="card">
+
+<h2>Purpose</h2>
+
+<p>
+This tool calculates MSME Interest under the MSMED Act using monthly compounding and RBI Bank Rates.
+</p>
+
+</div>
+
+<div class="card">
+
+<h2>Step 1 – Upload File</h2>
+
+<p>Upload Excel containing invoice data.</p>
+
+<p><b>Supported formats:</b></p>
+<ul>
+<li>.xlsx</li>
+<li>.xls</li>
+<li>.xlsm</li>
+<li>.csv</li>
+</ul>
+
+<p>After upload, sheet preview will be displayed.</p>
+
+</div>
+
+<div class="card">
+
+<h2>Step 2 – Select Data Sheet</h2>
+
+<p>Choose:</p>
+<ul>
+<li>Source Sheet</li>
+<li>Starting Data Row</li>
+</ul>
+
+<p><b>Example:</b></p>
+<ul>
+<li>Header Row = 1</li>
+<li>Data Starts = 2</li>
+</ul>
+
+</div>
+
+<div class="card">
+
+<h2>Step 3 – Map Required Columns</h2>
+
+<table>
+
+<tr>
+<th>Column</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+
+<tr>
+<td>Invoice No Column</td>
+<td>Invoice Number</td>
+<td>INV-001</td>
+</tr>
+
+<tr>
+<td>Vendor Name Column</td>
+<td>Vendor Name</td>
+<td>ABC Industries</td>
+</tr>
+
+<tr>
+<td>Invoice Amount Column</td>
+<td>Invoice Value</td>
+<td>₹50,000</td>
+</tr>
+
+<tr>
+<td>GRN Date Column</td>
+<td>Goods Receipt Date</td>
+<td>01-Apr-2026</td>
+</tr>
+
+<tr>
+<td>Payment Terms Column</td>
+<td>Credit Days</td>
+<td>45 Days</td>
+</tr>
+
+<tr>
+<td>Payment Date Column</td>
+<td>Actual Payment Date</td>
+<td>30-Jun-2026</td>
+</tr>
+
+</table>
+
+</div>
+
+<div class="card">
+
+<h2>Step 4 – RBI Bank Rates</h2>
+
+<p>The tool contains default RBI Bank Rates.</p>
+
+<div class="formula">MSME Interest Rate = RBI Bank Rate × 3</div>
+
+<p><b>Example:</b></p>
+<ul>
+<li>RBI Rate = 6.50%</li>
+<li>MSME Rate = 19.50%</li>
+</ul>
+
+</div>
+
+<div class="card">
+
+<h2>Step 5 – Edit Rates (Optional)</h2>
+
+<p>Select <b>"Yes – Edit Rates"</b> if custom rates are required.</p>
+
+<p>You may:</p>
+<ul>
+<li>Add new rates</li>
+<li>Modify existing rates</li>
+<li>Delete rates</li>
+</ul>
+
+<p>Effective dates must be unique.</p>
+
+</div>
+
+<div class="card">
+
+<h2>Step 6 – Generate MSME Working</h2>
+
+<p>Click: <b>"Generate MSME Working"</b></p>
+
+<p>The system automatically:</p>
+<ol>
+<li>Calculates Due Date.</li>
+<li>Identifies delay period.</li>
+<li>Applies RBI Rate applicable for each period.</li>
+<li>Calculates MSME Rate.</li>
+<li>Calculates monthly compounded interest.</li>
+<li>Generates detailed working.</li>
+</ol>
+
+</div>
+
+<div class="card">
+
+<h2>Step 7 – Review Output</h2>
+
+<h3>Calculation Summary</h3>
+<p>Displays:</p>
+<ul>
+<li>Total Invoices</li>
+<li>Total Principal</li>
+<li>Total Interest</li>
+<li>Total Payable</li>
+</ul>
+
+<h3>MSME Working Preview</h3>
+<p>Generated columns:</p>
+<ul>
+<li>Invoice No</li>
+<li>Vendor Name</li>
+<li>GRN Date</li>
+<li>Due Date</li>
+<li>Payment Date</li>
+<li>Period Start</li>
+<li>Period End</li>
+<li>Opening Principal</li>
+<li>RBI Rate</li>
+<li>MSME Rate</li>
+<li>Days</li>
+<li>Formula</li>
+<li>Interest</li>
+<li>Closing Principal</li>
+</ul>
+
+</div>
+
+<div class="card">
+
+<h2>Step 8 – Export Working</h2>
+
+<p>Click: <b>"Download MSME Working Excel"</b></p>
+
+<p>Output contains complete interest calculations and audit trail.</p>
+
+</div>
+
+<div class="card">
+
+<h2>Important Notes</h2>
+
+<h3>MSME Due Date</h3>
+<div class="formula">Due Date = GRN Date + Payment Terms</div>
+<p>Maximum allowed credit period under MSMED Act = 45 Days.</p>
+
+<h3>Interest Calculation</h3>
+<p>Interest is calculated:</p>
+<ul>
+<li>At 3 times RBI Bank Rate</li>
+<li>With Monthly Compounding</li>
+<li>For delayed payment period only</li>
+</ul>
+
+</div>
+
+<div class="card">
+
+<h2>Typical Use Cases</h2>
+
+<ul class="usecases">
+<li>✔ MSME Act Compliance</li>
+<li>✔ Statutory Audit</li>
+<li>✔ Internal Audit</li>
+<li>✔ Vendor Payment Review</li>
+<li>✔ Delayed Payment Analysis</li>
+<li>✔ Financial Due Diligence</li>
+<li>✔ Interest Provision Calculation</li>
+</ul>
+
+</div>
+
+<a href="../index.html" class="btn">
+← Back To Home
+</a>
+
+</div>
+
+</body>
+</html>

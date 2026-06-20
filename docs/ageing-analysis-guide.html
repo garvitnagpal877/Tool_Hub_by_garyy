@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ageing Analysis Tool - User Guide</title>
+
+<style>
+
+:root{
+    --bg:#0f1117;
+    --surface:#1a1d27;
+    --surface2:#222536;
+    --border:#333650;
+    --accent:#6c63ff;
+    --accent2:#a78bfa;
+    --text:#e2e8f0;
+    --text2:#94a3b8;
+}
+
+body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:Segoe UI,sans-serif;
+    margin:0;
+    padding:30px;
+}
+
+.container{
+    max-width:1000px;
+    margin:auto;
+}
+
+.card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:25px;
+    margin-bottom:20px;
+}
+
+h1{
+    margin-bottom:10px;
+}
+
+h2{
+    color:var(--accent2);
+}
+
+h3{
+    color:var(--text);
+    margin-top:18px;
+    margin-bottom:6px;
+}
+
+p,li{
+    color:var(--text2);
+    line-height:1.7;
+}
+
+.btn{
+    display:inline-block;
+    background:var(--accent);
+    color:white;
+    text-decoration:none;
+    padding:12px 20px;
+    border-radius:8px;
+    margin-top:10px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+table th,
+table td{
+    border:1px solid var(--border);
+    padding:10px;
+}
+
+table th{
+    background:var(--surface2);
+}
+
+.formula{
+    background:var(--surface2);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:12px 16px;
+    color:var(--accent2);
+    font-weight:600;
+    margin:10px 0;
+    display:inline-block;
+}
+
+.usecases{
+    list-style:none;
+    padding:0;
+}
+
+.usecases li{
+    padding:6px 0;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Ageing Analysis Tool</h1>
+
+<p>
+Calculate ageing days, classify records into ageing buckets, generate ageing summaries, and export the results into Excel.
+</p>
+
+<div class="card">
+
+<h2>Purpose</h2>
+
+<p>
+The Ageing Analysis Tool is used to calculate ageing days, classify records into ageing buckets, generate ageing summaries, and export the results into Excel.
+</p>
+
+</div>
+
+<div class="card">
+
+<h2>Step 1 – Upload File</h2>
+
+<ol>
+<li>Open the Ageing Analysis Tool.</li>
+<li>Click "Drop Excel File Here" or drag and drop an Excel file.</li>
+<li>
+Supported formats:
+<ul>
+<li>.xlsx</li>
+<li>.xls</li>
+<li>.xlsm</li>
+<li>.csv</li>
+</ul>
+</li>
+</ol>
+
+<p>After upload, the system will display:</p>
+
+<ul>
+<li>Available sheets</li>
+<li>Row count</li>
+<li>Column count</li>
+<li>Data preview</li>
+</ul>
+
+</div>
+
+<div class="card">
+
+<h2>Step 2 – Configure Data</h2>
+
+<h3>Source Sheet</h3>
+<p>Select the sheet containing the data.</p>
+
+<h3>Data Starts at Row</h3>
+<p>Enter the row number where actual data begins.</p>
+
+<p><b>Example:</b></p>
+<ul>
+<li>Header in Row 1 → Enter 2</li>
+<li>Header in Row 3 → Enter 4</li>
+</ul>
+
+</div>
+
+<div class="card">
+
+<h2>Step 3 – Select Ageing Method</h2>
+
+<h3>Method 1 – Start Date vs End Date</h3>
+<p>Used when both dates are available.</p>
+<p><b>Example:</b> Invoice Date, Payment Date</p>
+<div class="formula">Ageing = End Date – Start Date</div>
+
+<h3>Method 2 – Date vs Fixed Date</h3>
+<p>Used when ageing is to be calculated till a specific date.</p>
+<p><b>Example:</b> Invoice Date, 31-Mar-2026</p>
+<div class="formula">Ageing = Fixed Date – Invoice Date</div>
+
+<h3>Method 3 – Date vs Today</h3>
+<p>Used for current outstanding ageing.</p>
+<div class="formula">Ageing = Today – Invoice Date</div>
+
+</div>
+
+<div class="card">
+
+<h2>Step 4 – On-Time / Grace Period</h2>
+
+<h3>No Grace Period</h3>
+<p>Ageing starts immediately.</p>
+
+<h3>Fixed Days</h3>
+<p><b>Example:</b> 30 Credit Days</p>
+<p>Ageing starts after 30 days.</p>
+
+<h3>From Column</h3>
+<p>Uses payment terms available in the data.</p>
+<p><b>Example:</b> Credit Days Column</p>
+
+</div>
+
+<div class="card">
+
+<h2>Step 5 – Define Age Buckets</h2>
+
+<p>Enter bucket ranges:</p>
+<div class="formula">0-30, 31-60, 61-90, 91-180, 181-999999</div>
+
+<p>The tool automatically classifies each record into the applicable bucket.</p>
+
+<table>
+<tr>
+<th>Bucket</th>
+<th>Range (Days)</th>
+</tr>
+<tr>
+<td>Bucket 1</td>
+<td>0 – 30</td>
+</tr>
+<tr>
+<td>Bucket 2</td>
+<td>31 – 60</td>
+</tr>
+<tr>
+<td>Bucket 3</td>
+<td>61 – 90</td>
+</tr>
+<tr>
+<td>Bucket 4</td>
+<td>91 – 180</td>
+</tr>
+<tr>
+<td>Bucket 5</td>
+<td>181 and above</td>
+</tr>
+</table>
+
+</div>
+
+<div class="card">
+
+<h2>Step 6 – Summary Rules</h2>
+
+<p>Select calculations to be generated.</p>
+
+<p><b>Available Functions:</b></p>
+<ul>
+<li>Count</li>
+<li>Sum</li>
+<li>Average</li>
+<li>Minimum</li>
+<li>Maximum</li>
+</ul>
+
+<p><b>Examples:</b></p>
+<ul>
+<li>Count of Invoice Number</li>
+<li>Sum of Amount</li>
+<li>Average Ageing</li>
+</ul>
+
+</div>
+
+<div class="card">
+
+<h2>Step 7 – Run Analysis</h2>
+
+<p>Click: <b>"Run Ageing Analysis"</b></p>
+
+<p>The tool will:</p>
+<ol>
+<li>Calculate ageing days.</li>
+<li>Apply grace period.</li>
+<li>Assign ageing bucket.</li>
+<li>Generate summary.</li>
+<li>Display results.</li>
+</ol>
+
+</div>
+
+<div class="card">
+
+<h2>Step 8 – Review Results</h2>
+
+<p>Outputs generated:</p>
+
+<h3>Calculation Summary</h3>
+<p>Shows:</p>
+<ul>
+<li>Total Records</li>
+<li>Average Ageing</li>
+<li>Maximum Ageing</li>
+<li>Bucket Distribution</li>
+</ul>
+
+<h3>Ageing Data Preview</h3>
+<p>Displays processed records.</p>
+
+<h3>Ageing Summary</h3>
+<p>Shows bucket-wise analysis.</p>
+
+</div>
+
+<div class="card">
+
+<h2>Step 9 – Export Results</h2>
+
+<p>Click: <b>"Download Ageing Analysis Excel"</b></p>
+
+<p>Output Excel contains:</p>
+<ul>
+<li>Detailed Ageing Sheet</li>
+<li>Ageing Summary Sheet</li>
+</ul>
+
+</div>
+
+<div class="card">
+
+<h2>Typical Use Cases</h2>
+
+<ul class="usecases">
+<li>✔ Vendor Ageing</li>
+<li>✔ Debtor Ageing</li>
+<li>✔ MSME Outstanding Analysis</li>
+<li>✔ Inventory Ageing</li>
+<li>✔ Advance Ageing</li>
+<li>✔ GRN Pending Analysis</li>
+<li>✔ Internal Audit Reviews</li>
+</ul>
+
+</div>
+
+<a href="../index.html" class="btn">
+← Back To Home
+</a>
+
+</div>
+
+</body>
+</html>
