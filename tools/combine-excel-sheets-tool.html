@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Combine Excel Files Into Sheets</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root{
+    --bg:#0f1117;
+    --panel:#161923;
+    --panel-2:#1c202c;
+    --border:#2a2f3d;
+    --accent:#6c63ff;
+    --accent-soft:#6c63ff22;
+    --text:#e6e8f0;
+    --text-dim:#9198ab;
+    --ok:#4ade80;
+    --warn:#f59e0b;
+    --err:#f87171;
+    --mono:'JetBrains Mono', ui-monospace, Consolas, monospace;
+    --sans:'Inter', -apple-system, Segoe UI, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    min-height:100vh;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:44px 24px 60px;}
+  header{margin-bottom:32px;}
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--accent);
+    margin-bottom:8px;
+  }
+  h1{font-size:26px;margin:0 0 6px;letter-spacing:-0.01em;}
+  .subtitle{color:var(--text-dim);font-size:14px;margin:0;}
+
+  .card{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:24px;
+    margin-bottom:16px;
+  }
+
+  .dropzone{
+    border:2px dashed var(--border);
+    border-radius:12px;
+    padding:44px 20px;
+    text-align:center;
+    cursor:pointer;
+    transition:border-color .15s, background .15s;
+  }
+  .dropzone:hover, .dropzone.drag{
+    border-color:var(--accent);
+    background:var(--accent-soft);
+  }
+  .dropzone .icon{font-size:32px;margin-bottom:10px;opacity:.8;}
+  .dropzone .main{font-size:15px;color:var(--text);margin-bottom:4px;}
+  .dropzone .sub{font-size:12.5px;color:var(--text-dim);font-family:var(--mono);}
+
+  button{
+    font-family:var(--sans);
+    font-size:14px;
+    font-weight:600;
+    border:none;
+    border-radius:8px;
+    padding:11px 22px;
+    cursor:pointer;
+    transition:opacity .15s, transform .1s;
+  }
+  button:disabled{opacity:.4;cursor:not-allowed;}
+  .btn-primary{background:var(--accent);color:#fff;}
+  .btn-primary:hover:not(:disabled){opacity:.9;}
+  .btn-primary:active:not(:disabled){transform:scale(.98);}
+  .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text-dim);}
+  .btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
+
+  .file-list{margin-top:16px;}
+  .file-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:9px 12px;
+    border-radius:8px;
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    margin-bottom:6px;
+    font-size:13px;
+  }
+  .file-row .name{flex:1;font-family:var(--mono);font-size:12.5px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .file-row .status{font-family:var(--mono);font-size:11px;padding:2px 8px;border-radius:999px;white-space:nowrap;}
+  .status.pending{color:var(--text-dim);border:1px solid var(--border);}
+  .status.working{color:var(--accent);border:1px solid var(--accent);}
+  .status.ok{color:var(--ok);border:1px solid var(--ok);}
+  .status.fail{color:var(--err);border:1px solid var(--err);}
+
+  .actions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;}
+
+  .progress-outer{
+    height:6px;
+    background:var(--panel-2);
+    border-radius:999px;
+    overflow:hidden;
+    margin-top:16px;
+    border:1px solid var(--border);
+  }
+  .progress-inner{
+    height:100%;
+    width:0%;
+    background:var(--accent);
+    transition:width .2s ease;
+  }
+
+  .summary{
+    display:none;
+    margin-top:16px;
+  }
+  .summary.show{display:block;}
+  .summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;}
+  .stat{
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:12px;
+    text-align:center;
+  }
+  .stat .num{font-family:var(--mono);font-size:22px;font-weight:700;}
+  .stat .label{font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;}
+  .stat.ok .num{color:var(--ok);}
+  .stat.fail .num{color:var(--err);}
+
+  .error-log{
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--err);
+    background:#1c1116;
+    border:1px solid #3a1f26;
+    border-radius:8px;
+    padding:12px 14px;
+    white-space:pre-wrap;
+    margin-top:10px;
+  }
+
+  .note{
+    font-size:12.5px;
+    color:var(--text-dim);
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:12px 14px;
+    margin-top:16px;
+    line-height:1.55;
+  }
+  .note b{color:var(--text);}
+
+  input[type=file]{display:none;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">ToolsHub · Browser Utility</div>
+    <h1>Combine Excel Files Into Sheets</h1>
+    <p class="subtitle">Pick a folder. Each file's first sheet becomes its own tab in one combined workbook.</p>
+  </header>
+
+  <div class="card">
+    <div class="dropzone" id="dropzone">
+      <div class="icon">📁</div>
+      <div class="main" id="dz-main">Click to choose a folder, or drop Excel files here</div>
+      <div class="sub">.xlsx · .xls · .xlsm · .xlsb</div>
+    </div>
+    <input type="file" id="folderInput" webkitdirectory multiple>
+    <input type="file" id="filesInput" multiple accept=".xlsx,.xls,.xlsm,.xlsb">
+
+    <div class="file-list" id="fileList"></div>
+
+    <div class="progress-outer" id="progressOuter" style="display:none;">
+      <div class="progress-inner" id="progressInner"></div>
+    </div>
+
+    <div class="actions" id="actions" style="display:none;">
+      <button class="btn-primary" id="runBtn">Combine Files</button>
+      <button class="btn-ghost" id="resetBtn">Clear</button>
+    </div>
+
+    <div class="summary" id="summary">
+      <div class="summary-grid">
+        <div class="stat"><div class="num" id="stat-total">0</div><div class="label">Processed</div></div>
+        <div class="stat ok"><div class="num" id="stat-ok">0</div><div class="label">Imported</div></div>
+        <div class="stat fail"><div class="num" id="stat-fail">0</div><div class="label">Failed</div></div>
+      </div>
+      <div class="output-choice">
+        <button class="btn-primary" id="downloadBtn" style="width:100%;">Download as Multiple Sheets (one tab per file)</button>
+        <button class="btn-primary" id="downloadMergedBtn" style="width:100%;margin-top:8px;background:var(--panel-2);border:1px solid var(--accent);color:var(--accent);">Download Merged Into One Sheet</button>
+      </div>
+      <div class="error-log" id="errorLog" style="display:none;"></div>
+    </div>
+
+    <div class="note">
+      <b>Two output options:</b><br>
+      <b>Multiple Sheets</b> — each file's first sheet becomes its own tab, preserving values, formulas, merged cells, column widths and row heights as-is.<br>
+      <b>Merged Into One Sheet</b> — stacks every tab's rows into a single sheet: the header row is taken once from the first file, then every file's data rows (minus their own header row) are appended below it, in the order shown in the list above. Best when all files share the same column layout.<br>
+      <b>What isn't preserved either way:</b> fonts, colors, borders and number-format styling — the in-browser library that reads/writes .xlsx doesn't carry visual formatting across files. If you need pixel-identical formatting too, the VBA version does that natively in Excel.
+    </div>
+  </div>
+
+</div>
+
+<script>
+const dropzone = document.getElementById('dropzone');
+const dzMain = document.getElementById('dz-main');
+const folderInput = document.getElementById('folderInput');
+const filesInput = document.getElementById('filesInput');
+const fileListEl = document.getElementById('fileList');
+const actions = document.getElementById('actions');
+const runBtn = document.getElementById('runBtn');
+const resetBtn = document.getElementById('resetBtn');
+const progressOuter = document.getElementById('progressOuter');
+const progressInner = document.getElementById('progressInner');
+const summary = document.getElementById('summary');
+const errorLog = document.getElementById('errorLog');
+const downloadBtn = document.getElementById('downloadBtn');
+const downloadMergedBtn = document.getElementById('downloadMergedBtn');
+
+let selectedFiles = [];
+let combinedWorkbook = null;
+let usedNames = new Set();
+
+const VALID_EXT = ['xlsx','xls','xlsm','xlsb'];
+
+dropzone.addEventListener('click', () => {
+  // Prefer folder picker; browsers without webkitdirectory support will still allow multi-file select
+  folderInput.click();
+});
+
+folderInput.addEventListener('change', (e) => handleIncoming(Array.from(e.target.files)));
+filesInput.addEventListener('change', (e) => handleIncoming(Array.from(e.target.files)));
+
+dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('drag'); });
+dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag'));
+dropzone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dropzone.classList.remove('drag');
+  const items = e.dataTransfer.files;
+  handleIncoming(Array.from(items));
+});
+
+function extOf(name){
+  const parts = name.split('.');
+  return parts.length > 1 ? parts.pop().toLowerCase() : '';
+}
+
+function handleIncoming(files){
+  const filtered = files.filter(f => VALID_EXT.includes(extOf(f.name)) && !f.name.startsWith('~$'));
+  if (filtered.length === 0){
+    dzMain.textContent = 'No supported Excel files found — try again';
+    return;
+  }
+  // sort alphabetically, matching the VBA processing order
+  filtered.sort((a,b) => a.name.localeCompare(b.name));
+  selectedFiles = filtered;
+  renderFileList();
+  dzMain.textContent = `${filtered.length} file${filtered.length>1?'s':''} ready`;
+  actions.style.display = 'flex';
+  summary.classList.remove('show');
+}
+
+function renderFileList(){
+  fileListEl.innerHTML = '';
+  selectedFiles.forEach(f => {
+    const row = document.createElement('div');
+    row.className = 'file-row';
+    row.id = 'row-' + cssSafe(f.name);
+    row.innerHTML = `<span class="name">${f.name}</span><span class="status pending">pending</span>`;
+    fileListEl.appendChild(row);
+  });
+}
+
+function cssSafe(s){ return s.replace(/[^a-z0-9]/gi, '_'); }
+
+function setRowStatus(name, status, label){
+  const row = document.getElementById('row-' + cssSafe(name));
+  if (!row) return;
+  const badge = row.querySelector('.status');
+  badge.className = 'status ' + status;
+  badge.textContent = label;
+}
+
+resetBtn.addEventListener('click', () => {
+  selectedFiles = [];
+  combinedWorkbook = null;
+  usedNames = new Set();
+  fileListEl.innerHTML = '';
+  actions.style.display = 'none';
+  summary.classList.remove('show');
+  progressOuter.style.display = 'none';
+  dzMain.textContent = 'Click to choose a folder, or drop Excel files here';
+  folderInput.value = '';
+  filesInput.value = '';
+});
+
+function cleanSheetName(name){
+  let n = name.replace(/[\\\/\?\*\[\]:]/g, '_').trim();
+  if (n.length === 0) n = 'Sheet';
+  if (n.length > 31) n = n.substring(0, 31);
+  return n;
+}
+
+function uniqueSheetName(base){
+  let candidate = base;
+  let counter = 0;
+  while (usedNames.has(candidate.toLowerCase())){
+    counter++;
+    const suffix = '_' + counter;
+    candidate = base.substring(0, 31 - suffix.length) + suffix;
+  }
+  usedNames.add(candidate.toLowerCase());
+  return candidate;
+}
+
+function readFileAsArrayBuffer(file){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error('Could not read file'));
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+runBtn.addEventListener('click', async () => {
+  runBtn.disabled = true;
+  resetBtn.disabled = true;
+  progressOuter.style.display = 'block';
+  usedNames = new Set();
+
+  combinedWorkbook = XLSX.utils.book_new();
+  let successCount = 0;
+  let failCount = 0;
+  const errors = [];
+
+  for (let i = 0; i < selectedFiles.length; i++){
+    const file = selectedFiles[i];
+    setRowStatus(file.name, 'working', 'reading…');
+    progressInner.style.width = Math.round(((i) / selectedFiles.length) * 100) + '%';
+
+    try {
+      const buffer = await readFileAsArrayBuffer(file);
+      const wb = XLSX.read(buffer, { type: 'array', cellStyles: true, cellFormula: true });
+
+      if (!wb.SheetNames || wb.SheetNames.length === 0){
+        throw new Error('no worksheets found');
+      }
+
+      const firstSheetName = wb.SheetNames[0];
+      const srcSheet = wb.Sheets[firstSheetName];
+
+      const isEmpty = !srcSheet['!ref'];
+      if (isEmpty){
+        throw new Error('first sheet is empty');
+      }
+
+      let baseName = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
+      baseName = cleanSheetName(baseName);
+      const finalName = uniqueSheetName(baseName);
+
+      XLSX.utils.book_append_sheet(combinedWorkbook, srcSheet, finalName);
+
+      setRowStatus(file.name, 'ok', finalName);
+      successCount++;
+    } catch (err){
+      setRowStatus(file.name, 'fail', 'skipped');
+      failCount++;
+      errors.push(`- ${file.name} (${err.message || 'unreadable or corrupt'})`);
+    }
+  }
+
+  progressInner.style.width = '100%';
+
+  document.getElementById('stat-total').textContent = selectedFiles.length;
+  document.getElementById('stat-ok').textContent = successCount;
+  document.getElementById('stat-fail').textContent = failCount;
+
+  if (errors.length > 0){
+    errorLog.style.display = 'block';
+    errorLog.textContent = 'Skipped files:\n' + errors.join('\n');
+  } else {
+    errorLog.style.display = 'none';
+  }
+
+  summary.classList.add('show');
+  runBtn.disabled = false;
+  resetBtn.disabled = false;
+});
+
+downloadBtn.addEventListener('click', () => {
+  if (!combinedWorkbook || combinedWorkbook.SheetNames.length === 0){
+    alert('No sheets were successfully combined.');
+    return;
+  }
+  XLSX.writeFile(combinedWorkbook, 'Combined_Workbook.xlsx');
+});
+
+function buildMergedSingleSheet(wb){
+  // Same logic as the VBA macro: first sheet's header row is kept,
+  // every later sheet contributes its data rows only (row 1 skipped).
+  let aoa = [];
+  wb.SheetNames.forEach((name, idx) => {
+    const ws = wb.Sheets[name];
+    const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '', raw: true });
+    if (rows.length === 0) return;
+    aoa = aoa.concat(idx === 0 ? rows : rows.slice(1));
+  });
+
+  const mergedWs = XLSX.utils.aoa_to_sheet(aoa);
+  const mergedWb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(mergedWb, mergedWs, 'Combined');
+  return mergedWb;
+}
+
+downloadMergedBtn.addEventListener('click', () => {
+  if (!combinedWorkbook || combinedWorkbook.SheetNames.length === 0){
+    alert('No sheets were successfully combined.');
+    return;
+  }
+  const mergedWb = buildMergedSingleSheet(combinedWorkbook);
+  XLSX.writeFile(mergedWb, 'Merged_Single_Sheet.xlsx');
+});
+</script>
+
+</body>
+</html>

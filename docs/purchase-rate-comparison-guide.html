@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Purchase Rate Comparison Tool — Documentation | ToolsHub</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+
+:root {
+    --bg:#0f1117;
+    --surface:#1a1d27;
+    --surface2:#222536;
+    --surface3:#2a2e42;
+    --border:#333650;
+    --accent:#6c63ff;
+    --accent2:#a78bfa;
+    --success:#34d399;
+    --warning:#fbbf24;
+    --danger:#f87171;
+    --text:#e2e8f0;
+    --text2:#94a3b8;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+
+body {
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter','Segoe UI',sans-serif;
+    overflow-x:hidden;
+    line-height:1.65;
+}
+
+/* ── HEADER ── */
+.header {
+    height:64px;
+    background:rgba(26,29,39,.92);
+    backdrop-filter:blur(14px);
+    border-bottom:1px solid rgba(108,99,255,.16);
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 48px;
+    position:sticky; top:0; z-index:100;
+}
+.logo { display:flex; align-items:center; gap:12px; text-decoration:none; }
+.logo-icon {
+    width:38px; height:38px; border-radius:10px;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    display:flex; align-items:center; justify-content:center;
+    font-size:18px; box-shadow:0 0 14px rgba(108,99,255,.4);
+}
+.logo-text h1 { font-size:18px; font-weight:700; letter-spacing:-.02em; color:var(--text); }
+.logo-text p  { color:var(--text2); font-size:11px; }
+
+.header-right {
+    display:flex; align-items:center; gap:14px;
+}
+.back-link {
+    display:flex; align-items:center; gap:7px;
+    background:var(--surface2); border:1px solid var(--border);
+    color:var(--text2); text-decoration:none;
+    padding:7px 16px; border-radius:9px;
+    font-size:13px; font-weight:500;
+    transition:all .2s;
+}
+.back-link:hover { border-color:var(--accent); color:var(--text); }
+.launch-btn {
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    color:#fff; text-decoration:none;
+    padding:7px 16px; border-radius:9px;
+    font-size:13px; font-weight:600;
+    box-shadow:0 2px 12px rgba(108,99,255,.3);
+    transition:all .2s;
+}
+.launch-btn:hover { box-shadow:0 4px 20px rgba(108,99,255,.45); transform:translateY(-1px); }
+
+/* ── PAGE LAYOUT ── */
+.page-wrap {
+    display:grid;
+    grid-template-columns:260px 1fr;
+    max-width:1300px; margin:0 auto;
+    gap:0;
+    align-items:start;
+}
+
+/* ── SIDEBAR NAV ── */
+.sidebar {
+    position:sticky; top:64px;
+    height:calc(100vh - 64px);
+    overflow-y:auto;
+    padding:32px 24px;
+    border-right:1px solid var(--border);
+}
+.sidebar::-webkit-scrollbar { width:4px; }
+.sidebar::-webkit-scrollbar-track { background:transparent; }
+.sidebar::-webkit-scrollbar-thumb { background:var(--border); border-radius:4px; }
+
+.nav-section { margin-bottom:28px; }
+.nav-label {
+    font-size:10.5px; font-weight:700; letter-spacing:.1em;
+    color:var(--text2); text-transform:uppercase;
+    margin-bottom:10px; padding-left:4px;
+}
+.nav-item {
+    display:block; text-decoration:none;
+    color:var(--text2); font-size:13px;
+    padding:7px 12px; border-radius:8px;
+    transition:all .18s; margin-bottom:2px;
+    border:1px solid transparent;
+}
+.nav-item:hover { background:var(--surface2); color:var(--text); }
+.nav-item.active { background:rgba(108,99,255,.12); color:var(--accent2); border-color:rgba(108,99,255,.2); }
+
+/* ── MAIN CONTENT ── */
+.main {
+    padding:48px 56px;
+    min-width:0;
+}
+
+/* ── DOC HERO ── */
+.doc-hero {
+    background:linear-gradient(135deg,#14123a,#1e1050);
+    border:1px solid rgba(108,99,255,.22);
+    border-radius:20px;
+    padding:40px 44px;
+    margin-bottom:48px;
+    position:relative; overflow:hidden;
+}
+.doc-hero::before {
+    content:'';
+    position:absolute; width:300px; height:300px; border-radius:50%;
+    background:rgba(108,99,255,.14); top:-120px; right:-80px;
+    filter:blur(60px); pointer-events:none;
+}
+.breadcrumb {
+    display:flex; align-items:center; gap:8px;
+    color:var(--text2); font-size:12.5px; margin-bottom:18px;
+}
+.breadcrumb a { color:var(--text2); text-decoration:none; }
+.breadcrumb a:hover { color:var(--accent2); }
+.breadcrumb span { color:var(--text2); opacity:.5; }
+.doc-hero h1 { font-size:30px; font-weight:800; letter-spacing:-.025em; margin-bottom:12px; }
+.doc-hero p  { color:var(--text2); font-size:15px; line-height:1.8; max-width:680px; }
+.hero-tags { display:flex; flex-wrap:wrap; gap:8px; margin-top:22px; }
+.hero-tag {
+    background:rgba(255,255,255,.05); border:1px solid var(--border);
+    color:var(--text2); padding:5px 13px; border-radius:8px;
+    font-size:12px; font-weight:500;
+}
+
+/* ── SECTION STYLES ── */
+.doc-section { margin-bottom:52px; }
+.doc-section:last-child { margin-bottom:0; }
+
+h2.section-title {
+    font-size:21px; font-weight:700; letter-spacing:-.015em;
+    padding-bottom:14px;
+    border-bottom:1px solid var(--border);
+    margin-bottom:24px;
+    display:flex; align-items:center; gap:10px;
+}
+h2.section-title .sec-icon {
+    width:34px; height:34px; border-radius:9px;
+    background:rgba(108,99,255,.14); border:1px solid rgba(108,99,255,.2);
+    display:flex; align-items:center; justify-content:center;
+    font-size:15px; flex-shrink:0;
+}
+
+h3.sub-title {
+    font-size:15px; font-weight:700; margin-bottom:12px; margin-top:24px;
+    color:var(--text);
+}
+
+p.body-text { color:var(--text2); font-size:14px; line-height:1.8; margin-bottom:14px; }
+p.body-text:last-child { margin-bottom:0; }
+strong { color:var(--text); font-weight:600; }
+
+/* ── CARD ── */
+.card {
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:22px 24px;
+    margin-bottom:16px;
+}
+.card:last-child { margin-bottom:0; }
+
+/* ── STEP CARDS ── */
+.steps { display:flex; flex-direction:column; gap:14px; }
+.step-card {
+    display:flex; gap:18px;
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:14px; padding:22px 24px;
+    transition:border-color .2s;
+}
+.step-card:hover { border-color:rgba(108,99,255,.3); }
+.step-num {
+    width:36px; height:36px; border-radius:10px;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    display:flex; align-items:center; justify-content:center;
+    font-size:15px; font-weight:800; color:#fff;
+    flex-shrink:0; box-shadow:0 2px 10px rgba(108,99,255,.35);
+}
+.step-body h3 { font-size:15px; font-weight:700; margin-bottom:6px; }
+.step-body p  { color:var(--text2); font-size:13.5px; line-height:1.7; }
+.step-body ul { color:var(--text2); font-size:13.5px; line-height:1.7; padding-left:18px; margin-top:8px; }
+.step-body li { margin-bottom:4px; }
+
+/* ── TABLE ── */
+.table-wrap {
+    overflow-x:auto;
+    border:1px solid var(--border);
+    border-radius:12px;
+    margin-bottom:16px;
+}
+table {
+    width:100%; border-collapse:collapse;
+    font-size:13.5px;
+}
+thead th {
+    background:var(--surface2);
+    color:var(--text2); font-weight:600; font-size:11.5px;
+    text-transform:uppercase; letter-spacing:.04em;
+    padding:11px 16px; text-align:left;
+    border-bottom:1px solid var(--border);
+}
+tbody td {
+    padding:10px 16px;
+    border-bottom:1px solid rgba(51,54,80,.5);
+    color:var(--text); vertical-align:top;
+}
+tbody tr:last-child td { border-bottom:none; }
+tbody tr:hover td { background:rgba(108,99,255,.04); }
+td.mono { font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--accent2); }
+td.req  { color:var(--danger); font-size:12px; font-weight:600; }
+td.opt  { color:var(--warning); font-size:12px; font-weight:600; }
+td.dim  { color:var(--text2); font-size:12.5px; }
+
+/* ── INLINE CODE ── */
+code {
+    font-family:'JetBrains Mono',monospace;
+    font-size:12.5px; color:var(--accent2);
+    background:rgba(108,99,255,.1);
+    border:1px solid rgba(108,99,255,.15);
+    padding:2px 7px; border-radius:5px;
+}
+
+/* ── CALLOUTS ── */
+.callout {
+    display:flex; gap:14px; align-items:flex-start;
+    border-radius:12px; padding:16px 18px;
+    margin-bottom:16px; font-size:13.5px; line-height:1.7;
+}
+.callout-icon { font-size:18px; flex-shrink:0; margin-top:1px; }
+.callout-body { color:var(--text2); }
+.callout-body strong { color:var(--text); }
+.callout.info    { background:rgba(108,99,255,.08); border:1px solid rgba(108,99,255,.18); }
+.callout.success { background:rgba(52,211,153,.07); border:1px solid rgba(52,211,153,.18); }
+.callout.warning { background:rgba(251,191,36,.07); border:1px solid rgba(251,191,36,.18); }
+.callout.danger  { background:rgba(248,113,113,.07); border:1px solid rgba(248,113,113,.18); }
+
+/* ── LOGIC DIAGRAM ── */
+.logic-flow {
+    display:flex; flex-direction:column; gap:0;
+}
+.logic-step {
+    display:flex; gap:0; align-items:stretch;
+}
+.logic-line {
+    display:flex; flex-direction:column; align-items:center;
+    width:32px; flex-shrink:0;
+}
+.logic-dot {
+    width:12px; height:12px; border-radius:50%;
+    background:var(--accent); border:2px solid var(--accent2);
+    box-shadow:0 0 8px rgba(108,99,255,.5);
+    flex-shrink:0; margin-top:12px;
+}
+.logic-connector { width:2px; background:var(--border); flex:1; margin-top:0; margin-bottom:0; }
+.logic-step:last-child .logic-connector { display:none; }
+.logic-content {
+    flex:1; background:var(--surface); border:1px solid var(--border);
+    border-radius:12px; padding:14px 18px;
+    margin:4px 0 10px 0; font-size:13.5px;
+}
+.logic-content strong { color:var(--accent2); }
+.logic-content p { color:var(--text2); margin-top:4px; font-size:13px; line-height:1.65; }
+
+/* ── OUTPUT TABS ── */
+.output-tabs {
+    display:flex; gap:2px;
+    background:var(--surface2);
+    border:1px solid var(--border);
+    border-radius:12px 12px 0 0; padding:6px;
+    border-bottom:none;
+}
+.output-tab {
+    padding:8px 18px; border-radius:8px;
+    font-size:13px; font-weight:600;
+    color:var(--text2); cursor:pointer; transition:all .18s;
+}
+.output-tab.active { background:var(--accent); color:#fff; }
+
+.output-panel {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:0 0 12px 12px; padding:22px 24px;
+    margin-bottom:16px;
+}
+
+/* ── EXPORT CARDS ── */
+.export-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+.export-card {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:14px; padding:20px;
+    transition:all .2s;
+}
+.export-card:hover { border-color:rgba(108,99,255,.35); transform:translateY(-2px); }
+.export-card h3 { font-size:14px; font-weight:700; margin-bottom:8px; }
+.export-card p  { color:var(--text2); font-size:12.5px; line-height:1.6; margin-bottom:12px; }
+.export-tag {
+    display:inline-block;
+    background:rgba(52,211,153,.1); border:1px solid rgba(52,211,153,.2);
+    color:var(--success); padding:3px 10px; border-radius:6px;
+    font-size:11px; font-weight:600; letter-spacing:.03em;
+}
+.export-sheets {
+    display:flex; flex-direction:column; gap:5px; margin-top:10px;
+}
+.export-sheet-row {
+    display:flex; align-items:center; gap:8px;
+    font-size:12px; color:var(--text2);
+    font-family:'JetBrains Mono',monospace;
+}
+.sheet-dot { width:6px; height:6px; border-radius:50%; background:var(--accent); flex-shrink:0; }
+
+/* ── FAQ ── */
+.faq-item {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:12px; margin-bottom:10px; overflow:hidden;
+}
+.faq-q {
+    padding:16px 20px; font-size:14px; font-weight:600;
+    display:flex; align-items:center; gap:10px; cursor:pointer;
+    transition:background .2s;
+}
+.faq-q:hover { background:var(--surface2); }
+.faq-q::before { content:'Q'; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--accent2); background:rgba(108,99,255,.12); border:1px solid rgba(108,99,255,.2); padding:2px 8px; border-radius:5px; flex-shrink:0; }
+.faq-a { padding:0 20px 16px 46px; color:var(--text2); font-size:13.5px; line-height:1.75; }
+
+/* ── DISCLAIMER ── */
+.disclaimer {
+    background:rgba(248,113,113,.05);
+    border:1px solid rgba(248,113,113,.2);
+    border-radius:14px; padding:22px 24px;
+    font-size:13.5px; color:var(--text2); line-height:1.8;
+}
+.disclaimer-header {
+    display:flex; align-items:center; gap:10px;
+    margin-bottom:12px;
+}
+.disclaimer-header h3 { font-size:15px; font-weight:700; color:var(--danger); }
+
+/* ── FOOTER ── */
+.footer {
+    border-top:1px solid var(--border);
+    padding:20px 48px;
+    display:flex; align-items:center; justify-content:space-between;
+    color:var(--text2); font-size:12.5px;
+}
+.footer a { color:var(--text2); text-decoration:none; transition:color .2s; }
+.footer a:hover { color:var(--accent2); }
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+    .page-wrap { grid-template-columns:1fr; }
+    .sidebar { display:none; }
+    .main { padding:28px 20px; }
+    .header { padding:0 20px; }
+    .export-grid { grid-template-columns:1fr; }
+    .footer { flex-direction:column; gap:10px; padding:16px 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <a href="../index.html" class="logo">
+        <div class="logo-icon">⚡</div>
+        <div class="logo-text">
+            <h1>ToolsHub</h1>
+            <p>Excel · Audit · Compliance · Finance</p>
+        </div>
+    </a>
+    <div class="header-right">
+        <a href="../index.html" class="back-link">← All Tools</a>
+        <a href="../tools/purchase-rate-comparison-annexure-tool.html" class="launch-btn">Open Tool →</a>
+    </div>
+</div>
+
+<!-- PAGE BODY -->
+<div class="page-wrap">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="nav-section">
+            <div class="nav-label">Overview</div>
+            <a href="#overview"  class="nav-item active">What This Tool Does</a>
+            <a href="#input"     class="nav-item">Input File Format</a>
+        </div>
+        <div class="nav-section">
+            <div class="nav-label">Usage Guide</div>
+            <a href="#step1" class="nav-item">Step 1 — Upload File</a>
+            <a href="#step2" class="nav-item">Step 2 — Map Columns</a>
+            <a href="#step3" class="nav-item">Step 3 — Run Analysis</a>
+            <a href="#step4" class="nav-item">Step 4 — Export</a>
+        </div>
+        <div class="nav-section">
+            <div class="nav-label">Understanding Output</div>
+            <a href="#dashboard" class="nav-item">Dashboard Metrics</a>
+            <a href="#working"   class="nav-item">Working Sheet</a>
+            <a href="#annexure"  class="nav-item">Audit Annexure</a>
+            <a href="#top10"     class="nav-item">Top 10 Exceptions</a>
+            <a href="#filters"   class="nav-item">Filters</a>
+            <a href="#exports"   class="nav-item">Export Options</a>
+        </div>
+        <div class="nav-section">
+            <div class="nav-label">Reference</div>
+            <a href="#logic"      class="nav-item">Analysis Logic</a>
+            <a href="#disclaimer" class="nav-item">Auditor Disclaimer</a>
+            <a href="#faq"        class="nav-item">FAQ</a>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+
+        <!-- DOC HERO -->
+        <div class="doc-hero">
+            <div class="breadcrumb">
+                <a href="../index.html">ToolsHub</a>
+                <span>/</span>
+                <a href="../index.html">Tools</a>
+                <span>/</span>
+                Documentation
+            </div>
+            <h1>📋 Purchase Rate Comparison<br>&amp; Audit Annexure Generator</h1>
+            <p>
+                Upload a PO Register, map columns once, and instantly identify items
+                procured from multiple suppliers in the same month at above-minimum
+                rates — with excess cost quantified and audit annexures ready to export.
+            </p>
+            <div class="hero-tags">
+                <div class="hero-tag">📂 Excel / .xlsx input</div>
+                <div class="hero-tag">🔍 Exception Flagging</div>
+                <div class="hero-tag">₹ Excess Cost Calc</div>
+                <div class="hero-tag">📋 Audit Annexure</div>
+                <div class="hero-tag">⬇ 3 Export Modes</div>
+            </div>
+        </div>
+
+        <!-- ══ 1. OVERVIEW ══ -->
+        <div class="doc-section" id="overview">
+            <h2 class="section-title"><span class="sec-icon">📌</span> What This Tool Does</h2>
+
+            <p class="body-text">
+                In procurement audits a common risk is paying different rates to different
+                suppliers for the same item in the same period. This tool automates that
+                comparison — parsing your PO Register, grouping by
+                <strong>Item Code × Month</strong>, identifying the lowest available rate,
+                and flagging every row where a higher rate was paid when a cheaper source
+                existed that month.
+            </p>
+
+            <p class="body-text">
+                The output is a structured <strong>Audit Annexure</strong> pairing each
+                exception with its lowest-rate counterpart, plus a complete
+                <strong>Working Sheet</strong> with all calculated columns preserved in
+                original row order — ready to attach to an internal audit report.
+            </p>
+
+            <div class="callout success">
+                <span class="callout-icon">✅</span>
+                <div class="callout-body">
+                    <strong>Entirely browser-based.</strong> Your PO Register is processed
+                    locally — no data is uploaded to any server. Works offline after the
+                    page loads.
+                </div>
+            </div>
+        </div>
+
+        <!-- ══ 2. INPUT FORMAT ══ -->
+        <div class="doc-section" id="input">
+            <h2 class="section-title"><span class="sec-icon">📂</span> Input File Format</h2>
+
+            <p class="body-text">
+                Upload a <strong>PO Register</strong> as an <code>.xlsx</code> or <code>.xls</code>
+                file. The file can have multiple sheets — you choose which sheet to read.
+                Column headers can be in any row (configurable); rows above the header row are ignored.
+            </p>
+
+            <h3 class="sub-title">Mandatory Columns</h3>
+            <p class="body-text">All eight columns below must be present (names do not need to match exactly — the tool auto-guesses and you confirm).</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Column Label in Tool</th>
+                            <th>What It Should Contain</th>
+                            <th>Auto-matched Aliases</th>
+                            <th style="text-align:center">Required</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="mono">PoNo</td>
+                            <td class="dim">Purchase Order number / reference</td>
+                            <td class="dim">PO No, PO Number, Purchase Order</td>
+                            <td class="req" style="text-align:center">Yes</td>
+                        </tr>
+                        <tr>
+                            <td class="mono">PoDate</td>
+                            <td class="dim">Date the PO was raised</td>
+                            <td class="dim">PO Date, po_date</td>
+                            <td class="req" style="text-align:center">Yes</td>
+                        </tr>
+                        <tr>
+                            <td class="mono">Supplier Code</td>
+                            <td class="dim">Unique supplier identifier</td>
+                            <td class="dim">SupplierCode, Vendor Code</td>
+                            <td class="req" style="text-align:center">Yes</td>
+                        </tr>
+                        <tr>
+                            <td class="mono">SupplierName</td>
+                            <td class="dim">Supplier / vendor name</td>
+                            <td class="dim">Supplier Name, Vendor Name</td>
+                            <td class="req" style="text-align:center">Yes</td>
+                        </tr>
+                        <tr>
+                            <td class="mono">Item Code</td>
+                            <td class="dim">Unique item / material code</td>
+                            <td class="dim">ItemCode, Material Code</td>
+                            <td class="req" style="text-align:center">Yes</td>
+                        </tr>
+                        <tr>
+                            <td class="mono">ItemDescription</td>
+                            <td class="dim">Human-readable item name</td>
+                            <td class="dim">Item Description, Description</td>
+                            <td class="req" style="text-align:center">Yes</td>
+                        </tr>
+                        <tr>
+                            <td class="mono">Price</td>
+                            <td class="dim">Unit rate (numeric)</td>
+                            <td class="dim">Rate</td>
+                            <td class="req" style="text-align:center">Yes</td>
+                        </tr>
+                        <tr>
+                            <td class="mono">Sum of Po.Qty</td>
+                            <td class="dim">Quantity ordered (numeric)</td>
+                            <td class="dim">Quantity, Qty, PO Qty</td>
+                            <td class="req" style="text-align:center">Yes</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="sub-title">Optional Columns</h3>
+            <p class="body-text">
+                These columns pass through to the Working Sheet and can be used as filters.
+                If your file does not have them, select <strong>"— Not Available —"</strong>
+                in the dropdown — the tool works fine without them.
+            </p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Column Label</th>
+                            <th>Typical Use</th>
+                            <th style="text-align:center">Required</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="mono">Key1</td>
+                            <td class="dim">Any classification — plant, location, department, etc.</td>
+                            <td class="opt" style="text-align:center">Optional</td>
+                        </tr>
+                        <tr>
+                            <td class="mono">ItemType</td>
+                            <td class="dim">Category or type of item</td>
+                            <td class="opt" style="text-align:center">Optional</td>
+                        </tr>
+                        <tr>
+                            <td class="mono">Key2</td>
+                            <td class="dim">Any secondary classification</td>
+                            <td class="opt" style="text-align:center">Optional</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout warning">
+                <span class="callout-icon">⚠️</span>
+                <div class="callout-body">
+                    <strong>Rows that are skipped:</strong> Any row where <code>PoDate</code>
+                    cannot be parsed, <code>Price</code> is non-numeric or zero, or
+                    <code>Item Code</code> is blank will be skipped and counted separately
+                    in the Dashboard.
+                </div>
+            </div>
+        </div>
+
+        <!-- ══ 3. STEP-BY-STEP ══ -->
+        <div class="doc-section" id="step1">
+            <h2 class="section-title"><span class="sec-icon">🚀</span> Step-by-Step Usage Guide</h2>
+
+            <div class="steps">
+
+                <div class="step-card" id="step1">
+                    <div class="step-num">1</div>
+                    <div class="step-body">
+                        <h3>Upload Your PO Register</h3>
+                        <p>
+                            Drag and drop your Excel file onto the upload zone, or click to browse.
+                            Supported formats: <code>.xlsx</code>, <code>.xls</code>.
+                            Once uploaded, a sheet explorer appears — click the correct sheet tab
+                            to preview its data.
+                        </p>
+                        <ul>
+                            <li>If your header row is not Row 1, change the <strong>Header Row</strong> setting (default: 1).</li>
+                            <li>The preview table shows the first few rows so you can confirm the right sheet is selected.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="step-card" id="step2">
+                    <div class="step-num">2</div>
+                    <div class="step-body">
+                        <h3>Map Mandatory &amp; Optional Columns</h3>
+                        <p>
+                            The tool auto-guesses column mappings based on common naming conventions.
+                            <strong>Verify each dropdown</strong> before running — particularly
+                            <code>Price</code>, <code>Item Code</code>, and <code>PoDate</code>.
+                        </p>
+                        <ul>
+                            <li>All 8 mandatory columns must be mapped to a column from your file.</li>
+                            <li>For optional columns (Key1, ItemType, Key2) — select <strong>"— Not Available —"</strong> if your file does not have them.</li>
+                            <li>Optional filter dropdowns (Key1, ItemType) only appear in the Results panel when those columns are mapped.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="step-card" id="step3">
+                    <div class="step-num">3</div>
+                    <div class="step-body">
+                        <h3>Run Analysis</h3>
+                        <p>
+                            Click <strong>Run Analysis</strong>. The tool processes all rows and
+                            immediately shows the Exception Dashboard, Working Sheet, Audit Annexure,
+                            and Top 10 Exceptions tabs. Use the filters to drill into specific months,
+                            suppliers, or item codes.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="step-card" id="step4">
+                    <div class="step-num">4</div>
+                    <div class="step-body">
+                        <h3>Export</h3>
+                        <p>
+                            Choose from three export buttons depending on what you need for your
+                            audit file. Exports are always <strong>unfiltered</strong> (full dataset)
+                            regardless of active filters — preserving a complete audit trail.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ══ 4. UNDERSTANDING OUTPUT ══ -->
+        <div class="doc-section" id="dashboard">
+            <h2 class="section-title"><span class="sec-icon">📊</span> Dashboard Metrics</h2>
+
+            <p class="body-text">
+                The dashboard appears at the top of the Results panel and gives an
+                at-a-glance summary of the analysis.
+            </p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Metric</th><th>Description</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="mono">Total Records</td>
+                            <td class="dim">Valid rows processed (excludes skipped rows)</td>
+                        </tr>
+                        <tr>
+                            <td class="mono">Exception Records</td>
+                            <td class="dim">Rows where the item was bought from multiple suppliers in the same month and this row's rate was above the month's lowest available rate</td>
+                        </tr>
+                        <tr>
+                            <td class="mono">Total Potential Excess Cost</td>
+                            <td class="dim">Sum of (Price − Lowest Rate) × Qty across all exception records — i.e., the total that <em>could</em> have been saved had the lowest rate been used</td>
+                        </tr>
+                        <tr>
+                            <td class="mono">Rows Skipped</td>
+                            <td class="dim">Rows excluded due to invalid date, non-numeric price, or blank Item Code</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card" style="border-left:3px solid var(--warning);">
+                <strong style="font-size:13.5px;">Highest Impact Exception</strong>
+                <p style="color:var(--text2);font-size:13px;margin-top:6px;line-height:1.7;">
+                    Below the four stat cards, the tool highlights the single exception with the
+                    largest Excess Cost — showing the PO number, Item Code, Item Description,
+                    both supplier names, their respective prices, and the excess cost amount.
+                    If no exceptions are found, a green "No Exceptions Found" message appears instead.
+                </p>
+            </div>
+        </div>
+
+        <!-- Working Sheet -->
+        <div class="doc-section" id="working">
+            <h2 class="section-title"><span class="sec-icon">📄</span> Working Sheet</h2>
+
+            <p class="body-text">
+                The Working Sheet preserves every valid row from the original PO Register
+                in its <strong>original row order</strong> — no grouping or sorting is applied.
+                Seven calculated columns are appended to the right of the original data.
+            </p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Column</th><th>Origin</th><th>Description</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td class="mono">PoNo</td><td class="dim">Source</td><td class="dim">As-is from your file</td></tr>
+                        <tr><td class="mono">PoDate</td><td class="dim">Source</td><td class="dim">Displayed as DD-Mon-YYYY</td></tr>
+                        <tr><td class="mono">Month</td><td class="dim">Calculated</td><td class="dim">Derived from PoDate — e.g. <code>Mar-26</code>. Used for grouping.</td></tr>
+                        <tr><td class="mono">Supplier Code</td><td class="dim">Source</td><td class="dim">As-is</td></tr>
+                        <tr><td class="mono">SupplierName</td><td class="dim">Source</td><td class="dim">As-is</td></tr>
+                        <tr><td class="mono">Key1</td><td class="dim">Source / blank</td><td class="dim">Only populated if column was mapped</td></tr>
+                        <tr><td class="mono">ItemType</td><td class="dim">Source / blank</td><td class="dim">Only populated if column was mapped</td></tr>
+                        <tr><td class="mono">Key2</td><td class="dim">Source / blank</td><td class="dim">Only populated if column was mapped</td></tr>
+                        <tr><td class="mono">Item Code</td><td class="dim">Source</td><td class="dim">As-is</td></tr>
+                        <tr><td class="mono">ItemDescription</td><td class="dim">Source</td><td class="dim">As-is</td></tr>
+                        <tr><td class="mono">Price</td><td class="dim">Source</td><td class="dim">Unit rate</td></tr>
+                        <tr><td class="mono">Sum of Po.Qty</td><td class="dim">Source</td><td class="dim">Quantity ordered</td></tr>
+                        <tr><td class="mono">Lowest Rate</td><td class="dim">Calculated</td><td class="dim">Minimum Price among all suppliers for the same Item Code in the same Month</td></tr>
+                        <tr><td class="mono">Lowest Supplier</td><td class="dim">Calculated</td><td class="dim">SupplierName corresponding to the Lowest Rate</td></tr>
+                        <tr><td class="mono">Rate Diff</td><td class="dim">Calculated</td><td class="dim">Price − Lowest Rate (zero for non-exceptions)</td></tr>
+                        <tr><td class="mono">Excess Cost</td><td class="dim">Calculated</td><td class="dim">Rate Diff × Sum of Po.Qty</td></tr>
+                        <tr>
+                            <td class="mono">Flag</td>
+                            <td class="dim">Calculated</td>
+                            <td class="dim">
+                                <code>Exception</code> when: (a) the item appears with 2+ different suppliers in the same month, AND (b) this row's Price &gt; Lowest Rate.<br>
+                                Blank otherwise.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout info">
+                <span class="callout-icon">ℹ️</span>
+                <div class="callout-body">
+                    Rows that are the <em>lowest-rate</em> record for their group are <strong>not</strong>
+                    flagged as exceptions — even if the same item appears with higher-rate POs. The
+                    <code>Flag</code> column is blank, <code>Rate Diff</code> is 0, and
+                    <code>Excess Cost</code> is 0 for those rows.
+                </div>
+            </div>
+        </div>
+
+        <!-- Annexure -->
+        <div class="doc-section" id="annexure">
+            <h2 class="section-title"><span class="sec-icon">📋</span> Audit Annexure</h2>
+
+            <p class="body-text">
+                The Audit Annexure is structured for direct inclusion in an internal audit report.
+                Each exception group consists of <strong>two types of rows</strong>:
+            </p>
+
+            <div class="card" style="border-left:3px solid var(--success);">
+                <strong>Lowest Rate record</strong> — the reference baseline. Shows the cheapest PO
+                for the item in that month, with Rate Diff and Excess Cost shown as zero.
+            </div>
+            <div class="card" style="border-left:3px solid var(--danger);">
+                <strong>Exception record(s)</strong> — one row per PO that paid above the lowest rate.
+                Shows the rate differential and the resulting excess cost.
+            </div>
+
+            <div class="table-wrap" style="margin-top:16px;">
+                <table>
+                    <thead>
+                        <tr><th>Column</th><th>Description</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td class="mono">Group No</td><td class="dim">Sequential group number — each unique Month + Item Code pair gets one Group No</td></tr>
+                        <tr><td class="mono">Record Type</td><td class="dim"><code>Lowest Rate</code> or <code>Exception</code></td></tr>
+                        <tr><td class="mono">PoNo</td><td class="dim">Purchase Order number</td></tr>
+                        <tr><td class="mono">Supplier</td><td class="dim">Supplier name</td></tr>
+                        <tr><td class="mono">Item Code</td><td class="dim">Item / material code</td></tr>
+                        <tr><td class="mono">Item Description</td><td class="dim">Item name</td></tr>
+                        <tr><td class="mono">Price</td><td class="dim">Unit rate paid in this PO</td></tr>
+                        <tr><td class="mono">Qty</td><td class="dim">Quantity ordered</td></tr>
+                        <tr><td class="mono">Lowest Rate</td><td class="dim">The baseline minimum rate for this item in this month</td></tr>
+                        <tr><td class="mono">Lowest Supplier</td><td class="dim">Supplier providing the lowest rate</td></tr>
+                        <tr><td class="mono">Rate Diff</td><td class="dim">Price − Lowest Rate (0 for Lowest Rate rows)</td></tr>
+                        <tr><td class="mono">Excess Cost</td><td class="dim">Rate Diff × Qty (0 for Lowest Rate rows)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout warning">
+                <span class="callout-icon">⚠️</span>
+                <div class="callout-body">
+                    If no exceptions are found, the Annexure tab will be empty and
+                    <strong>Export Annexure</strong> will show a prompt informing you of this.
+                    This is expected — it means no multi-supplier rate discrepancies were detected
+                    in the data.
+                </div>
+            </div>
+        </div>
+
+        <!-- Top 10 -->
+        <div class="doc-section" id="top10">
+            <h2 class="section-title"><span class="sec-icon">🏆</span> Top 10 Exceptions</h2>
+
+            <p class="body-text">
+                The <strong>Top 10 Exceptions</strong> tab ranks exception records by
+                <code>Excess Cost</code> (descending) and shows the ten highest-impact
+                procurement anomalies. This view is <strong>unaffected by filters</strong>
+                — it always shows the top 10 across the full dataset so the highest-risk
+                items are never hidden.
+            </p>
+        </div>
+
+        <!-- Filters -->
+        <div class="doc-section" id="filters">
+            <h2 class="section-title"><span class="sec-icon">🔍</span> Filters</h2>
+
+            <p class="body-text">
+                The filter bar appears above the data tabs in the Results panel.
+                All filters apply simultaneously (AND logic) to the <strong>Working Sheet</strong>
+                and <strong>Audit Annexure</strong> views.
+            </p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Filter</th><th>Values</th><th>Notes</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="mono">Month</td>
+                            <td class="dim">All, or any month present in data (e.g. <code>Mar-26</code>)</td>
+                            <td class="dim">Always shown</td>
+                        </tr>
+                        <tr>
+                            <td class="mono">Supplier</td>
+                            <td class="dim">All, or any supplier name</td>
+                            <td class="dim">Always shown</td>
+                        </tr>
+                        <tr>
+                            <td class="mono">Item Code</td>
+                            <td class="dim">All, or any Item Code</td>
+                            <td class="dim">Always shown</td>
+                        </tr>
+                        <tr>
+                            <td class="mono">Key1</td>
+                            <td class="dim">All, or any Key1 value</td>
+                            <td class="dim">Only shown if Key1 was mapped</td>
+                        </tr>
+                        <tr>
+                            <td class="mono">ItemType</td>
+                            <td class="dim">All, or any ItemType value</td>
+                            <td class="dim">Only shown if ItemType was mapped</td>
+                        </tr>
+                        <tr>
+                            <td class="mono">Exception Only</td>
+                            <td class="dim">Checkbox — when checked, Working Sheet shows only rows where Flag = Exception</td>
+                            <td class="dim">Does not affect Top 10 tab</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout info">
+                <span class="callout-icon">ℹ️</span>
+                <div class="callout-body">
+                    In the <strong>Annexure</strong> view, when filters are active, a group is
+                    included only if at least one of its <em>Exception</em> rows matches the
+                    filter — but the paired Lowest Rate row for that group is always included
+                    alongside it to maintain context.
+                </div>
+            </div>
+        </div>
+
+        <!-- Exports -->
+        <div class="doc-section" id="exports">
+            <h2 class="section-title"><span class="sec-icon">⬇</span> Export Options</h2>
+
+            <p class="body-text">
+                Three export buttons are available. All exports use the <strong>full, unfiltered
+                dataset</strong> to maintain a complete audit trail — active filters do not
+                restrict exports.
+            </p>
+
+            <div class="export-grid">
+
+                <div class="export-card">
+                    <h3>Export Working</h3>
+                    <p>Single-sheet workbook with all valid rows and all 17 calculated columns.</p>
+                    <div class="export-tag">1 SHEET</div>
+                    <div class="export-sheets">
+                        <div class="export-sheet-row"><div class="sheet-dot"></div>Working</div>
+                    </div>
+                </div>
+
+                <div class="export-card">
+                    <h3>Export Annexure</h3>
+                    <p>Single-sheet workbook with the structured exception pairs grouped by Group No.</p>
+                    <div class="export-tag">1 SHEET</div>
+                    <div class="export-sheets">
+                        <div class="export-sheet-row"><div class="sheet-dot"></div>Annexure</div>
+                    </div>
+                </div>
+
+                <div class="export-card">
+                    <h3>Export Complete Audit File</h3>
+                    <p>Full audit package — three sheets in one workbook, ready to attach to the audit report.</p>
+                    <div class="export-tag">3 SHEETS</div>
+                    <div class="export-sheets">
+                        <div class="export-sheet-row"><div class="sheet-dot"></div>Working</div>
+                        <div class="export-sheet-row"><div class="sheet-dot"></div>Annexure</div>
+                        <div class="export-sheet-row"><div class="sheet-dot"></div>Summary</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <h3 class="sub-title">Summary Sheet (Complete Audit File only)</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Particulars</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td class="mono">Total Records Processed</td><td class="dim">Count of valid rows included in the analysis</td></tr>
+                        <tr><td class="mono">Total Exceptions</td><td class="dim">Count of rows flagged as Exception</td></tr>
+                        <tr><td class="mono">Total Potential Excess Cost (₹)</td><td class="dim">Sum of Excess Cost across all exceptions</td></tr>
+                        <tr><td class="mono">Highest Exception Amount (₹)</td><td class="dim">Largest single Excess Cost value</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ══ ANALYSIS LOGIC ══ -->
+        <div class="doc-section" id="logic">
+            <h2 class="section-title"><span class="sec-icon">⚙️</span> Analysis Logic (Step by Step)</h2>
+
+            <div class="logic-flow">
+
+                <div class="logic-step">
+                    <div class="logic-line">
+                        <div class="logic-dot"></div>
+                        <div class="logic-connector"></div>
+                    </div>
+                    <div class="logic-content">
+                        <strong>Parse &amp; Validate Rows</strong>
+                        <p>Each row is checked: PoDate must be a recognisable date, Price must be a
+                        non-zero number, Item Code must not be blank. Invalid rows are skipped and
+                        counted in "Rows Skipped".</p>
+                    </div>
+                </div>
+
+                <div class="logic-step">
+                    <div class="logic-line">
+                        <div class="logic-dot"></div>
+                        <div class="logic-connector"></div>
+                    </div>
+                    <div class="logic-content">
+                        <strong>Derive Month</strong>
+                        <p>The <code>Month</code> column is computed from PoDate as
+                        <code>Mon-YY</code> (e.g. <code>Mar-26</code>). This is the
+                        primary grouping unit — two POs with different PoDate values
+                        in the same calendar month are treated as the same period.</p>
+                    </div>
+                </div>
+
+                <div class="logic-step">
+                    <div class="logic-line">
+                        <div class="logic-dot"></div>
+                        <div class="logic-connector"></div>
+                    </div>
+                    <div class="logic-content">
+                        <strong>Group by Month × Item Code</strong>
+                        <p>All rows with the same Item Code in the same Month are placed in one group.
+                        Items that appear with only one supplier in a month are never flagged —
+                        there is no comparison available.</p>
+                    </div>
+                </div>
+
+                <div class="logic-step">
+                    <div class="logic-line">
+                        <div class="logic-dot"></div>
+                        <div class="logic-connector"></div>
+                    </div>
+                    <div class="logic-content">
+                        <strong>Identify Lowest Rate</strong>
+                        <p>Within each group, the row with the minimum Price is the
+                        <em>Lowest Rate record</em>. Its supplier becomes the
+                        <code>Lowest Supplier</code> for the entire group.
+                        If two rows share the same minimum price (a tie), neither is flagged —
+                        the tied rows are both treated as the Lowest Rate baseline.</p>
+                    </div>
+                </div>
+
+                <div class="logic-step">
+                    <div class="logic-line">
+                        <div class="logic-dot"></div>
+                        <div class="logic-connector"></div>
+                    </div>
+                    <div class="logic-content">
+                        <strong>Flag Exceptions &amp; Calculate Excess Cost</strong>
+                        <p>A row is flagged <code>Exception</code> when:
+                        <br>① the group has more than one record (multi-supplier month), AND
+                        <br>② this row's Price &gt; Lowest Rate.
+                        <br>
+                        <code>Rate Diff = Price − Lowest Rate</code>
+                        <br>
+                        <code>Excess Cost = Rate Diff × Sum of Po.Qty</code>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="logic-step">
+                    <div class="logic-line">
+                        <div class="logic-dot"></div>
+                    </div>
+                    <div class="logic-content">
+                        <strong>Build Annexure</strong>
+                        <p>For each exception group, one <em>Lowest Rate</em> context row is written
+                        first, followed by all its paired <em>Exception</em> rows. Groups are numbered
+                        sequentially starting from 1. The Working Sheet retains original row order.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ══ DISCLAIMER ══ -->
+        <div class="doc-section" id="disclaimer">
+            <h2 class="section-title"><span class="sec-icon">⚠️</span> Auditor Disclaimer</h2>
+
+            <div class="disclaimer">
+                <div class="disclaimer-header">
+                    <span style="font-size:20px;">⚠️</span>
+                    <h3>Important — For Auditor Review</h3>
+                </div>
+                <p>
+                    This tool identifies <strong>rate-based exceptions only</strong>. A higher rate
+                    paid to one supplier does not automatically constitute a procurement irregularity.
+                    Before drawing audit conclusions, the responsible auditor must consider all
+                    non-rate factors, including:
+                </p>
+                <ul style="padding-left:20px;margin-top:12px;line-height:2;">
+                    <li>Technical specifications and product differences between suppliers</li>
+                    <li>Brand, quality grade, or material composition variations</li>
+                    <li>Urgent procurement requirements (emergency orders)</li>
+                    <li>Freight, delivery, and logistics cost implications</li>
+                    <li>Approved vendor lists and vendor qualification constraints</li>
+                    <li>Management approvals and sanctioned deviations</li>
+                    <li>Contractual obligations, rate contracts, or annual agreements</li>
+                </ul>
+                <p style="margin-top:14px;">
+                    The output of this tool is <strong>working paper material</strong> to assist
+                    audit analysis — not a final audit finding. All exceptions should be discussed
+                    with the relevant procurement and management teams before formal reporting.
+                </p>
+            </div>
+        </div>
+
+        <!-- ══ FAQ ══ -->
+        <div class="doc-section" id="faq">
+            <h2 class="section-title"><span class="sec-icon">❓</span> FAQ</h2>
+
+            <div class="faq-item">
+                <div class="faq-q">My column names are different from the labels in the tool. Will it still work?</div>
+                <div class="faq-a">Yes. The tool auto-guesses mappings using common aliases, then lets you confirm or change each dropdown. As long as your file has columns containing the right data, the names do not need to match.</div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-q">An item was bought from the same supplier twice in a month at different rates. Is that flagged?</div>
+                <div class="faq-a">Only if <em>another</em> supplier also has a PO for the same item in the same month at a lower rate. The exception condition requires two or more different suppliers in the same month. Same-supplier rate variation alone is not flagged — the tool compares across suppliers, not within one supplier.</div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-q">Two suppliers have identical prices for an item in the same month. Is either flagged?</div>
+                <div class="faq-a">No. When two rows share the minimum price (a tie), neither is flagged as an exception. Both are treated as Lowest Rate records and <code>Rate Diff</code> and <code>Excess Cost</code> are zero for both.</div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-q">The same item appears in March and April. Are they compared against each other?</div>
+                <div class="faq-a">No. Grouping is by <strong>Month × Item Code</strong>. An item in March is a completely separate group from the same item in April. Cross-month comparisons are not performed.</div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-q">My file has 50,000 rows. Will the tool handle it?</div>
+                <div class="faq-a">Yes — the analysis runs entirely in your browser memory. For very large files the analysis may take a few seconds, but there is no hard row limit. The on-screen table previews cap at 500 rows for performance; exports always contain the full dataset.</div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-q">I applied filters and then clicked Export. Does the export reflect the filtered view?</div>
+                <div class="faq-a">No. All three export options always export the <strong>complete, unfiltered dataset</strong>. This is intentional — audit working papers must represent all data, not just a filtered subset.</div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-q">My header row is not Row 1. How do I handle that?</div>
+                <div class="faq-a">Change the <strong>Header Row</strong> number in the configuration sidebar before mapping columns. Rows above the header row are ignored; rows below it are treated as data.</div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-q">Can I re-run the analysis with different column mappings?</div>
+                <div class="faq-a">Yes. Change any column dropdown in the sidebar and click <strong>Run Analysis</strong> again. The results panel will update completely. Click <strong>New Analysis</strong> to start fresh with a different file.</div>
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+    <span>ToolsHub © 2026 — Built for Productivity</span>
+    <div style="display:flex;gap:20px;">
+        <a href="../index.html">All Tools</a>
+        <a href="../tools/purchase-rate-comparison-annexure-tool.html">Open Tool →</a>
+    </div>
+</div>
+
+</body>
+</html>

@@ -221,7 +221,7 @@
   tbody tr:hover td { background: var(--surface2); }
   tbody tr:last-child td { border-bottom: none; }
   tbody tr.case-row { cursor: pointer; }
-  tbody tr.detail-row td { background: var(--surface2); padding: 0; }
+  tbody tr.detail-row td { background: var(--surface2); padding: 0; border-bottom: 2px solid var(--border); }
   tbody tr.detail-row .detail-wrap { padding: 14px 16px; }
   tbody tr.detail-row table thead th { background: var(--surface3); position: static; }
 
@@ -412,12 +412,34 @@
   .badge-yes    { background: rgba(248,113,113,.15); color: var(--danger);  border: 1px solid rgba(248,113,113,.35); }
   .badge-no     { background: rgba(148,163,184,.12); color: var(--text2);  border: 1px solid var(--border); }
 
-  /* ── Matrix table ── */
-  .matrix-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
-  .matrix-table th { font-size: 10px; text-transform: uppercase; letter-spacing: .5px; color: var(--text3); text-align: left; padding: 4px 6px; }
-  .matrix-table td { padding: 4px 6px; }
-  .matrix-table input { padding: 7px 9px; font-size: 12px; }
-  .matrix-row-actions { display: flex; justify-content: center; }
+  /* ── Matrix rows (card-based) ── */
+  .matrix-rows { display: flex; flex-direction: column; gap: 10px; }
+  .matrix-row {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    position: relative;
+  }
+  .matrix-row-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .matrix-row-grid .field-level { grid-column: 1 / -1; margin-top: 10px; }
+  .matrix-row label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: var(--text3);
+    margin-bottom: 4px;
+  }
+  .matrix-row input { font-size: 13px; padding: 8px 10px; }
+  .matrix-row-del {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+  }
 
   /* ── Scrollbar ── */
   ::-webkit-scrollbar { width: 5px; height: 5px; }
@@ -489,19 +511,12 @@
         </div>
         <hr class="divider" style="margin-bottom:14px;">
 
-        <p class="hint" style="margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;font-weight:700;color:var(--text3);">Mandatory fields</p>
+        <p class="hint" style="margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;font-weight:700;color:var(--text3);">Column mapping</p>
         <div class="form-group"><label>PO Number *</label><select id="map_poNumber"></select></div>
         <div class="form-group"><label>PO Date *</label><select id="map_poDate"></select></div>
         <div class="form-group"><label>Supplier Name *</label><select id="map_supplier"></select></div>
         <div class="form-group"><label>PO Value *</label><select id="map_poValue"></select></div>
-
-        <hr class="divider" style="margin:14px 0;">
-        <p class="hint" style="margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;font-weight:700;color:var(--text3);">Optional fields</p>
         <div class="form-group"><label>Supplier Code</label><select id="map_supplierCode"></select></div>
-        <div class="form-group"><label>Department</label><select id="map_department"></select></div>
-        <div class="form-group"><label>Cost Center</label><select id="map_costCenter"></select></div>
-        <div class="form-group"><label>Requisition Number</label><select id="map_reqNumber"></select></div>
-        <div class="form-group"><label>Item Code</label><select id="map_itemCode"></select></div>
       </div>
     </div>
 
@@ -527,11 +542,8 @@
         </div>
 
         <div id="matrixManualWrap">
-          <table class="matrix-table" id="matrixTable">
-            <thead><tr><th>From (₹)</th><th>To (₹)</th><th>Approval Level</th><th></th></tr></thead>
-            <tbody id="matrixTbody"></tbody>
-          </table>
-          <button class="btn btn-outline btn-sm" id="addMatrixRowBtn" style="width:100%;justify-content:center;">+ Add Row</button>
+          <div id="matrixRows" class="matrix-rows"></div>
+          <button class="btn btn-outline btn-sm" id="addMatrixRowBtn" style="width:100%;justify-content:center;margin-top:10px;">+ Add Row</button>
         </div>
 
         <div id="matrixUploadWrap" class="hidden">
@@ -579,6 +591,14 @@
     <div id="resultsSection" class="hidden">
 
       <div class="card">
+        <div class="card-title">📐 Working: Daily Supplier-wise PO Summary</div>
+        <p class="hint" style="margin-bottom:14px;">Before clustering, every PO is grouped by single supplier + single PO date and summed. This is the working basis for the splitting test below.</p>
+        <div class="table-wrap" style="max-height:280px;">
+          <table id="dailySummaryTable"><thead></thead><tbody></tbody></table>
+        </div>
+      </div>
+
+      <div class="card">
         <div class="card-title">📊 Detection Summary</div>
         <div class="stats-grid" id="statsGrid"></div>
       </div>
@@ -613,8 +633,9 @@ let matrixWb = null;
 let approvalMatrix = []; // [{from, to, level}]
 
 let casesResult = []; // computed cases
+let dailySummaryResult = []; // daily supplier-wise pivot summary
 
-const OPTIONAL_FIELDS = ['supplierCode','department','costCenter','reqNumber','itemCode'];
+const OPTIONAL_FIELDS = ['supplierCode'];
 const MANDATORY_FIELDS = ['poNumber','poDate','supplier','poValue'];
 
 /* ══════════════ Helpers ══════════════ */
@@ -773,10 +794,6 @@ function populateMappingDropdowns() {
     supplier: head.find(h => /supplier/i.test(h)),
     poValue: head.find(h => /value|amount/i.test(h)),
     supplierCode: head.find(h => /supplier\s*code/i.test(h)),
-    department: head.find(h => /department/i.test(h)),
-    costCenter: head.find(h => /cost\s*center|cost\s*centre/i.test(h)),
-    reqNumber: head.find(h => /requisition/i.test(h)),
-    itemCode: head.find(h => /item\s*code/i.test(h)),
   };
 
   MANDATORY_FIELDS.forEach(f => {
@@ -813,24 +830,35 @@ function defaultMatrix() {
 approvalMatrix = defaultMatrix();
 
 function renderMatrixTable() {
-  const tbody = $('matrixTbody');
-  tbody.innerHTML = approvalMatrix.map((row, i) => `
-    <tr>
-      <td><input type="number" data-i="${i}" data-f="from" value="${row.from}"></td>
-      <td><input type="number" data-i="${i}" data-f="to" value="${row.to}"></td>
-      <td><input type="text" data-i="${i}" data-f="level" value="${esc(row.level)}"></td>
-      <td class="matrix-row-actions"><button class="btn-icon" data-del="${i}" title="Remove row">✕</button></td>
-    </tr>
+  const wrap = $('matrixRows');
+  wrap.innerHTML = approvalMatrix.map((row, i) => `
+    <div class="matrix-row">
+      <button class="btn-icon matrix-row-del" data-del="${i}" title="Remove row">✕</button>
+      <div class="matrix-row-grid">
+        <div>
+          <label>From Amount (₹)</label>
+          <input type="number" data-i="${i}" data-f="from" value="${row.from}">
+        </div>
+        <div>
+          <label>To Amount (₹)</label>
+          <input type="number" data-i="${i}" data-f="to" value="${row.to}">
+        </div>
+        <div class="field-level">
+          <label>Approval Level</label>
+          <input type="text" data-i="${i}" data-f="level" value="${esc(row.level)}" placeholder="e.g. Manager">
+        </div>
+      </div>
+    </div>
   `).join('');
 
-  tbody.querySelectorAll('input').forEach(inp => {
+  wrap.querySelectorAll('input').forEach(inp => {
     inp.addEventListener('input', () => {
       const i = parseInt(inp.dataset.i), f = inp.dataset.f;
       approvalMatrix[i][f] = (f === 'level') ? inp.value : parseNum(inp.value);
       checkRunReady();
     });
   });
-  tbody.querySelectorAll('[data-del]').forEach(btn => {
+  wrap.querySelectorAll('[data-del]').forEach(btn => {
     btn.addEventListener('click', () => {
       approvalMatrix.splice(parseInt(btn.dataset.del), 1);
       renderMatrixTable();
@@ -936,11 +964,25 @@ async function runDetection() {
     supplier: String(r[mapping.supplier] ?? '').trim(),
     value: parseNum(r[mapping.poValue]),
     supplierCode: mapping.supplierCode ? r[mapping.supplierCode] : '',
-    department: mapping.department ? r[mapping.department] : '',
-    costCenter: mapping.costCenter ? r[mapping.costCenter] : '',
-    reqNumber: mapping.reqNumber ? r[mapping.reqNumber] : '',
-    itemCode: mapping.itemCode ? r[mapping.itemCode] : '',
   })).filter(p => p.poDate && p.supplier);
+
+  // STEP 0: Daily Supplier-wise Summary (pivot) — sum of PO Value for a single supplier on a single date
+  const dailyMap = {};
+  pos.forEach(p => {
+    const key = p.supplier + '|' + p.poDate.getTime();
+    if (!dailyMap[key]) {
+      dailyMap[key] = { supplier: p.supplier, date: p.poDate, poCount: 0, totalValue: 0, poNumbers: [] };
+    }
+    dailyMap[key].poCount++;
+    dailyMap[key].totalValue += p.value;
+    dailyMap[key].poNumbers.push(p.poNumber);
+  });
+  const dailySummary = Object.values(dailyMap).sort((a,b) => a.supplier.localeCompare(b.supplier) || a.date - b.date);
+  dailySummary.forEach(d => {
+    d.approvalLevel = getApprovalLevel(d.totalValue).level;
+  });
+  dailySummaryResult = dailySummary;
+
 
   // STEP 1: group by supplier (Supplier Clusters)
   const bySupplier = {};
@@ -1044,10 +1086,30 @@ async function runDetection() {
   setPill(4);
 }
 
+/* ══════════════ Render Daily Summary ══════════════ */
+function renderDailySummary(dailySummary) {
+  const cols = ['Supplier','Date','PO Count','Total PO Value','PO Numbers','Approval Level'];
+  const tbl = $('dailySummaryTable');
+  tbl.querySelector('thead').innerHTML = '<tr>' + cols.map(c => `<th>${c}</th>`).join('') + '</tr>';
+  const tbody = tbl.querySelector('tbody');
+  tbody.innerHTML = dailySummary.map(d => `
+    <tr>
+      <td>${esc(d.supplier)}</td>
+      <td>${fmtDate(d.date)}</td>
+      <td>${d.poCount}</td>
+      <td>${fmtMoney(d.totalValue)}</td>
+      <td>${esc(d.poNumbers.join(', '))}</td>
+      <td>${esc(d.approvalLevel)}</td>
+    </tr>
+  `).join('');
+}
+
 /* ══════════════ Render Results ══════════════ */
 function renderResults() {
   $('resultsSection').classList.remove('hidden');
   $('resultsSection').scrollIntoView({ behavior: 'smooth' });
+
+  renderDailySummary(dailySummaryResult);
 
   const totalCases = casesResult.length;
   const totalPOs = casesResult.reduce((s,c) => s + c.poCount, 0);
@@ -1095,7 +1157,7 @@ function renderResults() {
     const detailRow = document.createElement('tr');
     detailRow.className = 'detail-row hidden';
     const detailCols = ['PO Number','Date','Supplier','Value'];
-    if (getMapping().department) detailCols.splice(3,0,'Department');
+    if (getMapping().supplierCode) detailCols.push('Supplier Code');
     detailRow.innerHTML = `
       <td colspan="${cols.length}">
         <div class="detail-wrap">
@@ -1107,8 +1169,8 @@ function renderResults() {
                   <td>${esc(p.poNumber)}</td>
                   <td>${fmtDate(p.poDate)}</td>
                   <td>${esc(p.supplier)}</td>
-                  ${getMapping().department ? `<td>${esc(p.department)}</td>` : ''}
                   <td>${fmtMoney(p.value)}</td>
+                  ${getMapping().supplierCode ? `<td>${esc(p.supplierCode)}</td>` : ''}
                 </tr>
               `).join('')}
             </tbody>
@@ -1146,7 +1208,10 @@ $('downloadBtn').addEventListener('click', () => {
   }));
 
   const sheet2 = [];
-  casesResult.forEach(c => {
+  const sheet2BlankRow = {
+    'Case ID': '', 'PO Number': '', 'PO Date': '', 'Supplier Name': '', 'PO Value': '', 'Supplier Code': '',
+  };
+  casesResult.forEach((c, ci) => {
     c.pos.slice().sort((a,b)=>a.poDate-b.poDate).forEach(p => {
       sheet2.push({
         'Case ID': c.caseId,
@@ -1155,18 +1220,26 @@ $('downloadBtn').addEventListener('click', () => {
         'Supplier Name': p.supplier,
         'PO Value': p.value,
         'Supplier Code': p.supplierCode,
-        'Department': p.department,
-        'Cost Center': p.costCenter,
-        'Requisition Number': p.reqNumber,
-        'Item Code': p.itemCode,
       });
     });
+    // Blank row to visually separate this case from the next
+    if (ci < casesResult.length - 1) sheet2.push({ ...sheet2BlankRow });
   });
+
+  const dailySheet = dailySummaryResult.map(d => ({
+    'Supplier': d.supplier,
+    'Date': fmtDate(d.date),
+    'PO Count': d.poCount,
+    'Total PO Value': d.totalValue,
+    'PO Numbers': d.poNumbers.join(', '),
+    'Approval Level': d.approvalLevel,
+  }));
 
   const sheet3 = sortedMatrix().map(r => ({ 'From Amount': r.from, 'To Amount': r.to, 'Approval Level': r.level }));
 
   const newWb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(newWb, XLSX.utils.json_to_sheet(sheet1), 'PO Splitting Cases');
+  XLSX.utils.book_append_sheet(newWb, XLSX.utils.json_to_sheet(dailySheet), 'Daily Summary (Working)');
   XLSX.utils.book_append_sheet(newWb, XLSX.utils.json_to_sheet(sheet2), 'Case Details');
   XLSX.utils.book_append_sheet(newWb, XLSX.utils.json_to_sheet(sheet3), 'Approval Matrix Used');
   XLSX.writeFile(newWb, 'po_splitting_cases.xlsx');

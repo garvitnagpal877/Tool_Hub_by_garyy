@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Purchase Rate Comparison & Audit Annexure Generator</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #222536;
+    --surface3: #2a2e42;
+    --border: #333650;
+    --accent: #6c63ff;
+    --accent2: #a78bfa;
+    --success: #34d399;
+    --warning: #fbbf24;
+    --danger: #f87171;
+    --text: #e2e8f0;
+    --text2: #94a3b8;
+    --text3: #64748b;
+    --font: 'Inter', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', 'Fira Code', monospace;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 28px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 8px;
+    display: grid; place-items: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  header h1 { font-size: 17px; font-weight: 700; letter-spacing: -.3px; }
+  header p  { font-size: 12px; color: var(--text2); }
+
+  .step-pills {
+    margin-left: auto;
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .pill {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    background: var(--surface2);
+    color: var(--text3);
+    border: 1px solid var(--border);
+    transition: all .2s;
+    white-space: nowrap;
+  }
+  .pill.active  { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .pill.done    { background: var(--surface3); color: var(--success); border-color: var(--success); }
+
+  .app { display: flex; gap: 0; height: calc(100vh - 65px); overflow: hidden; }
+
+  .sidebar {
+    width: 340px;
+    flex-shrink: 0;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .main {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+
+  .card-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    color: var(--text2);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-title .badge {
+    width: 20px; height: 20px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: grid; place-items: center;
+    font-size: 11px;
+    color: #fff;
+    font-style: normal;
+    flex-shrink: 0;
+  }
+
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 36px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all .2s;
+    background: var(--surface2);
+    position: relative;
+  }
+  .upload-zone:hover, .upload-zone.drag { border-color: var(--accent); background: rgba(108,99,255,.06); }
+  .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .upload-icon { font-size: 36px; margin-bottom: 10px; }
+  .upload-zone h3 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+  .upload-zone p  { font-size: 12px; color: var(--text2); }
+  .file-badge {
+    margin-top: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    background: rgba(52,211,153,.1);
+    color: var(--success);
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid rgba(52,211,153,.3);
+  }
+
+  .sheet-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+  .sheet-tab {
+    padding: 5px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text2);
+    transition: all .15s;
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+  .sheet-tab:hover   { border-color: var(--accent2); color: var(--accent2); }
+  .sheet-tab.active  { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  .table-wrap { overflow: auto; border-radius: var(--radius-sm); border: 1px solid var(--border); max-height: 260px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  thead th {
+    background: var(--surface3);
+    padding: 9px 12px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: var(--text2);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+  tbody td {
+    padding: 7px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    white-space: nowrap;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  tbody tr:hover td { background: var(--surface2); }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr.total-row td {
+    font-weight: 700;
+    background: rgba(220, 230, 241, .12);
+    color: var(--accent2);
+  }
+  tbody tr.exception-row td {
+    background: rgba(248,113,113,.07);
+  }
+  tbody tr.exception-row td:last-child {
+    color: var(--danger);
+    font-weight: 700;
+  }
+
+  .meta-row {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .meta-chip {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    background: var(--surface3);
+    color: var(--text2);
+    font-family: var(--mono);
+  }
+  .meta-chip span { color: var(--accent2); }
+
+  .form-group { margin-bottom: 14px; }
+  .form-group:last-child { margin-bottom: 0; }
+
+  label { display: block; font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 6px; }
+
+  select, input[type="number"], input[type="date"], input[type="text"] {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: var(--radius-sm);
+    padding: 9px 12px;
+    font-size: 13px;
+    font-family: var(--font);
+    outline: none;
+    transition: border-color .15s;
+  }
+  select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2364748b'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+  }
+  select:focus, input:focus { border-color: var(--accent); }
+  select option { background: var(--surface2); }
+
+  input[type="checkbox"] {
+    width: 16px; height: 16px;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    transition: all .15s;
+    font-family: var(--font);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    width: 100%;
+    justify-content: center;
+    font-size: 14px;
+    padding: 13px;
+    border-radius: var(--radius);
+  }
+  .btn-primary:hover:not(:disabled) { background: #5a52e0; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(108,99,255,.4); }
+  .btn-primary:disabled { opacity: .4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-outline:hover { border-color: var(--accent2); color: var(--accent2); }
+
+  .btn-success {
+    background: var(--success);
+    color: #000;
+  }
+  .btn-success:hover { background: #2cba87; }
+
+  .btn-sm {
+    padding: 6px 12px;
+    font-size: 11px;
+  }
+
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .stat-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    text-align: center;
+  }
+  .stat-val { font-size: 26px; font-weight: 800; font-family: var(--mono); line-height: 1; margin-bottom: 6px; word-break: break-word; }
+  .stat-lbl { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .6px; color: var(--text2); }
+  .stat-val.green { color: var(--success); }
+  .stat-val.amber { color: var(--warning); }
+  .stat-val.red   { color: var(--danger); }
+  .stat-val.blue  { color: var(--accent2); }
+
+  .alert {
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .alert-info    { background: rgba(108,99,255,.12); border: 1px solid rgba(108,99,255,.3); color: var(--accent2); }
+  .alert-success { background: rgba(52,211,153,.1);  border: 1px solid rgba(52,211,153,.3); color: var(--success); }
+  .alert-warning { background: rgba(251,191,36,.1);  border: 1px solid rgba(251,191,36,.3); color: var(--warning); }
+
+  .empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text3);
+  }
+  .empty .icon { font-size: 48px; margin-bottom: 12px; }
+  .empty h3 { font-size: 16px; font-weight: 700; color: var(--text2); margin-bottom: 6px; }
+  .empty p  { font-size: 13px; }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner {
+    width: 18px; height: 18px;
+    border: 2px solid rgba(255,255,255,.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+  }
+
+  .filters-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+  }
+
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text3); }
+
+  .hidden { display: none !important; }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
+
+  @media (max-width: 900px) {
+    .app { flex-direction: column; height: auto; }
+    .sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border); }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .step-pills { margin-left: 0; }
+    header { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">📦</div>
+  <div>
+    <h1>Purchase Rate Comparison & Audit Annexure Generator</h1>
+    <p>Upload · Configure · Analyze · Export</p>
+  </div>
+  <div class="step-pills">
+    <div class="pill active" id="pill1">1 Upload</div>
+    <div class="pill" id="pill2">2 Configure</div>
+    <div class="pill" id="pill3">3 Results</div>
+  </div>
+</header>
+
+<div class="app">
+
+  <aside class="sidebar">
+
+    <div class="card">
+      <div class="card-title"><em class="badge">1</em>Load PO Register</div>
+      <div class="upload-zone" id="dropZone">
+        <input type="file" id="fileInput" accept=".xlsx,.xlsm,.xls,.csv">
+        <div class="upload-icon">📂</div>
+        <h3>Drop PO Register here</h3>
+        <p>or click to browse</p>
+        <p style="margin-top:6px;font-size:11px;color:var(--text3);">.xlsx · .xlsm · .xls · .csv</p>
+        <div id="fileBadge" class="file-badge hidden">✅ <span id="fileName"></span></div>
+      </div>
+    </div>
+
+    <div id="configPanel" class="hidden">
+
+      <div class="card">
+        <div class="card-title"><em class="badge">2</em>Data Settings</div>
+        <div class="form-group">
+          <label>Source Sheet</label>
+          <select id="sheetSelect"></select>
+        </div>
+        <div class="form-group">
+          <label>Starting Row Number</label>
+          <input type="number" id="startRow" min="1" value="2" style="background-image:none;padding-right:12px;">
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><em class="badge">3</em>Mandatory Column Mapping</div>
+        <div class="form-group"><label>PoNo</label><select id="colPoNo"></select></div>
+        <div class="form-group"><label>PoDate</label><select id="colPoDate"></select></div>
+        <div class="form-group"><label>Supplier Code</label><select id="colSupplierCode"></select></div>
+        <div class="form-group"><label>SupplierName</label><select id="colSupplierName"></select></div>
+        <div class="form-group"><label>Item Code</label><select id="colItemCode"></select></div>
+        <div class="form-group"><label>ItemDescription</label><select id="colItemDesc"></select></div>
+        <div class="form-group"><label>Price</label><select id="colPrice"></select></div>
+        <div class="form-group"><label>Sum of Po.Qty</label><select id="colQty"></select></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><em class="badge">4</em>Optional Column Mapping</div>
+        <div class="alert alert-info" style="margin-bottom:14px;">Used for filtering only. Leave as "Not Available" if your file doesn't have these.</div>
+        <div class="form-group"><label>Key1</label><select id="colKey1"></select></div>
+        <div class="form-group"><label>ItemType</label><select id="colItemType"></select></div>
+        <div class="form-group"><label>Key2</label><select id="colKey2"></select></div>
+
+        <button class="btn btn-primary" id="runBtn" disabled style="margin-top:16px;">
+          <span id="runBtnTxt">▶ Run Rate Comparison Analysis</span>
+          <div id="runSpinner" class="spinner hidden"></div>
+        </button>
+      </div>
+
+    </div>
+
+  </aside>
+
+  <main class="main">
+
+    <div id="welcomeMsg" class="empty">
+      <div class="icon">📊</div>
+      <h3>Load a PO Register to get started</h3>
+      <p>Upload Purchase Order data — the tool identifies same-item rate exceptions across suppliers, builds an audit-ready annexure, and quantifies potential excess procurement cost.</p>
+    </div>
+
+    <div id="explorerSection" class="hidden">
+      <div class="card">
+        <div class="card-title">📋 Sheet Explorer</div>
+        <div class="sheet-tabs" id="sheetTabs"></div>
+        <div class="meta-row" id="sheetMeta"></div>
+        <div class="table-wrap">
+          <table id="previewTable"><thead></thead><tbody></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <div id="resultsSection" class="hidden">
+
+      <div class="card">
+        <div class="card-title">📊 Exception Dashboard</div>
+        <div class="stats-grid" id="statsGrid"></div>
+        <div id="highestAlert" class="alert alert-warning" style="margin-top:14px;"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🔍 Filters</div>
+        <div class="filters-grid">
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Month</label>
+            <select id="filterMonth"></select>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Supplier</label>
+            <select id="filterSupplier"></select>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Item Code</label>
+            <select id="filterItemCode"></select>
+          </div>
+          <div class="form-group hidden" id="filterKey1Wrap" style="margin-bottom:0;">
+            <label>Key1</label>
+            <select id="filterKey1"></select>
+          </div>
+          <div class="form-group hidden" id="filterItemTypeWrap" style="margin-bottom:0;">
+            <label>ItemType</label>
+            <select id="filterItemType"></select>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:20px;margin-top:16px;flex-wrap:wrap;">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin:0;">
+            <input type="checkbox" id="filterExceptionOnly">
+            <span style="font-size:12px;font-weight:600;color:var(--text2);">Exception records only (Working tab)</span>
+          </label>
+          <button class="btn btn-outline btn-sm" id="clearFiltersBtn">↺ Clear Filters</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📑 Data Views</div>
+        <div class="sheet-tabs" id="viewTabs">
+          <div class="sheet-tab active" data-tab="working">Working Sheet</div>
+          <div class="sheet-tab" data-tab="annexure">Audit Annexure</div>
+          <div class="sheet-tab" data-tab="top10">Top 10 Exceptions</div>
+        </div>
+        <div id="viewAlert" class="alert alert-info" style="margin-bottom:14px;"></div>
+        <div class="table-wrap" style="max-height:460px;">
+          <table id="resultTable"><thead></thead><tbody></tbody></table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">⚠️ Auditor Review Disclaimer</div>
+        <div class="alert alert-warning">
+          This tool identifies only rate-based exceptions. Final audit conclusion should be formed by the auditor after considering technical specifications, brand differences, quality variations, urgent procurement requirements, freight implications, approved vendor justifications, management approvals, and contractual obligations.
+        </div>
+      </div>
+
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <button class="btn btn-success" id="downloadWorkingBtn">⬇ Export Working</button>
+        <button class="btn btn-success" id="downloadAnnexureBtn">⬇ Export Annexure</button>
+        <button class="btn btn-success" id="downloadAllBtn">⬇ Export Complete Audit File</button>
+        <button class="btn btn-outline" id="resetBtn">↺ New Analysis</button>
+      </div>
+
+    </div>
+
+  </main>
+</div>
+
+<script>
+let wb = null;
+let sheets = {};
+let headers = {};
+let rowCounts = {};
+let rawRows = {};
+let activeExplorer = null;
+
+let workingData = [];
+let annexureData = [];
+let activeTab = 'working';
+let filterState = { month: '', supplier: '', itemCode: '', key1: '', itemType: '', exceptionOnly: false };
+
+const WORKING_HEADERS = ['PoNo','PoDate','Month','Supplier Code','SupplierName','Key1','ItemType','Key2','Item Code','ItemDescription','Price','Sum of Po.Qty','Lowest Rate','Lowest Supplier','Rate Diff','Excess Cost','Flag'];
+const ANNEXURE_HEADERS = ['Group No','Record Type','PoNo','Supplier','Item Code','Item Description','Price','Qty','Lowest Rate','Lowest Supplier','Rate Diff','Excess Cost'];
+const NUMERIC_COLS = new Set(['Price','Lowest Rate','Rate Diff','Excess Cost']);
+
+const COL_MAP_REQUIRED = [
+  { id: 'colPoNo', keys: ['pono', 'po no', 'po number', 'po_no', 'purchase order'] },
+  { id: 'colPoDate', keys: ['podate', 'po date', 'po_date'] },
+  { id: 'colSupplierCode', keys: ['supplier code', 'suppliercode', 'vendor code'] },
+  { id: 'colSupplierName', keys: ['suppliername', 'supplier name', 'vendor name'] },
+  { id: 'colItemCode', keys: ['item code', 'itemcode', 'material code'] },
+  { id: 'colItemDesc', keys: ['itemdescription', 'item description', 'description'] },
+  { id: 'colPrice', keys: ['price', 'rate'] },
+  { id: 'colQty', keys: ['sum of po.qty', 'sum of po qty', 'po qty', 'quantity', 'qty'] }
+];
+
+const COL_MAP_OPTIONAL = [
+  { id: 'colKey1', keys: ['key1'] },
+  { id: 'colItemType', keys: ['itemtype', 'item type'] },
+  { id: 'colKey2', keys: ['key2'] }
+];
+
+const $ = id => document.getElementById(id);
+
+function setPill(n) {
+  ['pill1','pill2','pill3'].forEach((id, i) => {
+    const el = $(id);
+    el.className = 'pill' + (i + 1 < n ? ' done' : i + 1 === n ? ' active' : '');
+  });
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function stripTime(d) {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+}
+
+function round2(n) {
+  return Math.round((n + Number.EPSILON) * 100) / 100;
+}
+
+function formatDate(d) {
+  if (!d) return '';
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${String(d.getDate()).padStart(2,'0')}-${months[d.getMonth()]}-${d.getFullYear()}`;
+}
+
+function deriveMonth(d) {
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${months[d.getMonth()]}-${String(d.getFullYear()).slice(-2)}`;
+}
+
+function parseMonthLabel(label) {
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const parts = String(label).split('-');
+  const mi = months.indexOf(parts[0]);
+  const yy = parseInt(parts[1], 10) || 0;
+  return new Date(2000 + yy, mi < 0 ? 0 : mi, 1).getTime();
+}
+
+function fmtMoney(n) {
+  if (typeof n !== 'number' || isNaN(n)) return '';
+  return n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function parseDate(val) {
+  if (val instanceof Date && !isNaN(val)) return stripTime(val);
+  if (typeof val === 'number' && val > 0) {
+    const epoch = new Date(Date.UTC(1899, 11, 30));
+    return stripTime(new Date(epoch.getTime() + val * 86400000));
+  }
+  if (typeof val === 'string' && val.trim()) {
+    const d = new Date(val);
+    if (!isNaN(d)) return stripTime(d);
+  }
+  return null;
+}
+
+/* ---------- File upload / sheet explorer (Steps 1) ---------- */
+
+const dropZone = $('dropZone');
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('drag');
+  const f = e.dataTransfer.files[0];
+  if (f) readFile(f);
+});
+$('fileInput').addEventListener('change', e => { if (e.target.files[0]) readFile(e.target.files[0]); });
+
+function readFile(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = new Uint8Array(e.target.result);
+      wb = XLSX.read(data, { type: 'array', cellDates: true });
+      parseWorkbook();
+      $('fileName').textContent = file.name;
+      $('fileBadge').classList.remove('hidden');
+      $('configPanel').classList.remove('hidden');
+      $('welcomeMsg').classList.add('hidden');
+      $('explorerSection').classList.remove('hidden');
+      $('resultsSection').classList.add('hidden');
+      workingData = []; annexureData = [];
+      populateConfig();
+      renderExplorer(wb.SheetNames[0]);
+      setPill(2);
+    } catch (err) {
+      alert('Could not read file: ' + err.message);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function parseWorkbook() {
+  sheets = {}; headers = {}; rowCounts = {}; rawRows = {};
+  wb.SheetNames.forEach(name => {
+    const ws = wb.Sheets[name];
+    const raw = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '', raw: false });
+    if (!raw.length) {
+      sheets[name] = []; headers[name] = []; rowCounts[name] = 0; rawRows[name] = [];
+      return;
+    }
+    const head = raw[0].map((h, i) => h !== '' && h !== null && h !== undefined ? String(h) : `Column ${i + 1}`);
+    const rows = raw.slice(1);
+    headers[name] = head;
+    rawRows[name] = rows;
+    sheets[name] = rows.map(r => {
+      const obj = {};
+      head.forEach((h, i) => obj[h] = r[i] !== undefined ? r[i] : '');
+      return obj;
+    });
+    rowCounts[name] = rows.length;
+  });
+}
+
+function renderExplorer(name) {
+  activeExplorer = name;
+
+  const tabsEl = $('sheetTabs');
+  tabsEl.innerHTML = '';
+  wb.SheetNames.forEach(n => {
+    const t = document.createElement('div');
+    t.className = 'sheet-tab' + (n === name ? ' active' : '');
+    t.textContent = n;
+    t.onclick = () => { renderExplorer(n); $('sheetSelect').value = n; updateColumnDropdowns(); };
+    tabsEl.appendChild(t);
+  });
+
+  const head = headers[name] || [];
+  const rc = rowCounts[name] || 0;
+  $('sheetMeta').innerHTML = `
+    <div class="meta-chip">Rows: <span>${rc.toLocaleString()}</span></div>
+    <div class="meta-chip">Columns: <span>${head.length}</span></div>
+    <div class="meta-chip">Cols: <span>${head.slice(0, 4).join(', ')}${head.length > 4 ? ' …' : ''}</span></div>
+  `;
+
+  const tbl = $('previewTable');
+  tbl.querySelector('thead').innerHTML = '<tr>' + head.map(h => `<th>${esc(h)}</th>`).join('') + '</tr>';
+  const rows = sheets[name] || [];
+  tbl.querySelector('tbody').innerHTML = rows.slice(0, 10).map(r =>
+    '<tr>' + head.map(h => `<td>${esc(String(r[h] ?? ''))}</td>`).join('') + '</tr>'
+  ).join('');
+}
+
+/* ---------- Column mapping (Step 2) ---------- */
+
+function guessColumn(head, keys) {
+  const lower = head.map(h => h.toLowerCase());
+  for (const k of keys) {
+    const idx = lower.findIndex(h => h.includes(k));
+    if (idx >= 0) return head[idx];
+  }
+  return '';
+}
+
+function populateConfig() {
+  const sel = $('sheetSelect');
+  sel.innerHTML = wb.SheetNames.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('');
+  sel.onchange = () => { renderExplorer(sel.value); updateColumnDropdowns(); };
+
+  updateColumnDropdowns();
+  $('runBtn').disabled = false;
+}
+
+function updateColumnDropdowns() {
+  const head = headers[$('sheetSelect').value] || [];
+  const opts = head.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
+  const optsWithNone = `<option value="__none__">— Not Available —</option>` + opts;
+
+  COL_MAP_REQUIRED.forEach(({ id, keys }) => {
+    const el = $(id);
+    el.innerHTML = opts;
+    if (head.length) el.value = guessColumn(head, keys) || head[0];
+  });
+
+  COL_MAP_OPTIONAL.forEach(({ id, keys }) => {
+    const el = $(id);
+    el.innerHTML = optsWithNone;
+    const guess = head.length ? guessColumn(head, keys) : '';
+    el.value = guess || '__none__';
+  });
+}
+
+/* ---------- Run analysis (BRD core logic) ---------- */
+
+function runAnalysis() {
+  const sheetName = $('sheetSelect').value;
+  const rows = rawRows[sheetName] || [];
+  const head = headers[sheetName] || [];
+  const startRow = parseInt($('startRow').value) || 2;
+
+  const colIdx = {};
+  COL_MAP_REQUIRED.forEach(c => colIdx[c.id] = head.indexOf($(c.id).value));
+  COL_MAP_OPTIONAL.forEach(c => {
+    const v = $(c.id).value;
+    colIdx[c.id] = (v && v !== '__none__') ? head.indexOf(v) : -1;
+  });
+
+  const missing = COL_MAP_REQUIRED.filter(c => colIdx[c.id] < 0);
+  if (missing.length) {
+    alert('Please map all mandatory columns before running the analysis.');
+    return null;
+  }
+
+  const parsed = [];
+  let skipped = 0;
+
+  for (let i = startRow - 2; i < rows.length; i++) {
+    const row = rows[i];
+    if (!row || row.every(v => v === '' || v === undefined || v === null)) continue;
+
+    const poDate = parseDate(row[colIdx.colPoDate]);
+    const price = parseFloat(String(row[colIdx.colPrice]).replace(/,/g, ''));
+    const qty = parseFloat(String(row[colIdx.colQty]).replace(/,/g, ''));
+    const itemCode = String(row[colIdx.colItemCode] ?? '').trim();
+
+    if (!poDate || isNaN(price) || isNaN(qty) || !itemCode) {
+      skipped++;
+      continue;
+    }
+
+    const month = deriveMonth(poDate);
+
+    parsed.push({
+      PoNo: row[colIdx.colPoNo] ?? '',
+      PoDate: poDate,
+      Month: month,
+      'Supplier Code': row[colIdx.colSupplierCode] ?? '',
+      SupplierName: row[colIdx.colSupplierName] ?? '',
+      Key1: colIdx.colKey1 >= 0 ? (row[colIdx.colKey1] ?? '') : '',
+      ItemType: colIdx.colItemType >= 0 ? (row[colIdx.colItemType] ?? '') : '',
+      Key2: colIdx.colKey2 >= 0 ? (row[colIdx.colKey2] ?? '') : '',
+      'Item Code': itemCode,
+      ItemDescription: row[colIdx.colItemDesc] ?? '',
+      Price: price,
+      'Sum of Po.Qty': qty,
+      _groupKey: month + '||' + itemCode
+    });
+  }
+
+  if (!parsed.length) {
+    alert('No valid rows found. Please check the PoDate, Price, Quantity and Item Code column mapping.');
+    return null;
+  }
+
+  // Group by Month + Item Code, find lowest rate per group
+  const groups = new Map();
+  parsed.forEach((r, idx) => {
+    if (!groups.has(r._groupKey)) groups.set(r._groupKey, []);
+    groups.get(r._groupKey).push(idx);
+  });
+
+  groups.forEach(idxs => {
+    let lowestIdx = idxs[0];
+    idxs.forEach(i => { if (parsed[i].Price < parsed[lowestIdx].Price) lowestIdx = i; });
+    const lowestRate = parsed[lowestIdx].Price;
+    const lowestSupplier = parsed[lowestIdx].SupplierName;
+
+    idxs.forEach(i => {
+      const r = parsed[i];
+      r['Lowest Rate'] = lowestRate;
+      r['Lowest Supplier'] = lowestSupplier;
+      r['Rate Diff'] = round2(r.Price - lowestRate);
+      r['Excess Cost'] = round2((r.Price - lowestRate) * r['Sum of Po.Qty']);
+      r.Flag = (idxs.length > 1 && r.Price > lowestRate) ? 'Exception' : '';
+      r._isLowestRow = (i === lowestIdx);
+    });
+  });
+
+  // Build annexure: Lowest Rate record + paired Exception record(s) per group
+  const annexure = [];
+  let groupNo = 0;
+  const seenGroups = new Set();
+
+  parsed.forEach(r => {
+    if (r.Flag === 'Exception' && !seenGroups.has(r._groupKey)) {
+      seenGroups.add(r._groupKey);
+      groupNo++;
+      const idxs = groups.get(r._groupKey);
+      const groupRows = idxs.map(i => parsed[i]);
+      const lowestRow = groupRows.find(x => x._isLowestRow);
+
+      annexure.push({
+        'Group No': groupNo, 'Record Type': 'Lowest Rate',
+        PoNo: lowestRow.PoNo, Supplier: lowestRow.SupplierName,
+        'Item Code': lowestRow['Item Code'], 'Item Description': lowestRow.ItemDescription,
+        Price: lowestRow.Price, Qty: lowestRow['Sum of Po.Qty'],
+        'Lowest Rate': lowestRow['Lowest Rate'], 'Lowest Supplier': lowestRow['Lowest Supplier'],
+        'Rate Diff': 0, 'Excess Cost': 0,
+        _month: lowestRow.Month, _key1: lowestRow.Key1, _itemType: lowestRow.ItemType
+      });
+
+      groupRows.filter(x => x.Flag === 'Exception').forEach(ex => {
+        annexure.push({
+          'Group No': groupNo, 'Record Type': 'Exception',
+          PoNo: ex.PoNo, Supplier: ex.SupplierName,
+          'Item Code': ex['Item Code'], 'Item Description': ex.ItemDescription,
+          Price: ex.Price, Qty: ex['Sum of Po.Qty'],
+          'Lowest Rate': ex['Lowest Rate'], 'Lowest Supplier': ex['Lowest Supplier'],
+          'Rate Diff': ex['Rate Diff'], 'Excess Cost': ex['Excess Cost'],
+          _month: ex.Month, _key1: ex.Key1, _itemType: ex.ItemType
+        });
+      });
+    }
+  });
+
+  return { working: parsed, annexure, skipped };
+}
+
+$('runBtn').addEventListener('click', async () => {
+  $('runBtnTxt').textContent = 'Analyzing…';
+  $('runSpinner').classList.remove('hidden');
+  $('runBtn').disabled = true;
+
+  await new Promise(r => setTimeout(r, 30));
+
+  const result = runAnalysis();
+
+  $('runBtnTxt').textContent = '▶ Run Rate Comparison Analysis';
+  $('runSpinner').classList.add('hidden');
+  $('runBtn').disabled = false;
+
+  if (!result) return;
+
+  workingData = result.working;
+  annexureData = result.annexure;
+
+  filterState = { month: '', supplier: '', itemCode: '', key1: '', itemType: '', exceptionOnly: false };
+  $('filterExceptionOnly').checked = false;
+
+  renderDashboard(result.skipped);
+  populateFilters();
+
+  activeTab = 'working';
+  document.querySelectorAll('#viewTabs .sheet-tab').forEach(t => t.classList.remove('active'));
+  document.querySelector('#viewTabs .sheet-tab[data-tab="working"]').classList.add('active');
+
+  $('resultsSection').classList.remove('hidden');
+  $('resultsSection').scrollIntoView({ behavior: 'smooth' });
+  renderActiveView();
+  setPill(3);
+});
+
+/* ---------- Dashboard ---------- */
+
+function renderDashboard(skipped) {
+  const exceptions = workingData.filter(r => r.Flag === 'Exception');
+  const totalExcess = round2(exceptions.reduce((s, r) => s + r['Excess Cost'], 0));
+  const highest = exceptions.slice().sort((a, b) => b['Excess Cost'] - a['Excess Cost'])[0];
+
+  $('statsGrid').innerHTML = `
+    <div class="stat-card"><div class="stat-val blue">${workingData.length.toLocaleString()}</div><div class="stat-lbl">Total Records</div></div>
+    <div class="stat-card"><div class="stat-val amber">${exceptions.length.toLocaleString()}</div><div class="stat-lbl">Exception Records</div></div>
+    <div class="stat-card"><div class="stat-val red">₹${fmtMoney(totalExcess)}</div><div class="stat-lbl">Total Potential Excess Cost</div></div>
+    <div class="stat-card"><div class="stat-val green">${skipped.toLocaleString()}</div><div class="stat-lbl">Rows Skipped (Invalid)</div></div>
+  `;
+
+  const alertEl = $('highestAlert');
+  if (highest) {
+    alertEl.className = 'alert alert-warning';
+    alertEl.innerHTML = `⚠️ <strong>Highest Impact Exception:</strong> PO# ${esc(highest.PoNo)} · ${esc(highest['Item Code'])} (${esc(highest.ItemDescription)}) — ${esc(highest.SupplierName)} paid ₹${fmtMoney(highest.Price)} vs lowest ₹${fmtMoney(highest['Lowest Rate'])} from ${esc(highest['Lowest Supplier'])} in ${esc(highest.Month)}. Excess Cost: ₹${fmtMoney(highest['Excess Cost'])}`;
+  } else {
+    alertEl.className = 'alert alert-success';
+    alertEl.innerHTML = `✅ No rate exceptions found. Every item was procured at the lowest available rate within its respective month.`;
+  }
+}
+
+/* ---------- Filters ---------- */
+
+function populateFilters() {
+  const months = [...new Set(workingData.map(r => r.Month))].sort((a, b) => parseMonthLabel(a) - parseMonthLabel(b));
+  const suppliers = [...new Set(workingData.map(r => r.SupplierName).filter(v => v !== ''))].sort();
+  const itemCodes = [...new Set(workingData.map(r => r['Item Code']).filter(v => v !== ''))].sort();
+  const key1s = [...new Set(workingData.map(r => r.Key1).filter(v => v !== ''))].sort();
+  const itemTypes = [...new Set(workingData.map(r => r.ItemType).filter(v => v !== ''))].sort();
+
+  $('filterMonth').innerHTML = '<option value="">All Months</option>' + months.map(m => `<option value="${esc(m)}">${esc(m)}</option>`).join('');
+  $('filterSupplier').innerHTML = '<option value="">All Suppliers</option>' + suppliers.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join('');
+  $('filterItemCode').innerHTML = '<option value="">All Item Codes</option>' + itemCodes.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join('');
+
+  $('filterKey1Wrap').classList.toggle('hidden', !key1s.length);
+  if (key1s.length) {
+    $('filterKey1').innerHTML = '<option value="">All Key1</option>' + key1s.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join('');
+  }
+
+  $('filterItemTypeWrap').classList.toggle('hidden', !itemTypes.length);
+  if (itemTypes.length) {
+    $('filterItemType').innerHTML = '<option value="">All ItemTypes</option>' + itemTypes.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join('');
+  }
+}
+
+function readFilters() {
+  filterState = {
+    month: $('filterMonth').value,
+    supplier: $('filterSupplier').value,
+    itemCode: $('filterItemCode').value,
+    key1: $('filterKey1').value,
+    itemType: $('filterItemType').value,
+    exceptionOnly: $('filterExceptionOnly').checked
+  };
+}
+
+['filterMonth','filterSupplier','filterItemCode','filterKey1','filterItemType'].forEach(id => {
+  $(id).addEventListener('change', () => { readFilters(); renderActiveView(); });
+});
+$('filterExceptionOnly').addEventListener('change', () => { readFilters(); renderActiveView(); });
+$('clearFiltersBtn').addEventListener('click', () => {
+  ['filterMonth','filterSupplier','filterItemCode','filterKey1','filterItemType'].forEach(id => { $(id).value = ''; });
+  $('filterExceptionOnly').checked = false;
+  readFilters();
+  renderActiveView();
+});
+
+function getFilteredWorking() {
+  const f = filterState;
+  return workingData.filter(r =>
+    (!f.month || r.Month === f.month) &&
+    (!f.supplier || r.SupplierName === f.supplier) &&
+    (!f.itemCode || r['Item Code'] === f.itemCode) &&
+    (!f.key1 || r.Key1 === f.key1) &&
+    (!f.itemType || r.ItemType === f.itemType) &&
+    (!f.exceptionOnly || r.Flag === 'Exception')
+  );
+}
+
+function getFilteredAnnexure() {
+  const f = filterState;
+  const byGroup = new Map();
+  annexureData.forEach(r => {
+    if (!byGroup.has(r['Group No'])) byGroup.set(r['Group No'], []);
+    byGroup.get(r['Group No']).push(r);
+  });
+
+  const result = [];
+  byGroup.forEach(entries => {
+    const lowestRow = entries.find(e => e['Record Type'] === 'Lowest Rate');
+    const exRows = entries.filter(e => e['Record Type'] === 'Exception').filter(e =>
+      (!f.month || e._month === f.month) &&
+      (!f.supplier || e.Supplier === f.supplier) &&
+      (!f.itemCode || e['Item Code'] === f.itemCode) &&
+      (!f.key1 || e._key1 === f.key1) &&
+      (!f.itemType || e._itemType === f.itemType)
+    );
+    if (exRows.length) result.push(lowestRow, ...exRows);
+  });
+  return result;
+}
+
+function getTop10() {
+  return workingData.filter(r => r.Flag === 'Exception')
+    .slice().sort((a, b) => b['Excess Cost'] - a['Excess Cost']).slice(0, 10);
+}
+
+/* ---------- View tabs + tables ---------- */
+
+document.querySelectorAll('#viewTabs .sheet-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('#viewTabs .sheet-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    activeTab = tab.dataset.tab;
+    renderActiveView();
+  });
+});
+
+function renderActiveView() {
+  const viewAlert = $('viewAlert');
+
+  if (activeTab === 'working') {
+    const rows = getFilteredWorking();
+    renderTable(WORKING_HEADERS, rows, r => r.Flag === 'Exception' ? 'exception-row' : '');
+    viewAlert.className = 'alert alert-info';
+    viewAlert.innerHTML = `Showing <strong>${rows.length.toLocaleString()}</strong> of ${workingData.length.toLocaleString()} working rows${rows.length > 500 ? ' (first 500 displayed)' : ''}.`;
+  } else if (activeTab === 'annexure') {
+    const rows = getFilteredAnnexure();
+    renderTable(ANNEXURE_HEADERS, rows, r => r['Record Type'] === 'Exception' ? 'exception-row' : 'total-row');
+    const groupCount = new Set(rows.map(r => r['Group No'])).size;
+    viewAlert.className = 'alert alert-info';
+    viewAlert.innerHTML = annexureData.length
+      ? `Showing <strong>${groupCount.toLocaleString()}</strong> exception group(s) matching current filters, out of ${new Set(annexureData.map(r => r['Group No'])).size} total.`
+      : `No exceptions found — the annexure is empty.`;
+  } else {
+    const rows = getTop10();
+    renderTable(WORKING_HEADERS, rows, () => 'exception-row');
+    viewAlert.className = 'alert alert-warning';
+    viewAlert.innerHTML = `Top ${rows.length} highest-impact exceptions by Excess Cost (unaffected by filters above).`;
+  }
+}
+
+function renderTable(head, rows, rowClassFn) {
+  const tbl = $('resultTable');
+  tbl.querySelector('thead').innerHTML = '<tr>' + head.map(h => `<th>${esc(h)}</th>`).join('') + '</tr>';
+  tbl.querySelector('tbody').innerHTML = rows.slice(0, 500).map(r => {
+    const cls = rowClassFn ? rowClassFn(r) : '';
+    const cells = head.map(h => {
+      let v = r[h];
+      if (h === 'PoDate' && v instanceof Date) v = formatDate(v);
+      else if (NUMERIC_COLS.has(h) && typeof v === 'number') v = fmtMoney(v);
+      else if ((h === 'Sum of Po.Qty' || h === 'Qty') && typeof v === 'number') v = v.toLocaleString('en-IN');
+      return `<td>${esc(v ?? '')}</td>`;
+    }).join('');
+    return `<tr${cls ? ` class="${cls}"` : ''}>${cells}</tr>`;
+  }).join('');
+}
+
+/* ---------- Export ---------- */
+
+function buildWorkingSheetRows() {
+  return workingData.map(r => {
+    const row = {};
+    WORKING_HEADERS.forEach(h => {
+      let v = r[h];
+      if (h === 'PoDate' && v instanceof Date) v = formatDate(v);
+      row[h] = v ?? '';
+    });
+    return row;
+  });
+}
+
+function buildAnnexureSheetRows() {
+  return annexureData.map(r => {
+    const row = {};
+    ANNEXURE_HEADERS.forEach(h => row[h] = r[h] ?? '');
+    return row;
+  });
+}
+
+function buildSummaryRows() {
+  const exceptions = workingData.filter(r => r.Flag === 'Exception');
+  const totalExcess = round2(exceptions.reduce((s, r) => s + r['Excess Cost'], 0));
+  const highest = exceptions.slice().sort((a, b) => b['Excess Cost'] - a['Excess Cost'])[0];
+  return [
+    { Particulars: 'Total Records Processed', Value: workingData.length },
+    { Particulars: 'Total Exceptions', Value: exceptions.length },
+    { Particulars: 'Total Potential Excess Cost (₹)', Value: totalExcess },
+    { Particulars: 'Highest Exception Amount (₹)', Value: highest ? highest['Excess Cost'] : 0 }
+  ];
+}
+
+$('downloadWorkingBtn').addEventListener('click', () => {
+  if (!workingData.length) return;
+  const ws = XLSX.utils.json_to_sheet(buildWorkingSheetRows(), { header: WORKING_HEADERS });
+  const newWb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(newWb, ws, 'Working');
+  XLSX.writeFile(newWb, 'Purchase_Rate_Working.xlsx');
+});
+
+$('downloadAnnexureBtn').addEventListener('click', () => {
+  if (!annexureData.length) { alert('No exceptions found — annexure is empty.'); return; }
+  const ws = XLSX.utils.json_to_sheet(buildAnnexureSheetRows(), { header: ANNEXURE_HEADERS });
+  const newWb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(newWb, ws, 'Annexure');
+  XLSX.writeFile(newWb, 'Purchase_Rate_Annexure.xlsx');
+});
+
+$('downloadAllBtn').addEventListener('click', () => {
+  if (!workingData.length) return;
+  const newWb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(newWb, XLSX.utils.json_to_sheet(buildWorkingSheetRows(), { header: WORKING_HEADERS }), 'Working');
+  XLSX.utils.book_append_sheet(newWb, XLSX.utils.json_to_sheet(buildAnnexureSheetRows(), { header: ANNEXURE_HEADERS }), 'Annexure');
+  XLSX.utils.book_append_sheet(newWb, XLSX.utils.json_to_sheet(buildSummaryRows(), { header: ['Particulars','Value'] }), 'Summary');
+  XLSX.writeFile(newWb, 'Purchase_Rate_Audit_File.xlsx');
+});
+
+$('resetBtn').addEventListener('click', () => {
+  $('resultsSection').classList.add('hidden');
+  setPill(2);
+  $('configPanel').scrollIntoView({ behavior: 'smooth' });
+});
+</script>
+</body>
+</html>
