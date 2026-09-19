@@ -3,721 +3,984 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ToolsHub — Audit & Finance Utilities</title>
+<title>Tools by Vizznity — Audit & Finance Utilities</title>
+    <link rel="icon" type="image/png" href="assets/tools-vizznity-icon-transparent.png">
+<meta name="description" content="Free browser-based Excel, audit and MSME compliance tools, built by Vizznity. Upload a file, get a working paper back — nothing leaves your browser.">
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
 
 <style>
-:root {
-    --bg: #0f1117;
-    --surface: #1a1d27;
-    --surface2: #222536;
-    --surface3: #2a2e42;
-    --border: #333650;
-    --accent: #6c63ff;
-    --accent2: #a78bfa;
-    --success: #34d399;
-    --warning: #fbbf24;
-    --danger: #f87171;
-    --text: #e2e8f0;
-    --text2: #94a3b8;
+
+:root{
+    --bg:#f7f6fc;
+    --surface:#ffffff;
+    --surface-alt:#f1eefb;
+    --border:#e6e2f5;
+    --border-strong:#d9d3f0;
+    --ink:#191830;
+    --ink-soft:#5f5d78;
+    --ink-faint:#8886a0;
+    --accent:#6c63ff;
+    --accent-deep:#4b3fc7;
+    --accent-soft:#efebfd;
+    --success:#1c9a6c;
+    --success-soft:#e4f6ee;
+    --amber:#c8791f;
+    --amber-soft:#fbf0e0;
+    --radius-lg:20px;
+    --radius-md:14px;
+    --shadow-card:0 1px 2px rgba(25,24,48,.04), 0 12px 28px -14px rgba(76,63,199,.18);
+    --shadow-card-hover:0 1px 2px rgba(25,24,48,.05), 0 22px 40px -16px rgba(76,63,199,.28);
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+*{ box-sizing:border-box; }
 
-body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Inter', 'Segoe UI', sans-serif;
-    overflow-x: hidden;
-    scroll-behavior: smooth;
+html{ scroll-behavior:smooth; }
+
+body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter', 'Segoe UI', sans-serif;
+    -webkit-font-smoothing:antialiased;
 }
 
-/* HEADER */
-.header {
-    height: 72px;
-    background: rgba(26, 29, 39, 0.85);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(108, 99, 255, 0.2);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 48px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
+h1,h2,h3,.brand-word{ font-family:'Poppins','Inter',sans-serif; }
+
+a{ color:inherit; }
+
+img{ max-width:100%; display:block; }
+
+/* ============ TOP RIBBON ============ */
+.ribbon{
+    background:var(--ink);
+    color:#d8d5ec;
+    font-size:12.5px;
+    text-align:center;
+    padding:8px 16px;
+    letter-spacing:.01em;
 }
 
-.logo {
-    display: flex;
-    align-items: center;
-    gap: 14px;
+.ribbon a{
+    color:#fff;
+    text-decoration:none;
+    border-bottom:1px solid rgba(255,255,255,.35);
+    padding-bottom:1px;
 }
 
-.logo-icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 22px;
-    box-shadow: 0 0 16px rgba(108, 99, 255, .5);
+.ribbon a:hover{ border-color:#fff; }
+
+/* ============ HEADER ============ */
+.header{
+    max-width:1240px;
+    margin:0 auto;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:22px 32px;
 }
 
-.logo-text h1 {
-    font-size: 22px;
-    font-weight: 700;
-    letter-spacing: -0.02em;
+.brand{
+    display:flex;
+    align-items:center;
+    text-decoration:none;
+    color:var(--ink);
 }
 
-.logo-text p {
-    color: var(--text2);
-    font-size: 12px;
-    letter-spacing: 0.01em;
+.brand-logo{
+    width:246px;
+    height:auto;
+    display:block;
 }
 
-.header-badge {
-    background: rgba(108, 99, 255, 0.12);
-    border: 1px solid rgba(108, 99, 255, 0.25);
-    color: var(--accent2);
-    padding: 6px 14px;
-    border-radius: 50px;
-    font-size: 12px;
-    font-weight: 500;
-    letter-spacing: 0.04em;
+.footer-brand .brand-logo{
+    width:235px;
 }
 
-/* HERO */
-.hero {
-    position: relative;
-    padding: 80px 48px;
-    overflow: hidden;
-    border-bottom: 1px solid var(--border);
+.philosophy-brand-icon{
+    width:270px;
+    height:auto;
+    object-fit:contain;
+    display:block;
+    margin-bottom:24px;
 }
 
-.hero-bg {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, #12101e 0%, #1a1040 50%, #0f1117 100%);
-    background-image: linear-gradient(rgba(108, 99, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(108, 99, 255, 0.03) 1px, transparent 1px);
-    background-size: 44px 44px;
-    z-index: 0;
+.header-cta{
+    display:flex;
+    align-items:center;
+    gap:18px;
+    font-size:14px;
 }
 
-.orb {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(80px);
-    animation: drift 8s ease-in-out infinite alternate;
+.header-link{
+    text-decoration:none;
+    color:var(--ink-soft);
+    font-weight:500;
 }
 
-.orb-1 {
-    width: 400px;
-    height: 400px;
-    background: rgba(108, 99, 255, 0.18);
-    top: -150px;
-    right: -100px;
-    animation-delay: 0s;
+.header-link:hover{ color:var(--accent-deep); }
+
+.btn-outline{
+    border:1px solid var(--border-strong);
+    padding:9px 18px;
+    border-radius:10px;
+    text-decoration:none;
+    color:var(--ink);
+    font-weight:600;
+    font-size:13.5px;
+    transition:border-color .15s, color .15s;
 }
 
-.orb-2 {
-    width: 250px;
-    height: 250px;
-    background: rgba(167, 139, 250, 0.1);
-    bottom: -80px;
-    left: 20%;
-    animation-delay: 3s;
+.btn-outline:hover{ border-color:var(--accent); color:var(--accent-deep); }
+
+/* ============ HERO ============ */
+.hero{
+    max-width:1240px;
+    margin:0 auto;
+    padding:36px 32px 72px;
+    display:grid;
+    grid-template-columns:1.05fr 0.95fr;
+    gap:56px;
+    align-items:center;
 }
 
-.orb-3 {
-    width: 180px;
-    height: 180px;
-    background: rgba(52, 211, 153, 0.07);
-    top: 40px;
-    left: 40%;
-    animation-delay: 5s;
+.hero-eyebrow{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:var(--accent-soft);
+    color:var(--accent-deep);
+    padding:7px 14px;
+    border-radius:100px;
+    font-size:13px;
+    font-weight:600;
+    margin-bottom:22px;
 }
 
-@keyframes drift {
-    from { transform: translate(0, 0) scale(1); }
-    to { transform: translate(20px, -20px) scale(1.05); }
+.hero-eyebrow .dot{
+    width:6px; height:6px; border-radius:50%;
+    background:var(--success);
 }
 
-.hero-content {
-    position: relative;
-    z-index: 1;
-    max-width: 1400px;
-    margin: 0 auto;
+.hero h1{
+    font-size:46px;
+    line-height:1.12;
+    font-weight:700;
+    letter-spacing:-0.02em;
+    margin:0 0 20px;
 }
 
-.hero-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(108, 99, 255, 0.12);
-    border: 1px solid rgba(108, 99, 255, 0.3);
-    padding: 6px 16px;
-    border-radius: 50px;
-    font-size: 13px;
-    color: var(--accent2);
-    margin-bottom: 28px;
+.hero h1 em{
+    font-style:normal;
+    color:var(--accent-deep);
 }
 
-.hero-pill-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--success);
-    box-shadow: 0 0 8px var(--success);
-    animation: pulse 2s ease-in-out infinite;
+.hero p.lead{
+    font-size:16.5px;
+    line-height:1.7;
+    color:var(--ink-soft);
+    max-width:520px;
+    margin:0 0 30px;
 }
 
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
+.hero-actions{
+    display:flex;
+    gap:14px;
+    flex-wrap:wrap;
+    margin-bottom:34px;
 }
 
-.hero h1 {
-    font-size: 60px;
-    font-weight: 800;
-    line-height: 1.1;
-    letter-spacing: -0.03em;
-    margin-bottom: 20px;
+.btn-primary{
+    background:var(--ink);
+    color:#fff;
+    text-decoration:none;
+    padding:14px 26px;
+    border-radius:12px;
+    font-weight:600;
+    font-size:15px;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    transition:background .15s, transform .15s;
 }
 
-.hero h1 .accent-gradient {
-    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 60%, #c4b5fd 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+.btn-primary:hover{ background:var(--accent-deep); transform:translateY(-1px); }
+
+.hero-facts{
+    display:flex;
+    gap:26px;
+    flex-wrap:wrap;
 }
 
-.hero p {
-    color: var(--text2);
-    font-size: 17px;
-    line-height: 1.8;
-    max-width: 680px;
-    margin-bottom: 36px;
+.hero-fact{
+    font-size:13.5px;
+    color:var(--ink-soft);
+    display:flex;
+    align-items:center;
+    gap:8px;
 }
 
-.hero-tags {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin-bottom: 36px;
+.hero-fact .ico{
+    width:26px; height:26px;
+    border-radius:8px;
+    background:var(--surface-alt);
+    display:flex; align-items:center; justify-content:center;
+    font-size:13px;
+    flex-shrink:0;
 }
 
-.hero-tag {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid var(--border);
-    padding: 6px 14px;
-    border-radius: 8px;
-    font-size: 13px;
-    font-family: 'JetBrains Mono', monospace;
-    color: var(--text2);
-    display: flex;
-    align-items: center;
-    gap: 6px;
+/* hero visual: mock sheet card */
+.hero-visual{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-card);
+    padding:20px;
+    position:relative;
 }
 
-.btn-hero-primary {
-    padding: 14px 32px;
-    border-radius: 14px;
-    font-weight: 600;
-    font-size: 16px;
-    text-decoration: none;
-    transition: all 0.2s;
-    cursor: pointer;
-    border: none;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    color: white;
-    box-shadow: 0 4px 20px rgba(108, 99, 255, 0.35);
-    display: inline-block;
+.mock-topbar{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    padding-bottom:14px;
+    margin-bottom:16px;
+    border-bottom:1px solid var(--border);
 }
 
-.btn-hero-primary:hover {
-    box-shadow: 0 6px 30px rgba(108, 99, 255, 0.5);
-    transform: translateY(-1px);
+.mock-dot{ width:9px; height:9px; border-radius:50%; background:var(--border-strong); }
+
+.mock-title{
+    margin-left:8px;
+    font-size:12px;
+    color:var(--ink-faint);
+    font-family:'JetBrains Mono',monospace;
 }
 
-/* STATS STRIP */
-.stats-strip {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 20px 48px;
-    display: flex;
-    gap: 48px;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
+.mock-grid{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:1px;
+    background:var(--border);
+    border:1px solid var(--border);
+    border-radius:10px;
+    overflow:hidden;
+    margin-bottom:16px;
 }
 
-.stat-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+.mock-cell{
+    background:var(--surface);
+    padding:9px 8px;
+    font-size:11px;
+    color:var(--ink-soft);
+    min-height:14px;
 }
 
-.stat-item-icon {
-    font-size: 20px;
+.mock-cell.head{
+    background:var(--surface-alt);
+    font-weight:600;
+    color:var(--ink);
 }
 
-.stat-item-text {
-    font-size: 14px;
-    color: var(--text2);
-    font-weight: 500;
+.mock-cell.flag{
+    background:var(--amber-soft);
+    color:var(--amber);
+    font-weight:600;
 }
 
-.stat-item-text strong {
-    color: var(--text);
-    font-weight: 700;
+.mock-cell.ok{
+    background:var(--success-soft);
+    color:var(--success);
+    font-weight:600;
 }
 
-.stat-divider {
-    width: 1px;
-    height: 24px;
-    background: var(--border);
+.mock-buckets{
+    display:flex;
+    align-items:flex-end;
+    gap:8px;
+    height:64px;
 }
 
-/* MAIN CONTENT */
-.content {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 48px;
+.mock-bar{
+    flex:1;
+    background:linear-gradient(180deg, var(--accent), var(--accent-deep));
+    border-radius:6px 6px 3px 3px;
+    position:relative;
 }
 
-.section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 28px;
+.mock-bar span{
+    position:absolute;
+    bottom:-18px;
+    left:50%;
+    transform:translateX(-50%);
+    font-size:9.5px;
+    color:var(--ink-faint);
+    white-space:nowrap;
 }
 
-.section-header-left h2 {
-    font-size: 24px;
-    font-weight: 700;
-    letter-spacing: -0.01em;
+.hero-visual-caption{
+    margin-top:26px;
+    font-size:11.5px;
+    color:var(--ink-faint);
+    text-align:center;
 }
 
-.section-header-left p {
-    color: var(--text2);
-    font-size: 14px;
-    margin-top: 4px;
+/* ============ STRIP ============ */
+.strip{
+    background:var(--surface);
+    border-top:1px solid var(--border);
+    border-bottom:1px solid var(--border);
 }
 
-.tools-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 22px;
+.strip-inner{
+    max-width:1240px;
+    margin:0 auto;
+    padding:18px 32px;
+    display:flex;
+    gap:40px;
+    justify-content:center;
+    flex-wrap:wrap;
 }
 
-.tool-card {
-    position: relative;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 24px;
-    padding: 28px;
-    transition: all 0.3s ease;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
+.strip-item{
+    font-size:13.5px;
+    color:var(--ink-soft);
+    display:flex;
+    align-items:center;
+    gap:8px;
 }
 
-.tool-card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: 24px;
-    background: linear-gradient(135deg, rgba(108, 99, 255, 0.08), rgba(167, 139, 250, 0.04));
-    opacity: 0;
-    transition: opacity 0.3s;
-    pointer-events: none;
+.strip-item strong{ color:var(--ink); }
+
+/* ============ TOOLS ============ */
+.section{
+    max-width:1240px;
+    margin:0 auto;
+    padding:72px 32px;
 }
 
-.tool-card:hover {
-    border-color: rgba(108, 99, 255, 0.4);
-    transform: translateY(-3px);
-    box-shadow: 0 12px 40px rgba(108, 99, 255, 0.12);
+.section-head{
+    margin-bottom:32px;
+    max-width:560px;
 }
 
-.tool-card:hover::before { opacity: 1; }
-
-.tool-card--new {
-    border-left: 3px solid var(--accent);
+.section-head h2{
+    font-size:27px;
+    font-weight:700;
+    letter-spacing:-0.01em;
+    margin:0 0 8px;
 }
 
-.card-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    margin-bottom: 18px;
+.section-head p{
+    color:var(--ink-soft);
+    font-size:15px;
+    line-height:1.6;
+    margin:0;
 }
 
-.card-meta {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+.tools-grid{
+    display:grid;
+    grid-template-columns:repeat(2, 1fr);
+    gap:20px;
 }
 
-.tool-number {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    color: var(--text2);
-    letter-spacing: 0.05em;
+.tool-card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius-lg);
+    padding:26px;
+    display:flex;
+    flex-direction:column;
+    box-shadow:var(--shadow-card);
+    transition:box-shadow .2s, transform .2s, border-color .2s;
 }
 
-.badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    background: var(--surface2);
-    color: var(--text2);
-    border: 1px solid var(--border);
+.tool-card:hover{
+    box-shadow:var(--shadow-card-hover);
+    transform:translateY(-2px);
+    border-color:var(--border-strong);
 }
 
-.badge-active {
-    background: rgba(52, 211, 153, 0.1);
-    color: var(--success);
-    border-color: rgba(52, 211, 153, 0.2);
+.tool-card-top{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    margin-bottom:16px;
 }
 
-.badge-new {
-    background: rgba(251, 191, 36, 0.1);
-    color: var(--warning);
-    border-color: rgba(251, 191, 36, 0.2);
+.tool-icon{
+    width:46px;
+    height:46px;
+    border-radius:12px;
+    background:var(--accent-soft);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:21px;
+    flex-shrink:0;
 }
 
-.tool-icon {
-    width: 52px;
-    height: 52px;
-    border-radius: 14px;
-    background: linear-gradient(135deg, rgba(108, 99, 255, 0.15), rgba(167, 139, 250, 0.05));
-    border: 1px solid rgba(108, 99, 255, 0.2);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 24px;
-    flex-shrink: 0;
+.tool-badges{ display:flex; gap:6px; }
+
+.badge{
+    font-size:11px;
+    font-weight:700;
+    padding:4px 9px;
+    border-radius:7px;
+    letter-spacing:.02em;
 }
 
-.tool-title {
-    font-size: 20px;
-    font-weight: 700;
-    letter-spacing: -0.01em;
-    line-height: 1.3;
-    margin-bottom: 10px;
+.badge-cat{
+    background:var(--surface-alt);
+    color:var(--ink-soft);
 }
 
-.tool-desc {
-    color: var(--text2);
-    line-height: 1.7;
-    font-size: 14px;
-    margin-bottom: 18px;
-    flex-grow: 1;
+.badge-new{
+    background:var(--amber-soft);
+    color:var(--amber);
 }
 
-.features {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 22px;
+.tool-title{
+    font-size:18px;
+    font-weight:700;
+    letter-spacing:-0.01em;
+    margin-bottom:8px;
+    font-family:'Poppins',sans-serif;
 }
 
-.feature {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-size: 12px;
-    color: var(--text2);
-    font-family: 'JetBrains Mono', monospace;
+.tool-desc{
+    color:var(--ink-soft);
+    font-size:14px;
+    line-height:1.65;
+    margin-bottom:16px;
+    flex-grow:1;
 }
 
-.card-footer {
-    display: flex;
-    gap: 12px;
-    border-top: 1px solid var(--border);
-    padding-top: 20px;
-    margin-top: auto;
+.tool-tags{
+    display:flex;
+    flex-wrap:wrap;
+    gap:7px;
+    margin-bottom:20px;
 }
 
-.btn {
-    text-decoration: none;
-    padding: 10px 18px;
-    border-radius: 10px;
-    font-weight: 600;
-    font-size: 14px;
-    transition: all 0.2s;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+.tag{
+    background:var(--surface-alt);
+    color:var(--ink-soft);
+    font-size:11.5px;
+    padding:5px 10px;
+    border-radius:7px;
+    font-family:'JetBrains Mono',monospace;
 }
 
-.btn-primary {
-    background: linear-gradient(135deg, var(--accent), rgba(167, 139, 250, 0.8));
-    color: white;
-    box-shadow: 0 2px 12px rgba(108, 99, 255, 0.25);
+.tool-actions{
+    display:flex;
+    gap:10px;
+    border-top:1px solid var(--border);
+    padding-top:18px;
+    margin-top:auto;
 }
 
-.btn-primary:hover {
-    box-shadow: 0 4px 20px rgba(108, 99, 255, 0.4);
-    transform: translateY(-1px);
+.btn-open{
+    background:var(--ink);
+    color:#fff;
+    text-decoration:none;
+    padding:10px 16px;
+    border-radius:9px;
+    font-weight:600;
+    font-size:13.5px;
+    flex:1;
+    text-align:center;
+    transition:background .15s;
 }
 
-.btn-secondary {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    color: var(--text2);
+.btn-open:hover{ background:var(--accent-deep); }
+
+.btn-docs{
+    background:var(--surface-alt);
+    color:var(--ink-soft);
+    text-decoration:none;
+    padding:10px 16px;
+    border-radius:9px;
+    font-weight:600;
+    font-size:13.5px;
+    text-align:center;
+    transition:background .15s, color .15s;
 }
 
-.btn-secondary:hover {
-    border-color: var(--text);
-    color: var(--text);
+.btn-docs:hover{ background:var(--accent-soft); color:var(--accent-deep); }
+
+/* ============ PHILOSOPHY ============ */
+.philosophy{
+    background:var(--ink);
+    color:#f1effc;
+    overflow:hidden;
 }
 
-/* FOOTER */
-.footer {
-    border-top: 1px solid var(--border);
-    padding: 32px 48px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    color: var(--text2);
-    font-size: 13px;
-    background: var(--surface);
+.philosophy-inner{
+    max-width:1240px;
+    margin:0 auto;
+    padding:72px 32px;
+    display:grid;
+    grid-template-columns:minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap:40px;
+    align-items:center;
 }
 
-.footer-links {
-    display: flex;
-    gap: 24px;
+.philosophy-mark{
+    width:52px; height:52px;
+    border-radius:14px;
+    background:linear-gradient(135deg, var(--accent), var(--accent-deep));
+    display:flex; align-items:center; justify-content:center;
+    font-weight:700; font-size:22px; color:#fff;
+    margin-bottom:22px;
 }
 
-.footer-links a {
-    color: var(--text2);
-    text-decoration: none;
-    transition: color 0.2s;
+.philosophy h2{
+    font-size:27px;
+    font-weight:700;
+    line-height:1.25;
+    letter-spacing:-0.01em;
+    margin:0 0 14px;
+    max-width:520px;
 }
 
-.footer-links a:hover {
-    color: var(--accent2);
+.philosophy p{
+    color:#b9b6d6;
+    font-size:15px;
+    line-height:1.75;
+    margin:0 0 22px;
+    max-width:440px;
 }
 
-/* RESPONSIVE */
-@media (max-width: 1100px) {
-    .tools-grid { grid-template-columns: 1fr; }
-    .stats-strip { gap: 24px; padding: 20px; }
+.philosophy-link{
+    color:#fff;
+    text-decoration:none;
+    font-weight:600;
+    font-size:14px;
+    border-bottom:1px solid rgba(255,255,255,.4);
+    padding-bottom:2px;
 }
 
-@media (max-width: 768px) {
-    .header { padding: 0 20px; }
-    .hero { padding: 56px 20px; }
-    .hero h1 { font-size: 38px; }
-    .stats-strip { flex-direction: column; align-items: flex-start; }
-    .stat-divider { display: none; }
-    .content { padding: 28px 20px; }
-    .footer { flex-direction: column; gap: 16px; text-align: center; }
+.philosophy-link:hover{ border-color:#fff; }
+
+.philosophy-list{
+    display:grid;
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap:16px;
+    min-width:0;
+}
+
+.philosophy-list-item{
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.1);
+    border-radius:14px;
+    padding:18px;
+    min-width:0;
+    overflow:hidden;
+}
+
+.philosophy-list-item .num{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    color:#9d99c4;
+    margin-bottom:10px;
+}
+
+.philosophy-list-item h3{
+    font-size:14.5px;
+    font-weight:600;
+    margin:0 0 6px;
+    color:#fff;
+}
+
+.philosophy-list-item p{
+    font-size:13px;
+    color:#b9b6d6;
+    line-height:1.6;
+    margin:0;
+}
+
+/* ============ CTA ============ */
+.cta{
+    max-width:1240px;
+    margin:0 auto;
+    padding:72px 32px;
+}
+
+.cta-card{
+    background:linear-gradient(135deg, var(--accent-soft), #fff);
+    border:1px solid var(--border);
+    border-radius:24px;
+    padding:48px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:32px;
+    flex-wrap:wrap;
+}
+
+.cta-card h2{
+    font-size:24px;
+    font-weight:700;
+    letter-spacing:-0.01em;
+    margin:0 0 8px;
+}
+
+.cta-card p{
+    color:var(--ink-soft);
+    font-size:14.5px;
+    margin:0;
+    max-width:420px;
+}
+
+/* ============ FOOTER ============ */
+.footer{
+    border-top:1px solid var(--border);
+    background:var(--surface);
+}
+
+.footer-inner{
+    max-width:1240px;
+    margin:0 auto;
+    padding:48px 32px 32px;
+    display:grid;
+    grid-template-columns:1.4fr 1fr 1fr;
+    gap:32px;
+}
+
+.footer-brand p{
+    color:var(--ink-faint);
+    font-size:13px;
+    line-height:1.7;
+    margin:14px 0 0;
+    max-width:280px;
+}
+
+.footer-col h4{
+    font-size:13px;
+    font-weight:700;
+    margin:0 0 14px;
+    color:var(--ink);
+}
+
+.footer-col a{
+    display:block;
+    color:var(--ink-soft);
+    text-decoration:none;
+    font-size:13.5px;
+    margin-bottom:10px;
+}
+
+.footer-col a:hover{ color:var(--accent-deep); }
+
+.footer-bottom{
+    border-top:1px solid var(--border);
+    padding:20px 32px;
+    max-width:1240px;
+    margin:0 auto;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-size:12.5px;
+    color:var(--ink-faint);
+    flex-wrap:wrap;
+    gap:10px;
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width:960px){
+    .hero{ grid-template-columns:1fr; padding-bottom:48px; }
+    .hero h1{ font-size:36px; }
+    .hero-visual{ order:-1; }
+    .tools-grid{ grid-template-columns:1fr; }
+    .philosophy-inner{ grid-template-columns:1fr; }
+    .philosophy-list{ grid-template-columns:1fr; }
+    .footer-inner{ grid-template-columns:1fr; }
+    .cta-card{ flex-direction:column; align-items:flex-start; }
+}
+
+@media (max-width:560px){
+    .philosophy-brand-icon{ width:220px; }
+    .brand-logo{ width:205px; }
+    .footer-brand .brand-logo{ width:210px; }
+
+    .header{ padding:18px 20px; }
+    .header-link{ display:none; }
+    .hero{ padding:24px 20px 40px; }
+    .section{ padding:52px 20px; }
+    .strip-inner{ padding:16px 20px; gap:20px; }
+    .cta-card{ padding:32px 24px; }
 }
 </style>
 </head>
 <body>
 
+<div class="ribbon">
+    Built by the team behind <a href="https://vizznity.com" target="_blank" rel="noopener">Vizznity</a> — custom business software, not just these tools
+</div>
+
 <div class="header">
-    <div class="logo">
-        <div class="logo-icon">⚡</div>
-        <div class="logo-text">
-            <h1>ToolsHub</h1>
-            <p>Excel • Audit • GST • Finance Utilities</p>
-        </div>
+    <a href="#" class="brand" aria-label="Tools by Vizznity">
+        <img class="brand-logo" src="assets/tools-by-vizznity.png" alt="Tools by Vizznity — tools.vizznity.com">
+    </a>
+    <div class="header-cta">
+        <a href="#tools" class="header-link">Browse tools</a>
+        <a href="#philosophy" class="header-link">Why we built this</a>
+        <a href="https://vizznity.com" target="_blank" rel="noopener" class="btn-outline">vizznity.com ↗</a>
     </div>
-    <div class="header-badge">6 TOOLS ACTIVE</div>
 </div>
 
 <div class="hero">
-    <div class="hero-bg"></div>
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-    <div class="orb orb-3"></div>
-
-    <div class="hero-content">
-        <div class="hero-pill">
-            <div class="hero-pill-dot"></div>
-            6 Professional Audit & Finance Tools
-        </div>
-
-        <h1>Built for <span class="accent-gradient">real fieldwork</span><br>Not generic use</h1>
-
-        <p>
-            Browser-based utilities purpose-built for internal audit workflows —
-            MSME compliance, ageing analysis, PO review, and procurement rate anomalies.
+    <div class="hero-copy">
+        <div class="hero-eyebrow"><span class="dot"></span> 6 tools live, more on the way</div>
+        <h1>The Excel work you shouldn't have to do <em>by hand.</em></h1>
+        <p class="lead">
+            Free browser-based utilities for MSME compliance, ageing analysis, PO reviews and procurement checks.
+            Upload a file, get a working paper back. Nothing is sent to a server — ever.
         </p>
-
-        <div class="hero-tags">
-            <div class="hero-tag">🔒 100% Data Stays Local</div>
-            <div class="hero-tag">⚡ No Server Uploads</div>
-            <div class="hero-tag">🌐 Works Offline</div>
+        <div class="hero-actions">
+            <a href="#tools" class="btn-primary">Browse the toolkit ↓</a>
         </div>
+        <div class="hero-facts">
+            <div class="hero-fact"><span class="ico">🔒</span> Runs entirely in your browser</div>
+            <div class="hero-fact"><span class="ico">📤</span> No files ever leave your device</div>
+            <div class="hero-fact"><span class="ico">📑</span> Outputs ready for the working paper file</div>
+        </div>
+    </div>
 
-        <a href="#tools" class="btn-hero-primary">Explore Audit Toolkit ↓</a>
+    <div class="hero-visual">
+        <div class="mock-topbar">
+            <span class="mock-dot"></span><span class="mock-dot"></span><span class="mock-dot"></span>
+            <span class="mock-title">ageing-analysis-output.xlsx</span>
+        </div>
+        <div class="mock-grid">
+            <div class="mock-cell head">Vendor</div>
+            <div class="mock-cell head">Invoice</div>
+            <div class="mock-cell head">Days</div>
+            <div class="mock-cell head">Bucket</div>
+            <div class="mock-cell head">Status</div>
+
+            <div class="mock-cell">Aarav Traders</div>
+            <div class="mock-cell">INV-2291</div>
+            <div class="mock-cell">24</div>
+            <div class="mock-cell">0–30</div>
+            <div class="mock-cell ok">On time</div>
+
+            <div class="mock-cell">Sundar Steels</div>
+            <div class="mock-cell">INV-2308</div>
+            <div class="mock-cell">67</div>
+            <div class="mock-cell">61–90</div>
+            <div class="mock-cell flag">Review</div>
+
+            <div class="mock-cell">Kavya Textiles</div>
+            <div class="mock-cell">INV-2312</div>
+            <div class="mock-cell">142</div>
+            <div class="mock-cell">91–180</div>
+            <div class="mock-cell flag">Overdue</div>
+        </div>
+        <div class="mock-buckets">
+            <div class="mock-bar" style="height:32%"><span>0–30</span></div>
+            <div class="mock-bar" style="height:58%"><span>31–60</span></div>
+            <div class="mock-bar" style="height:44%"><span>61–90</span></div>
+            <div class="mock-bar" style="height:71%"><span>91–180</span></div>
+            <div class="mock-bar" style="height:20%"><span>180+</span></div>
+        </div>
+        <div class="hero-visual-caption">A typical output — this exact table never touches a server</div>
     </div>
 </div>
 
-<div class="stats-strip">
-    <div class="stat-item"><span class="stat-item-icon">🛠️</span><span class="stat-item-text"><strong>6</strong> Active Tools</span></div>
-    <div class="stat-divider"></div>
-    <div class="stat-item"><span class="stat-item-icon">📊</span><span class="stat-item-text"><strong>Excel-Native</strong> Inputs/Outputs</span></div>
-    <div class="stat-divider"></div>
-    <div class="stat-item"><span class="stat-item-icon">📑</span><span class="stat-item-text"><strong>Audit-Ready</strong> Working Papers</span></div>
-    <div class="stat-divider"></div>
-    <div class="stat-item"><span class="stat-item-icon">🚀</span><span class="stat-item-text"><strong>Instant</strong> Browser Execution</span></div>
+<div class="strip">
+    <div class="strip-inner">
+        <div class="strip-item"><strong>6</strong>&nbsp;active tools</div>
+        <div class="strip-item">Built for <strong>audit & finance</strong> teams</div>
+        <div class="strip-item"><strong>Excel-native</strong> in and out</div>
+        <div class="strip-item">Free to use, <strong>always</strong></div>
+    </div>
 </div>
 
-<div class="content" id="tools">
-    <div class="section-header">
-        <div class="section-header-left">
-            <h2>Available Tools</h2>
-            <p>Select a utility to launch it securely in your browser session</p>
-        </div>
+<div class="section" id="tools">
+    <div class="section-head">
+        <h2>The toolkit</h2>
+        <p>Six utilities for the Excel problems that come up every audit cycle. Pick one, open it, and drop your file in.</p>
     </div>
 
     <div class="tools-grid">
 
-        <!-- TOOL 1 -->
         <div class="tool-card">
-            <div class="card-header">
-                <div class="card-meta">
-                    <span class="tool-number">01 / EXCEL AUTOMATION</span>
-                    <span class="badge badge-active">ACTIVE</span>
-                </div>
+            <div class="tool-card-top">
                 <div class="tool-icon">📊</div>
+                <div class="tool-badges"><span class="badge badge-cat">Excel automation</span></div>
             </div>
             <div class="tool-title">Excel Sheet Merger</div>
-            <div class="tool-desc">Merge two Excel sheets using Exact Match, Partial Match, Fuzzy Match and Multiple Key Columns. Supports Inner, Left, Right, and Full Outer joins.</div>
-            <div class="features">
-                <div class="feature">Exact Match</div><div class="feature">Partial Match</div><div class="feature">Fuzzy Match</div><div class="feature">Multi-Key</div><div class="feature">All Joins</div>
+            <div class="tool-desc">Combine two sheets using exact, partial or fuzzy matching on one or more key columns, with a choice of inner, left, right or full outer join.</div>
+            <div class="tool-tags">
+                <span class="tag">Fuzzy match</span><span class="tag">Multi-key</span><span class="tag">All joins</span>
             </div>
-            <div class="card-footer">
-                <a href="tools/excel-merger.html" class="btn btn-primary">Open Tool →</a>
-                <a href="docs/excel-merger-guide.html" class="btn btn-secondary">Documentation</a>
-            </div>
-        </div>
-
-        <!-- TOOL 2 -->
-        <div class="tool-card">
-            <div class="card-header">
-                <div class="card-meta">
-                    <span class="tool-number">02 / COMPLIANCE</span>
-                    <span class="badge badge-active">ACTIVE</span>
-                </div>
-                <div class="tool-icon" style="color:var(--accent2); font-weight:700; font-size:28px;">💰</div>
-            </div>
-            <div class="tool-title">MSME Interest Management System</div>
-            <div class="tool-desc">Calculate delayed payment interest under the MSMED Act using dynamic RBI Bank Rates, monthly compounding, and due date validation.</div>
-            <div class="features">
-                <div class="feature">MSME Act</div><div class="feature">Monthly Compounding</div><div class="feature">RBI Rates</div><div class="feature">Excel Export</div>
-            </div>
-            <div class="card-footer">
-                <a href="tools/msme-interest-calculator.html" class="btn btn-primary">Open Tool →</a>
-                <a href="docs/msme-interest-calculator-guide.html" class="btn btn-secondary">Documentation</a>
+            <div class="tool-actions">
+                <a href="tools/excel-merger.html" class="btn-open">Open tool</a>
+                <a href="docs/excel-merger-guide.html" class="btn-docs">Guide</a>
             </div>
         </div>
 
-        <!-- TOOL 3 -->
         <div class="tool-card">
-            <div class="card-header">
-                <div class="card-meta">
-                    <span class="tool-number">03 / ANALYSIS</span>
-                    <span class="badge badge-active">ACTIVE</span>
-                </div>
+            <div class="tool-card-top">
+                <div class="tool-icon">💰</div>
+                <div class="tool-badges"><span class="badge badge-cat">Compliance</span></div>
+            </div>
+            <div class="tool-title">MSME Interest Calculator</div>
+            <div class="tool-desc">Work out delayed-payment interest under the MSMED Act with monthly compounding and the applicable RBI bank rate for each period, fully auditable.</div>
+            <div class="tool-tags">
+                <span class="tag">MSMED Act</span><span class="tag">RBI rates</span><span class="tag">Audit trail</span>
+            </div>
+            <div class="tool-actions">
+                <a href="tools/msme-interest-calculator.html" class="btn-open">Open tool</a>
+                <a href="docs/msme-interest-calculator-guide.html" class="btn-docs">Guide</a>
+            </div>
+        </div>
+
+        <div class="tool-card">
+            <div class="tool-card-top">
                 <div class="tool-icon">⏳</div>
+                <div class="tool-badges"><span class="badge badge-cat">Analysis</span></div>
             </div>
             <div class="tool-title">Ageing Analysis Tool</div>
-            <div class="tool-desc">Generate Receivables and Payables Ageing reports instantly with customizable ageing buckets, automatic overdue flagging, and party-wise summaries.</div>
-            <div class="features">
-                <div class="feature">Custom Buckets</div><div class="feature">AR & AP</div><div class="feature">Overdue Flags</div><div class="feature">Summaries</div>
+            <div class="tool-desc">Build receivables, payables or inventory ageing reports with custom day buckets, grace periods and automatic bucket-wise summaries.</div>
+            <div class="tool-tags">
+                <span class="tag">Custom buckets</span><span class="tag">AR & AP</span><span class="tag">Summaries</span>
             </div>
-            <div class="card-footer">
-                <a href="tools/ageing-analysis-tool.html" class="btn btn-primary">Open Tool →</a>
-                <a href="docs/ageing-analysis-guide.html" class="btn btn-secondary">Documentation</a>
+            <div class="tool-actions">
+                <a href="tools/ageing-analysis-tool.html" class="btn-open">Open tool</a>
+                <a href="docs/ageing-analysis-guide.html" class="btn-docs">Guide</a>
             </div>
         </div>
 
-        <!-- TOOL 4 -->
         <div class="tool-card">
-            <div class="card-header">
-                <div class="card-meta">
-                    <span class="tool-number">04 / PROCUREMENT</span>
-                    <span class="badge badge-active">ACTIVE</span>
-                </div>
+            <div class="tool-card-top">
                 <div class="tool-icon">🧾</div>
+                <div class="tool-badges"><span class="badge badge-cat">Procurement</span></div>
             </div>
             <div class="tool-title">PO Splitting Detection Tool</div>
-            <div class="tool-desc">Identify potential Purchase Order splitting cases from a PO dump using a rolling date window, supplier-wise clustering, and an approval matrix.</div>
-            <div class="features">
-                <div class="feature">Rolling Window</div><div class="feature">Supplier Clustering</div><div class="feature">Approval Matrix</div><div class="feature">Escalations</div>
+            <div class="tool-desc">Scan a PO dump for orders that may have been broken up to stay under an approval limit, using a rolling date window and your own approval matrix.</div>
+            <div class="tool-tags">
+                <span class="tag">Rolling window</span><span class="tag">Approval matrix</span><span class="tag">Risk scoring</span>
             </div>
-            <div class="card-footer">
-                <a href="tools/po-splitting-detector.html" class="btn btn-primary">Open Tool →</a>
-                <a href="docs/po-splitting-detector-guide.html" class="btn btn-secondary">Documentation</a>
+            <div class="tool-actions">
+                <a href="tools/po-splitting-detector.html" class="btn-open">Open tool</a>
+                <a href="docs/po-splitting-detector-guide.html" class="btn-docs">Guide</a>
             </div>
         </div>
 
-        <!-- TOOL 5 -->
         <div class="tool-card">
-            <div class="card-header">
-                <div class="card-meta">
-                    <span class="tool-number">05 / PROCUREMENT</span>
-                    <span class="badge badge-active">ACTIVE</span>
-                </div>
+            <div class="tool-card-top">
                 <div class="tool-icon">📋</div>
+                <div class="tool-badges"><span class="badge badge-cat">Procurement</span></div>
             </div>
-            <div class="tool-title">Purchase Rate Comparison & Audit Annexure Generator</div>
-            <div class="tool-desc">Analyze a PO Register to flag instances where the same item was procured from multiple suppliers in the same month at above-minimum rates. Quantifies excess cost, generates a structured Audit Annexure, and exports a complete audit file.</div>
-            <div class="features">
-                <div class="feature">Multi-Supplier Analysis</div><div class="feature">Month Grouping</div><div class="feature">Exception Flags</div><div class="feature">Excess Cost</div><div class="feature">Audit Annexure</div><div class="feature">Excel File Gen</div>
+            <div class="tool-title">Purchase Rate Comparison & Annexure Generator</div>
+            <div class="tool-desc">Flag items bought from multiple suppliers in the same month at above-minimum rates, quantify the excess cost and generate a ready-to-file audit annexure.</div>
+            <div class="tool-tags">
+                <span class="tag">Multi-supplier</span><span class="tag">Excess cost</span><span class="tag">Annexure</span>
             </div>
-            <div class="card-footer">
-                <a href="tools/purchase-rate-comparison-annexure-tool.html" class="btn btn-primary">Open Tool →</a>
-                <a href="docs/purchase-rate-comparison-guide.html" class="btn btn-secondary">Documentation</a>
+            <div class="tool-actions">
+                <a href="tools/purchase-rate-comparison-annexure-tool.html" class="btn-open">Open tool</a>
+                <a href="docs/purchase-rate-comparison-guide.html" class="btn-docs">Guide</a>
             </div>
         </div>
 
-        <!-- TOOL 6 (NEW) -->
-        <div class="tool-card tool-card--new" <div class="tool-card tool-card--new">
-            <div class="card-header">
-                <div class="card-meta">
-                    <span class="tool-number">06 / EXCEL AUTOMATION</span>
-                    <div style="display:flex;gap:8px;">
-                        <span class="badge badge-active">ACTIVE</span>
-                        <span class="badge badge-new">NEW</span>
-                    </div>
-                </div>
+        <div class="tool-card">
+            <div class="tool-card-top">
                 <div class="tool-icon">🗂️</div>
+                <div class="tool-badges">
+                    <span class="badge badge-cat">Excel automation</span>
+                    <span class="badge badge-new">New</span>
+                </div>
             </div>
             <div class="tool-title">Combine Excel Sheets Tool</div>
-            <div class="tool-desc">Stack and consolidate multiple Excel sheets or files into a single unified workbook — quickly combine similarly structured data from different sources without manual copy-pasting.</div>
-            <div class="features">
-                <div class="feature">Multi-File Input</div><div class="feature">Sheet Stacking</div><div class="feature">Header Alignment</div><div class="feature">Excel Export</div>
+            <div class="tool-desc">Pick a folder of similarly structured workbooks and stack them into one file — either as separate tabs or merged into a single sheet.</div>
+            <div class="tool-tags">
+                <span class="tag">Multi-file</span><span class="tag">Sheet stacking</span><span class="tag">Header align</span>
             </div>
-            <div class="card-footer">
-                <a href="tools/combine-excel-sheets-tool.html" class="btn btn-primary">Open Tool →</a>
-                <a href="docs/combine-excel-sheets-guide.html" class="btn btn-secondary">Documentation</a>
+            <div class="tool-actions">
+                <a href="tools/combine-excel-sheets-tool.html" class="btn-open">Open tool</a>
+                <a href="docs/combine-excel-sheets-guide.html" class="btn-docs">Guide</a>
             </div>
         </div>
 
     </div>
 </div>
 
+<div class="philosophy" id="philosophy">
+    <div class="philosophy-inner">
+        <div>
+            <img class="philosophy-brand-icon" src="assets/vizznity-brand-transparent.png" alt="Vizznity — Your Vision. Our Innovation.">
+            <h2>The same idea as everything else we build</h2>
+            <p>
+                Vizznity builds custom software that fits how a business already works, instead of asking the business
+                to change to fit the software. These tools are the same idea, in smaller, free pieces — the fixes
+                we kept rebuilding for ourselves and decided to put in one place.
+            </p>
+            <a href="https://vizznity.com" target="_blank" rel="noopener" class="philosophy-link">See what else Vizznity builds ↗</a>
+        </div>
+        <div class="philosophy-list">
+            <div class="philosophy-list-item">
+                <div class="num">01</div>
+                <h3>Built from real files</h3>
+                <p>Every tool started as an actual spreadsheet someone on our team was tired of fixing by hand.</p>
+            </div>
+            <div class="philosophy-list-item">
+                <div class="num">02</div>
+                <h3>Your data stays yours</h3>
+                <p>Processing happens in your browser tab. Nothing is uploaded, stored or seen by us.</p>
+            </div>
+            <div class="philosophy-list-item">
+                <div class="num">03</div>
+                <h3>Excel in, Excel out</h3>
+                <p>Outputs are formatted to drop straight into a working paper file, not just a data dump.</p>
+            </div>
+            <div class="philosophy-list-item">
+                <div class="num">04</div>
+                <h3>Free, on purpose</h3>
+                <p>These stay free. If your process needs more than a tool can do, that's what Vizznity builds.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="cta">
+    <div class="cta-card">
+        <div>
+            <h2>Need something built around your process, not the other way round?</h2>
+            <p>Vizznity designs custom business applications — share your spreadsheets and workflow, we'll show you what a proper system looks like.</p>
+        </div>
+        <a href="mailto:Vizznity@gmail.com?subject=Custom%20tool%20enquiry" class="btn-primary">Talk to Vizznity</a>
+    </div>
+</div>
+
 <div class="footer">
-    <span>ToolsHub © 2026 — Built for internal audit productivity</span>
-    <div class="footer-links">
-        <a href="#">Privacy: Local Execution Only</a>
+    <div class="footer-inner">
+        <div class="footer-brand">
+            <a href="#" class="brand" aria-label="Tools by Vizznity">
+                <img class="brand-logo" src="assets/tools-by-vizznity.png" alt="Tools by Vizznity — tools.vizznity.com">
+            </a>
+            <p>Free browser-based utilities for audit and finance teams, made by Vizznity — the studio building custom business software.</p>
+        </div>
+        <div class="footer-col">
+            <h4>Toolkit</h4>
+            <a href="#tools">Browse all tools</a>
+            <a href="#philosophy">Why we built this</a>
+            <a href="https://vizznity.com" target="_blank" rel="noopener">Vizznity.com</a>
+        </div>
+        <div class="footer-col">
+            <h4>Contact Vizznity</h4>
+            <a href="mailto:Vizznity@gmail.com">Vizznity@gmail.com</a>
+            <a href="tel:+919813868002">8750691688</a>
+            <a href="https://instagram.com/vizznity" target="_blank" rel="noopener">@vizznity</a>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <span>© 2026 Vizznity. All rights reserved.</span>
+        <span>Made by Vizznity</span>
     </div>
 </div>
 
