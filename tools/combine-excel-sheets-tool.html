@@ -3,7 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Combine Excel Files Into Sheets</title>
+<meta name="description" content="Stack the first sheet of many Excel workbooks into one file, either as separate tabs or merged into a single sheet.">
+<meta name="theme-color" content="#f7f6fc">
+<link rel="icon" type="image/png" href="../assets/tools-vizznity-icon-transparent.png">
+<title>Combine Excel Sheets Tool — Tools by Vizznity</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   :root{
@@ -163,24 +166,29 @@
 
   input[type=file]{display:none;}
 </style>
+<link rel="stylesheet" href="../assets/vz-shared.css">
+<script src="../assets/vz-shared.js" defer></script>
 </head>
 <body>
-<div class="wrap">
+<a class="vz-skip" href="#vz-main">Skip to main content</a>
+<noscript><div class="vz-banner" role="alert"><div><strong>JavaScript is turned off.</strong> This tool needs JavaScript to read and process Excel files.</div></div></noscript>
+<main class="wrap" id="vz-main" tabindex="-1">
 
   <header>
-    <div class="eyebrow"><a href="../index.html" style="color:inherit;text-decoration:none;">← Tools · Vizznity</a></div>
-    <h1>Combine Excel Files Into Sheets</h1>
+    <div class="eyebrow"><nav aria-label="Tools by Vizznity"><a href="../index.html" style="color:inherit;">← All tools</a> &nbsp;·&nbsp; <a href="../docs/combine-excel-sheets-guide.html" style="color:inherit;">User guide</a></nav></div>
+    <h1>Combine Excel Sheets Tool</h1>
     <p class="subtitle">Pick a folder. Each file's first sheet becomes its own tab in one combined workbook.</p>
   </header>
 
   <div class="card">
     <div class="dropzone" id="dropzone">
-      <div class="icon">📁</div>
+      <div class="icon" aria-hidden="true">📁</div>
       <div class="main" id="dz-main">Click to choose a folder, or drop Excel files here</div>
       <div class="sub">.xlsx · .xls · .xlsm · .xlsb</div>
     </div>
     <input type="file" id="folderInput" webkitdirectory multiple>
     <input type="file" id="filesInput" multiple accept=".xlsx,.xls,.xlsm,.xlsb">
+    <p class="vz-note"><strong>Your files stay in this browser tab.</strong> Your browser’s folder picker may say “Upload” — that is the browser’s wording; this tool only reads the files here and does not send them anywhere. The page loads the SheetJS library from cdnjs.cloudflare.com when it opens, so it needs an internet connection to start. <a href="../index.html#privacy">How privacy works</a></p>
 
     <div class="file-list" id="fileList"></div>
 
@@ -214,7 +222,7 @@
     </div>
   </div>
 
-</div>
+</main>
 
 <script>
 const dropzone = document.getElementById('dropzone');

@@ -5,7 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tools by Vizznity — Audit & Finance Utilities</title>
     <link rel="icon" type="image/png" href="assets/tools-vizznity-icon-transparent.png">
-<meta name="description" content="Free browser-based Excel, audit and MSME compliance tools, built by Vizznity. Upload a file, get a working paper back — nothing leaves your browser.">
+<meta name="description" content="Free browser-based Excel, audit and MSME compliance tools by Vizznity. Choose an Excel file and get a working paper back — files are processed in your browser, not uploaded.">
+<meta name="theme-color" content="#f7f6fc">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Tools by Vizznity — Audit & Finance Utilities">
+<meta property="og:description" content="Free browser-based utilities for MSME interest, ageing analysis, PO splitting checks, purchase-rate comparison and combining Excel files.">
+<meta property="og:image" content="https://tools.vizznity.com/assets/tools-by-vizznity.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -713,44 +718,87 @@ img{ max-width:100%; display:block; }
     .strip-inner{ padding:16px 20px; gap:20px; }
     .cta-card{ padding:32px 24px; }
 }
+
+/* ============ ADDITIONS (review pass) ============ */
+.brand-logo{ mix-blend-mode:multiply; }              /* wordmark PNG has a white box; blend into the page */
+.footer .brand-logo{ mix-blend-mode:normal; }
+.tool-title{ margin:0 0 8px; }
+.tool-io{ margin:0 0 18px; display:grid; gap:8px; font-size:13px; line-height:1.55; }
+.tool-io div{ display:grid; grid-template-columns:62px 1fr; gap:8px; }
+.tool-io dt{ font-weight:700; color:var(--ink); }
+.tool-io dd{ margin:0; color:var(--ink-soft); }
+.chooser{ padding-top:56px; padding-bottom:0; }
+.chooser-list{ list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(2,1fr); gap:10px 20px; }
+.chooser-list li{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md); }
+.chooser-list a{ display:flex; justify-content:space-between; gap:12px; align-items:center; padding:14px 16px; text-decoration:none; font-size:14px; color:var(--ink-soft); }
+.chooser-list a strong{ color:var(--accent-deep); white-space:nowrap; }
+.chooser-list a:hover{ background:var(--accent-soft); border-radius:var(--radius-md); }
+.privacy-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:16px; }
+.privacy-item{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md); padding:20px; }
+.privacy-item h3{ font-size:15px; margin:0 0 8px; }
+.privacy-item p, .privacy-item li{ font-size:13.5px; line-height:1.65; color:var(--ink-soft); margin:0; }
+.privacy-item ul{ margin:0; padding-left:18px; }
+.privacy-foot{ margin-top:16px; font-size:13px; color:var(--ink-soft); }
+.footer-col ul{ list-style:none; margin:0; padding:0; }
+.header-link{ padding:8px 4px; }
+.footer-col a{ padding:6px 0; margin-bottom:2px; }
+.footer-inner{ grid-template-columns:1.4fr 1fr 1fr 1fr; }
+.ribbon a, .philosophy-link{ white-space:normal; }
+@media (max-width:960px){
+    .chooser-list, .privacy-grid{ grid-template-columns:1fr; }
+    .footer-inner{ grid-template-columns:1fr; }
+}
+@media (max-width:560px){
+    .tool-io div{ grid-template-columns:1fr; gap:0; }
+    .tool-actions{ flex-wrap:wrap; }
+    .hero h1{ font-size:32px; }
+}
 </style>
+<link rel="stylesheet" href="assets/vz-shared.css">
 </head>
 <body>
+<a class="vz-skip" href="#main">Skip to main content</a>
 
 <div class="ribbon">
-    Built by the team behind <a href="https://vizznity.com" target="_blank" rel="noopener">Vizznity</a> — custom business software, not just these tools
+    Built by <a href="https://vizznity.com" target="_blank" rel="noopener">Vizznity<span class="vz-sr"> (opens in a new tab)</span></a> — custom business software, not just these tools
 </div>
 
-<div class="header">
-    <a href="#" class="brand" aria-label="Tools by Vizznity">
+<header class="header">
+    <a href="index.html" class="brand" aria-label="Tools by Vizznity — home">
         <img class="brand-logo" src="assets/tools-by-vizznity.png" alt="Tools by Vizznity — tools.vizznity.com">
     </a>
     <div class="header-cta">
-        <a href="#tools" class="header-link">Browse tools</a>
-        <a href="#philosophy" class="header-link">Why we built this</a>
-        <a href="https://vizznity.com" target="_blank" rel="noopener" class="btn-outline">vizznity.com ↗</a>
+        <nav class="header-cta" aria-label="Primary">
+        <a href="#chooser" class="header-link">Which tool?</a>
+        <a href="#tools" class="header-link">All tools</a>
+        <a href="#privacy" class="header-link">Privacy</a>
+        <a href="https://vizznity.com" target="_blank" rel="noopener" class="btn-outline">vizznity.com ↗<span class="vz-sr"> (opens in a new tab)</span></a>
+        </nav>
     </div>
-</div>
+</header>
 
-<div class="hero">
+<main id="main" tabindex="-1">
+
+<section class="hero" aria-labelledby="hero-h">
     <div class="hero-copy">
         <div class="hero-eyebrow"><span class="dot"></span> 6 tools live, more on the way</div>
-        <h1>The Excel work you shouldn't have to do <em>by hand.</em></h1>
+        <h1 id="hero-h">The Excel work you shouldn't have to do <em>by hand.</em></h1>
         <p class="lead">
             Free browser-based utilities for MSME compliance, ageing analysis, PO reviews and procurement checks.
-            Upload a file, get a working paper back. Nothing is sent to a server — ever.
+            Choose an Excel file, get a working paper back. Your file is processed in your browser — these tools don’t upload it.
         </p>
         <div class="hero-actions">
-            <a href="#tools" class="btn-primary">Browse the toolkit ↓</a>
+            <a href="#chooser" class="btn-primary">Find the right tool ↓</a>
+            <a href="#privacy" class="btn-outline" style="align-self:center;">How privacy works</a>
         </div>
         <div class="hero-facts">
-            <div class="hero-fact"><span class="ico">🔒</span> Runs entirely in your browser</div>
-            <div class="hero-fact"><span class="ico">📤</span> No files ever leave your device</div>
-            <div class="hero-fact"><span class="ico">📑</span> Outputs ready for the working paper file</div>
+            <div class="hero-fact"><span class="ico" aria-hidden="true">🔒</span> Processed in your browser tab</div>
+            <div class="hero-fact"><span class="ico" aria-hidden="true">📤</span> Files are not uploaded by these tools</div>
+            <div class="hero-fact"><span class="ico" aria-hidden="true">📑</span> Excel outputs for your working paper file</div>
         </div>
     </div>
 
-    <div class="hero-visual">
+    <div class="hero-visual" role="img" aria-label="Illustration: a sample ageing table with vendor, invoice, days, bucket and status columns, above a bar chart of ageing buckets">
         <div class="mock-topbar">
             <span class="mock-dot"></span><span class="mock-dot"></span><span class="mock-dot"></span>
             <span class="mock-title">ageing-analysis-output.xlsx</span>
@@ -787,140 +835,156 @@ img{ max-width:100%; display:block; }
             <div class="mock-bar" style="height:71%"><span>91–180</span></div>
             <div class="mock-bar" style="height:20%"><span>180+</span></div>
         </div>
-        <div class="hero-visual-caption">A typical output — this exact table never touches a server</div>
+        <div class="hero-visual-caption">Illustration with sample data — not real output</div>
     </div>
-</div>
+</section>
 
-<div class="strip">
+<section class="strip" aria-label="At a glance">
     <div class="strip-inner">
         <div class="strip-item"><strong>6</strong>&nbsp;active tools</div>
         <div class="strip-item">Built for <strong>audit & finance</strong> teams</div>
         <div class="strip-item"><strong>Excel-native</strong> in and out</div>
-        <div class="strip-item">Free to use, <strong>always</strong></div>
+        <div class="strip-item">Free to use</div>
     </div>
-</div>
+</section>
 
-<div class="section" id="tools">
+<section class="section chooser" id="chooser" aria-labelledby="chooser-h">
     <div class="section-head">
-        <h2>The toolkit</h2>
-        <p>Six utilities for the Excel problems that come up every audit cycle. Pick one, open it, and drop your file in.</p>
+        <h2 id="chooser-h">Which tool do I need?</h2>
+        <p>Pick the job you’re trying to get done. Each tool opens with its own guide, and all of them work from an Excel or CSV file.</p>
     </div>
+    <ul class="chooser-list"><li><a href="#tool-merger"><span>Match two sheets and bring columns across</span><strong>Excel Sheet Merger →</strong></a></li><li><a href="#tool-msme"><span>Calculate interest on delayed MSME payments</span><strong>MSME Interest Calculator →</strong></a></li><li><a href="#tool-ageing"><span>See how old receivables, payables or stock are</span><strong>Ageing Analysis Tool →</strong></a></li><li><a href="#tool-po"><span>Check for POs split to avoid approval limits</span><strong>PO Splitting Detection Tool →</strong></a></li><li><a href="#tool-purchase"><span>Find items bought above the lowest rate</span><strong>Purchase Rate Comparison →</strong></a></li><li><a href="#tool-combine"><span>Put many Excel files into one workbook</span><strong>Combine Excel Sheets Tool →</strong></a></li></ul>
+</section>
 
+<section class="section" id="tools" aria-labelledby="tools-h">
+    <div class="section-head">
+        <h2 id="tools-h">The toolkit</h2>
+        <p>Six utilities for the Excel problems that come up every audit cycle. Each card says what you need to bring and what you’ll get back.</p>
+    </div>
     <div class="tools-grid">
 
-        <div class="tool-card">
+        <article class="tool-card" id="tool-merger">
             <div class="tool-card-top">
-                <div class="tool-icon">📊</div>
+                <div class="tool-icon" aria-hidden="true">📊</div>
                 <div class="tool-badges"><span class="badge badge-cat">Excel automation</span></div>
             </div>
-            <div class="tool-title">Excel Sheet Merger</div>
+            <h3 class="tool-title">Excel Sheet Merger</h3>
             <div class="tool-desc">Combine two sheets using exact, partial or fuzzy matching on one or more key columns, with a choice of inner, left, right or full outer join.</div>
-            <div class="tool-tags">
-                <span class="tag">Fuzzy match</span><span class="tag">Multi-key</span><span class="tag">All joins</span>
-            </div>
+            <dl class="tool-io">
+                <div><dt>You need</dt><dd>One workbook (.xlsx, .xlsm, .xls or .csv) that contains both sheets to match.</dd></div>
+                <div><dt>You get</dt><dd>merged_output.xlsx with a “Merged” sheet, plus match statistics on screen.</dd></div>
+            </dl>
+            <div class="tool-tags"><span class="tag">Fuzzy match</span><span class="tag">Multi-key</span><span class="tag">All joins</span></div>
             <div class="tool-actions">
-                <a href="tools/excel-merger.html" class="btn-open">Open tool</a>
-                <a href="docs/excel-merger-guide.html" class="btn-docs">Guide</a>
+                <a href="tools/excel-merger.html" class="btn-open" aria-label="Open Excel Sheet Merger">Open tool</a>
+                <a href="docs/excel-merger-guide.html" class="btn-docs" aria-label="Read the guide for Excel Sheet Merger">Guide</a>
             </div>
-        </div>
+        </article>
 
-        <div class="tool-card">
+        <article class="tool-card" id="tool-msme">
             <div class="tool-card-top">
-                <div class="tool-icon">💰</div>
+                <div class="tool-icon" aria-hidden="true">💰</div>
                 <div class="tool-badges"><span class="badge badge-cat">Compliance</span></div>
             </div>
-            <div class="tool-title">MSME Interest Calculator</div>
+            <h3 class="tool-title">MSME Interest Calculator</h3>
             <div class="tool-desc">Work out delayed-payment interest under the MSMED Act with monthly compounding and the applicable RBI bank rate for each period, fully auditable.</div>
-            <div class="tool-tags">
-                <span class="tag">MSMED Act</span><span class="tag">RBI rates</span><span class="tag">Audit trail</span>
-            </div>
+            <dl class="tool-io">
+                <div><dt>You need</dt><dd>An invoice list with invoice no., vendor, amount, GRN date, payment terms (days) and payment date.</dd></div>
+                <div><dt>You get</dt><dd>MSME_Working.xlsx — period-by-period interest working with a total per invoice.</dd></div>
+            </dl>
+            <div class="tool-tags"><span class="tag">MSMED Act</span><span class="tag">RBI rates</span><span class="tag">Audit trail</span></div>
             <div class="tool-actions">
-                <a href="tools/msme-interest-calculator.html" class="btn-open">Open tool</a>
-                <a href="docs/msme-interest-calculator-guide.html" class="btn-docs">Guide</a>
+                <a href="tools/msme-interest-calculator.html" class="btn-open" aria-label="Open MSME Interest Calculator">Open tool</a>
+                <a href="docs/msme-interest-calculator-guide.html" class="btn-docs" aria-label="Read the guide for MSME Interest Calculator">Guide</a>
             </div>
-        </div>
+        </article>
 
-        <div class="tool-card">
+        <article class="tool-card" id="tool-ageing">
             <div class="tool-card-top">
-                <div class="tool-icon">⏳</div>
+                <div class="tool-icon" aria-hidden="true">⏳</div>
                 <div class="tool-badges"><span class="badge badge-cat">Analysis</span></div>
             </div>
-            <div class="tool-title">Ageing Analysis Tool</div>
+            <h3 class="tool-title">Ageing Analysis Tool</h3>
             <div class="tool-desc">Build receivables, payables or inventory ageing reports with custom day buckets, grace periods and automatic bucket-wise summaries.</div>
-            <div class="tool-tags">
-                <span class="tag">Custom buckets</span><span class="tag">AR & AP</span><span class="tag">Summaries</span>
-            </div>
+            <dl class="tool-io">
+                <div><dt>You need</dt><dd>A sheet with the dates to age (a start and end date, or a single date), plus optional on-time days.</dd></div>
+                <div><dt>You get</dt><dd>Ageing_Analysis.xlsx — row-level ageing with buckets, plus an Ageing Summary sheet.</dd></div>
+            </dl>
+            <div class="tool-tags"><span class="tag">Custom buckets</span><span class="tag">AR & AP</span><span class="tag">Summaries</span></div>
             <div class="tool-actions">
-                <a href="tools/ageing-analysis-tool.html" class="btn-open">Open tool</a>
-                <a href="docs/ageing-analysis-guide.html" class="btn-docs">Guide</a>
+                <a href="tools/ageing-analysis-tool.html" class="btn-open" aria-label="Open Ageing Analysis Tool">Open tool</a>
+                <a href="docs/ageing-analysis-guide.html" class="btn-docs" aria-label="Read the guide for Ageing Analysis Tool">Guide</a>
             </div>
-        </div>
+        </article>
 
-        <div class="tool-card">
+        <article class="tool-card" id="tool-po">
             <div class="tool-card-top">
-                <div class="tool-icon">🧾</div>
+                <div class="tool-icon" aria-hidden="true">🧾</div>
                 <div class="tool-badges"><span class="badge badge-cat">Procurement</span></div>
             </div>
-            <div class="tool-title">PO Splitting Detection Tool</div>
+            <h3 class="tool-title">PO Splitting Detection Tool</h3>
             <div class="tool-desc">Scan a PO dump for orders that may have been broken up to stay under an approval limit, using a rolling date window and your own approval matrix.</div>
-            <div class="tool-tags">
-                <span class="tag">Rolling window</span><span class="tag">Approval matrix</span><span class="tag">Risk scoring</span>
-            </div>
+            <dl class="tool-io">
+                <div><dt>You need</dt><dd>A PO dump with PO number, date, supplier and value, plus an approval matrix (typed in or uploaded).</dd></div>
+                <div><dt>You get</dt><dd>po_splitting_cases.xlsx — cases, case details, daily summary and the matrix used.</dd></div>
+            </dl>
+            <div class="tool-tags"><span class="tag">Rolling window</span><span class="tag">Approval matrix</span><span class="tag">Risk scoring</span></div>
             <div class="tool-actions">
-                <a href="tools/po-splitting-detector.html" class="btn-open">Open tool</a>
-                <a href="docs/po-splitting-detector-guide.html" class="btn-docs">Guide</a>
+                <a href="tools/po-splitting-detector.html" class="btn-open" aria-label="Open PO Splitting Detection Tool">Open tool</a>
+                <a href="docs/po-splitting-detector-guide.html" class="btn-docs" aria-label="Read the guide for PO Splitting Detection Tool">Guide</a>
             </div>
-        </div>
+        </article>
 
-        <div class="tool-card">
+        <article class="tool-card" id="tool-purchase">
             <div class="tool-card-top">
-                <div class="tool-icon">📋</div>
+                <div class="tool-icon" aria-hidden="true">📋</div>
                 <div class="tool-badges"><span class="badge badge-cat">Procurement</span></div>
             </div>
-            <div class="tool-title">Purchase Rate Comparison & Annexure Generator</div>
+            <h3 class="tool-title">Purchase Rate Comparison &amp; Audit Annexure Generator</h3>
             <div class="tool-desc">Flag items bought from multiple suppliers in the same month at above-minimum rates, quantify the excess cost and generate a ready-to-file audit annexure.</div>
-            <div class="tool-tags">
-                <span class="tag">Multi-supplier</span><span class="tag">Excess cost</span><span class="tag">Annexure</span>
-            </div>
+            <dl class="tool-io">
+                <div><dt>You need</dt><dd>A PO register with PO no., date, supplier, item code, description, price and quantity.</dd></div>
+                <div><dt>You get</dt><dd>Working, Annexure, or a complete audit file (Working, Annexure and Summary sheets).</dd></div>
+            </dl>
+            <div class="tool-tags"><span class="tag">Multi-supplier</span><span class="tag">Excess cost</span><span class="tag">Annexure</span></div>
             <div class="tool-actions">
-                <a href="tools/purchase-rate-comparison-annexure-tool.html" class="btn-open">Open tool</a>
-                <a href="docs/purchase-rate-comparison-guide.html" class="btn-docs">Guide</a>
+                <a href="tools/purchase-rate-comparison-annexure-tool.html" class="btn-open" aria-label="Open Purchase Rate Comparison &amp; Audit Annexure Generator">Open tool</a>
+                <a href="docs/purchase-rate-comparison-guide.html" class="btn-docs" aria-label="Read the guide for Purchase Rate Comparison &amp; Audit Annexure Generator">Guide</a>
             </div>
-        </div>
+        </article>
 
-        <div class="tool-card">
+        <article class="tool-card" id="tool-combine">
             <div class="tool-card-top">
-                <div class="tool-icon">🗂️</div>
-                <div class="tool-badges">
-                    <span class="badge badge-cat">Excel automation</span>
-                    <span class="badge badge-new">New</span>
-                </div>
+                <div class="tool-icon" aria-hidden="true">🗂️</div>
+                <div class="tool-badges"><span class="badge badge-cat">Excel automation</span><span class="badge badge-new">New</span></div>
             </div>
-            <div class="tool-title">Combine Excel Sheets Tool</div>
+            <h3 class="tool-title">Combine Excel Sheets Tool</h3>
             <div class="tool-desc">Pick a folder of similarly structured workbooks and stack them into one file — either as separate tabs or merged into a single sheet.</div>
-            <div class="tool-tags">
-                <span class="tag">Multi-file</span><span class="tag">Sheet stacking</span><span class="tag">Header align</span>
-            </div>
+            <dl class="tool-io">
+                <div><dt>You need</dt><dd>A folder (or a set) of Excel workbooks, ideally with the same column layout.</dd></div>
+                <div><dt>You get</dt><dd>Combined_Workbook.xlsx (one tab per file) or Merged_Single_Sheet.xlsx.</dd></div>
+            </dl>
+            <div class="tool-tags"><span class="tag">Multi-file</span><span class="tag">First sheet of each</span><span class="tag">Tabs or one sheet</span></div>
             <div class="tool-actions">
-                <a href="tools/combine-excel-sheets-tool.html" class="btn-open">Open tool</a>
-                <a href="docs/combine-excel-sheets-guide.html" class="btn-docs">Guide</a>
+                <a href="tools/combine-excel-sheets-tool.html" class="btn-open" aria-label="Open Combine Excel Sheets Tool">Open tool</a>
+                <a href="docs/combine-excel-sheets-guide.html" class="btn-docs" aria-label="Read the guide for Combine Excel Sheets Tool">Guide</a>
             </div>
-        </div>
+        </article>
 
     </div>
-</div>
+</section>
 
-<div class="philosophy" id="philosophy">
+<section class="philosophy" id="philosophy" aria-labelledby="phil-h">
     <div class="philosophy-inner">
         <div>
             <img class="philosophy-brand-icon" src="assets/vizznity-brand-transparent.png" alt="Vizznity — Your Vision. Our Innovation.">
-            <h2>The same idea as everything else we build</h2>
+            <h2 id="phil-h">The same idea as everything else we build</h2>
             <p>
                 Vizznity builds custom software that fits how a business already works, instead of asking the business
                 to change to fit the software. These tools are the same idea, in smaller, free pieces — the fixes
                 we kept rebuilding for ourselves and decided to put in one place.
             </p>
-            <a href="https://vizznity.com" target="_blank" rel="noopener" class="philosophy-link">See what else Vizznity builds ↗</a>
+            <a href="https://vizznity.com" target="_blank" rel="noopener" class="philosophy-link">See what else Vizznity builds ↗<span class="vz-sr"> (opens in a new tab)</span></a>
         </div>
         <div class="philosophy-list">
             <div class="philosophy-list-item">
@@ -931,7 +995,7 @@ img{ max-width:100%; display:block; }
             <div class="philosophy-list-item">
                 <div class="num">02</div>
                 <h3>Your data stays yours</h3>
-                <p>Processing happens in your browser tab. Nothing is uploaded, stored or seen by us.</p>
+                <p>Spreadsheet contents are processed in your browser tab and aren’t uploaded by these tools. <a href="#privacy" style="color:#fff;">How it works</a></p>
             </div>
             <div class="philosophy-list-item">
                 <div class="num">03</div>
@@ -945,44 +1009,72 @@ img{ max-width:100%; display:block; }
             </div>
         </div>
     </div>
-</div>
+</section>
 
-<div class="cta">
+<section class="section" id="privacy" aria-labelledby="privacy-h">
+    <div class="section-head" style="max-width:680px;">
+        <h2 id="privacy-h">How your data is handled</h2>
+        <p>The short version: your spreadsheet is read and processed by your own browser. Here is the detail, including what does load from other servers.</p>
+    </div>
+    <div class="privacy-grid">
+        <div class="privacy-item"><h3>What stays on your device</h3>
+            <p>Your spreadsheet’s contents are read and processed by JavaScript running in your browser tab. In a review of the source code of all six tools, we found no code that uploads files, sends analytics, or stores your data in cookies or browser storage. Results are saved only when you press a download button, and then to your own device.</p></div>
+        <div class="privacy-item"><h3>What does load from other servers</h3>
+            <ul>
+                <li>Every tool page loads the <strong>SheetJS</strong> spreadsheet library from cdnjs.cloudflare.com.</li>
+                <li>This homepage and one guide load fonts from <strong>Google Fonts</strong>.</li>
+                <li>These requests tell those services your IP address and which page you opened — not the contents of your file.</li>
+            </ul></div>
+        <div class="privacy-item"><h3>Internet connection</h3>
+            <p>A connection is needed each time a tool page opens, so the spreadsheet library can load. Once the page has fully loaded, processing happens on your device. The tools are not designed as offline apps.</p></div>
+        <div class="privacy-item"><h3>Things outside the tools’ control</h3>
+            <p>Browser extensions can read page content, downloaded files stay in your Downloads folder, and the web host serving this site receives ordinary page requests and may keep standard server logs. On a shared computer, clear your downloads afterwards.</p></div>
+    </div>
+    <p class="privacy-foot"><strong>Check it yourself:</strong> open your browser’s developer tools, go to the Network tab, run a tool, and confirm that no request carries your file.</p>
+</section>
+
+<section class="cta" aria-labelledby="cta-h">
     <div class="cta-card">
         <div>
-            <h2>Need something built around your process, not the other way round?</h2>
+            <h2 id="cta-h">Need something built around your process, not the other way round?</h2>
             <p>Vizznity designs custom business applications — share your spreadsheets and workflow, we'll show you what a proper system looks like.</p>
         </div>
-        <a href="mailto:Vizznity@gmail.com?subject=Custom%20tool%20enquiry" class="btn-primary">Talk to Vizznity</a>
+        <a href="mailto:info@vizznity.com?subject=Custom%20tool%20enquiry" class="btn-primary">Talk to Vizznity</a>
     </div>
-</div>
+</section>
+</main>
 
-<div class="footer">
+<footer class="footer">
     <div class="footer-inner">
         <div class="footer-brand">
-            <a href="#" class="brand" aria-label="Tools by Vizznity">
+            <a href="index.html" class="brand" aria-label="Tools by Vizznity — home">
                 <img class="brand-logo" src="assets/tools-by-vizznity.png" alt="Tools by Vizznity — tools.vizznity.com">
             </a>
             <p>Free browser-based utilities for audit and finance teams, made by Vizznity — the studio building custom business software.</p>
         </div>
-        <div class="footer-col">
+        <nav class="footer-col" aria-label="Tools">
+            <h4>Tools</h4>
+            <ul><li><a href="tools/excel-merger.html">Excel Sheet Merger</a></li><li><a href="tools/msme-interest-calculator.html">MSME Interest Calculator</a></li><li><a href="tools/ageing-analysis-tool.html">Ageing Analysis Tool</a></li><li><a href="tools/po-splitting-detector.html">PO Splitting Detection Tool</a></li><li><a href="tools/purchase-rate-comparison-annexure-tool.html">Purchase Rate Comparison</a></li><li><a href="tools/combine-excel-sheets-tool.html">Combine Excel Sheets Tool</a></li></ul>
+        </nav>
+        <nav class="footer-col" aria-label="About">
             <h4>Toolkit</h4>
-            <a href="#tools">Browse all tools</a>
+            <a href="#chooser">Which tool do I need?</a>
+            <a href="#privacy">How your data is handled</a>
             <a href="#philosophy">Why we built this</a>
-            <a href="https://vizznity.com" target="_blank" rel="noopener">Vizznity.com</a>
-        </div>
+            <a href="https://vizznity.com" target="_blank" rel="noopener">Vizznity.com<span class="vz-sr"> (opens in a new tab)</span></a>
+        </nav>
         <div class="footer-col">
             <h4>Contact Vizznity</h4>
-            <a href="mailto:Vizznity@gmail.com">Vizznity@gmail.com</a>
+            <a href="mailto:info@vizznity.com">info@vizznity.com</a>
             <a href="tel:+919813868002">8750691688</a>
-            <a href="https://instagram.com/vizznity" target="_blank" rel="noopener">@vizznity</a>
+            <a href="https://instagram.com/vizznity" target="_blank" rel="noopener">@vizznity<span class="vz-sr"> (Instagram, opens in a new tab)</span></a>
         </div>
     </div>
     <div class="footer-bottom">
         <span>© 2026 Vizznity. All rights reserved.</span>
         <span>Made by Vizznity</span>
     </div>
-</div>
+</footer>
 
 </body>
 </html>

@@ -3,7 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PO Splitting Detection Tool</title>
+<meta name="description" content="Scan a purchase-order dump for orders that may have been split to stay under an approval limit, using a rolling date window and your approval matrix.">
+<meta name="theme-color" content="#f7f6fc">
+<link rel="icon" type="image/png" href="../assets/tools-vizznity-icon-transparent.png">
+<title>PO Splitting Detection Tool — Tools by Vizznity</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   :root {
@@ -465,12 +468,16 @@
     .sidebar, header, .btn { display: none !important; }
   }
 </style>
+<link rel="stylesheet" href="../assets/vz-shared.css">
+<script src="../assets/vz-shared.js" defer></script>
 </head>
 <body>
+<a class="vz-skip" href="#vz-main">Skip to main content</a>
+<noscript><div class="vz-banner" role="alert"><div><strong>JavaScript is turned off.</strong> This tool needs JavaScript to read and process Excel files.</div></div></noscript>
 
 <header>
   <a href="../index.html" style="display:flex;align-items:center;gap:14px;text-decoration:none;color:inherit;">
-    <div class="logo">🧾</div>
+    <div class="logo" aria-hidden="true">🧾</div>
     <div>
     <h1>PO Splitting Detection Tool</h1>
     <p>Upload · Map · Configure · Detect · Export</p>
@@ -482,7 +489,7 @@
     <div class="pill" id="pill3">3 Configure</div>
     <div class="pill" id="pill4">4 Results</div>
   </div>
-  <a href="../index.html" style="margin-left:14px;font-size:11px;color:var(--text3);text-decoration:none;white-space:nowrap;font-weight:600;">Tools · Vizznity</a>
+  <nav class="vz-header-links" aria-label="Tools by Vizznity"><a href="../index.html">All tools</a><a href="../docs/po-splitting-detector-guide.html">User guide</a></nav>
 </header>
 
 <div class="app">
@@ -494,13 +501,14 @@
     <div class="card">
       <div class="card-title"><em class="badge">1</em>Load PO Data</div>
       <div class="upload-zone" id="dropZone">
-        <input type="file" id="fileInput" accept=".xlsx,.xlsm,.xls,.csv">
-        <div class="upload-icon">📂</div>
+        <input type="file" aria-label="Choose an Excel or CSV file" id="fileInput" accept=".xlsx,.xlsm,.xls,.csv">
+        <div class="upload-icon" aria-hidden="true">📂</div>
         <h3>Drop PO dump file here</h3>
         <p>or click to browse</p>
         <p style="margin-top:6px;font-size:11px;color:var(--text3);">.xlsx · .xlsm · .xls · .csv</p>
         <div id="fileBadge" class="file-badge hidden">✅ <span id="fileName"></span></div>
       </div>
+      <p class="vz-note"><strong>Your file stays in this browser tab.</strong> This tool reads and processes it here and does not upload it or send its contents anywhere. The page does load the SheetJS library from cdnjs.cloudflare.com when it opens, so it needs an internet connection to start. <a href="../index.html#privacy">How privacy works</a></p>
     </div>
 
     <!-- Step 2: Column Mapping -->
@@ -509,17 +517,17 @@
         <div class="card-title"><em class="badge">2</em>Column Mapping</div>
 
         <div class="form-group">
-          <label>Source Sheet</label>
+          <label for="sourceSheetSelect">Source Sheet</label>
           <select id="sourceSheetSelect"></select>
         </div>
         <hr class="divider" style="margin-bottom:14px;">
 
         <p class="hint" style="margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;font-weight:700;color:var(--text3);">Column mapping</p>
-        <div class="form-group"><label>PO Number *</label><select id="map_poNumber"></select></div>
-        <div class="form-group"><label>PO Date *</label><select id="map_poDate"></select></div>
-        <div class="form-group"><label>Supplier Name *</label><select id="map_supplier"></select></div>
-        <div class="form-group"><label>PO Value *</label><select id="map_poValue"></select></div>
-        <div class="form-group"><label>Supplier Code</label><select id="map_supplierCode"></select></div>
+        <div class="form-group"><label for="map_poNumber">PO Number *</label><select id="map_poNumber"></select></div>
+        <div class="form-group"><label for="map_poDate">PO Date *</label><select id="map_poDate"></select></div>
+        <div class="form-group"><label for="map_supplier">Supplier Name *</label><select id="map_supplier"></select></div>
+        <div class="form-group"><label for="map_poValue">PO Value *</label><select id="map_poValue"></select></div>
+        <div class="form-group"><label for="map_supplierCode">Supplier Code</label><select id="map_supplierCode"></select></div>
       </div>
     </div>
 
@@ -528,7 +536,7 @@
       <div class="card">
         <div class="card-title"><em class="badge">3</em>PO Splitting Test Window</div>
         <div class="form-group">
-          <label>Rolling Window (± Days)</label>
+          <label for="windowDays">Rolling Window (± Days)</label>
           <input type="number" id="windowDays" min="0" value="3">
           <p class="hint">For each PO, all POs of the same supplier falling within PO Date − N days to PO Date + N days are checked for clustering. Overlapping windows are chained into a single case.</p>
         </div>
@@ -551,8 +559,8 @@
 
         <div id="matrixUploadWrap" class="hidden">
           <div class="upload-zone small" id="matrixDropZone">
-            <input type="file" id="matrixFileInput" accept=".xlsx,.xlsm,.xls,.csv">
-            <div class="upload-icon">📑</div>
+            <input type="file" aria-label="Choose an approval matrix file" id="matrixFileInput" accept=".xlsx,.xlsm,.xls,.csv">
+            <div class="upload-icon" aria-hidden="true">📑</div>
             <h3>Drop matrix file</h3>
             <p>Columns: From Amount, To Amount, Approval Level</p>
             <div id="matrixFileBadge" class="file-badge hidden">✅ <span id="matrixFileName"></span></div>
@@ -569,11 +577,11 @@
   </aside>
 
   <!-- ══ MAIN PANEL ══ -->
-  <main class="main">
+  <main class="main" id="vz-main" tabindex="-1">
 
     <!-- Welcome -->
     <div id="welcomeMsg" class="empty">
-      <div class="icon">🧾</div>
+      <div class="icon" aria-hidden="true">🧾</div>
       <h3>Upload a PO dump to get started</h3>
       <p>Upload a .xlsx, .xls, .xlsm or .csv file — all sheets will be read automatically.</p>
     </div>

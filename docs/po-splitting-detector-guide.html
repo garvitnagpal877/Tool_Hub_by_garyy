@@ -3,282 +3,47 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PO Splitting Detection Tool - User Guide</title>
-
-<style>
-
-:root{
-    --bg:#f7f6fc;
-    --surface:#ffffff;
-    --surface2:#f1eefb;
-    --border:#e3ddf5;
-    --accent:#6c63ff;
-    --accent2:#4b3fc7;
-    --text:#191830;
-    --text2:#5f5d78;
-    --success:#1c9a6c;
-    --warning:#b45309;
-    --danger:#dc2626;
-}
-
-body{
-    background:var(--bg);
-    color:var(--text);
-    font-family:Segoe UI,sans-serif;
-    margin:0;
-    padding:30px;
-}
-
-.container{
-    max-width:1000px;
-    margin:auto;
-}
-
-.card{
-    background:var(--surface);
-    border:1px solid var(--border);
-    border-radius:12px;
-    padding:25px;
-    margin-bottom:20px;
-}
-
-h1{
-    margin-bottom:10px;
-}
-
-h2{
-    color:var(--accent2);
-}
-
-p,li{
-    color:var(--text2);
-    line-height:1.7;
-}
-
-.btn{
-    display:inline-block;
-    background:var(--accent);
-    color:white;
-    text-decoration:none;
-    padding:12px 20px;
-    border-radius:8px;
-    margin-top:10px;
-}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-}
-
-table th,
-table td{
-    border:1px solid var(--border);
-    padding:10px;
-}
-
-table th{
-    background:var(--surface2);
-}
-
-.badge{
-    display:inline-block;
-    padding:3px 10px;
-    border-radius:20px;
-    font-size:12px;
-    font-weight:700;
-}
-
-.badge-high{ background:rgba(248,113,113,.15); color:var(--danger); }
-.badge-medium{ background:rgba(251,191,36,.15); color:var(--warning); }
-.badge-low{ background:rgba(52,211,153,.15); color:var(--success); }
-
-</style>
-
+<title>PO Splitting Detection Tool — Guide — Tools by Vizznity</title>
+<meta name="description" content="How to use the PO Splitting Detection Tool: mapping, window, approval matrix, risk levels.">
+<meta name="theme-color" content="#f7f6fc">
+<link rel="icon" type="image/png" href="../assets/tools-vizznity-icon-transparent.png">
+<link rel="stylesheet" href="../assets/vz-guide.css">
 </head>
-
 <body>
-
-<div class="container">
-
+<a class="vz-skip" href="#main">Skip to main content</a>
+<header class="g-top"><div class="g-top-in">
+  <a class="g-brand" href="../index.html"><img src="../assets/tools-vizznity-icon-transparent.png" alt="" width="34" height="34"><span>Tools by Vizznity</span></a>
+  <nav class="g-nav" aria-label="Guide navigation"><a href="../index.html">All tools</a><a href="../tools/po-splitting-detector.html">Open the tool</a><a href="../index.html#privacy">Privacy</a></nav>
+</div></header>
+<main id="main" tabindex="-1">
 <h1>PO Splitting Detection Tool</h1>
-
-<p>
-Identify potential Purchase Order splitting cases from a PO dump using a rolling date window and a configurable approval matrix.
-</p>
-
-<div class="card">
-
-<h2>Purpose</h2>
-
-<p>
-This tool scans a Purchase Order dump and flags cases where a single requirement may have been broken into multiple smaller POs to the same supplier — possibly to keep individual PO values under an approval authority limit.
-</p>
-
+<p class="lead">Find purchase orders that may have been split into smaller ones so that each stayed under an approval limit.</p>
+<div class="cta-row"><a class="btn" href="../tools/po-splitting-detector.html">Open PO Splitting Detection Tool</a><a class="btn btn-alt" href="../index.html">Back to all tools</a></div>
+<div class="io">
+  <div><h2>You need</h2><p>A PO dump with PO number, PO date, supplier name and PO value (supplier code is optional), plus an approval matrix you type in or upload.</p></div>
+  <div><h2>You get</h2><p><code>po_splitting_cases.xlsx</code> with sheets “PO Splitting Cases”, “Daily Summary (Working)”, “Case Details” and “Approval Matrix Used”.</p></div>
 </div>
-
-<div class="card">
-
-<h2>Key Features</h2>
-
-<ul>
-<li>Dynamic Column Mapping (works with any company's column names)</li>
-<li>Configurable Rolling Window (± Days)</li>
-<li>Manual or Uploaded Approval Matrix</li>
-<li>Supplier-wise Clustering of Overlapping POs</li>
-<li>Automatic Case Merging (no duplicate or overlapping cases)</li>
-<li>Aggregate vs Individual Approval Comparison</li>
-<li>Approval Escalation Detection</li>
-<li>Risk Level Scoring (High / Medium / Low)</li>
-<li>Case-wise PO Drilldown</li>
-<li>Excel Export</li>
-</ul>
-
-</div>
-
-<div class="card">
-
-<h2>How To Use</h2>
-
+<p class="note"><strong>Your file stays in your browser tab.</strong> The tool reads and processes it there and does not upload it. The page loads the SheetJS library from cdnjs.cloudflare.com, so it needs an internet connection to open. <a href="../index.html#privacy">How privacy works</a></p>
+<h2>How to use it</h2>
 <ol>
-
-<li>
-Upload PO Dump (.xlsx, .xlsm, .xls or .csv)
-</li>
-
-<li>
-Select the Source Sheet containing PO data
-</li>
-
-<li>
-Map your columns to the required fields:
-<ul>
-<li>PO Number (mandatory)</li>
-<li>PO Date (mandatory)</li>
-<li>Supplier Name (mandatory)</li>
-<li>PO Value (mandatory)</li>
-<li>Supplier Code, Department, Cost Center, Requisition Number, Item Code (optional)</li>
-</ul>
-</li>
-
-<li>
-Set the Rolling Window in days (e.g. 3 days = PO Date − 3 to PO Date + 3)
-</li>
-
-<li>
-Enter or Upload the Approval Matrix:
-<ul>
-<li>From Amount</li>
-<li>To Amount</li>
-<li>Approval Level</li>
-</ul>
-</li>
-
-<li>
-Click Generate PO Splitting Cases
-</li>
-
-<li>
-Review the case table — click any Case ID to view the individual POs inside that case
-</li>
-
-<li>
-Download the results as an Excel workbook
-</li>
-
+<li>Choose your PO dump (.xlsx, .xlsm, .xls or .csv) and the source sheet.</li>
+<li>Map the columns: PO Number, PO Date, Supplier Name and PO Value are required; Supplier Code is optional.</li>
+<li>Set the <strong>rolling window</strong> in days (3 means PO date − 3 to PO date + 3).</li>
+<li>Enter the <strong>approval matrix</strong> (From amount, To amount, Approval level) by hand, or upload it from Excel.</li>
+<li>Press <strong>Generate PO Splitting Cases</strong>, review the cases, and click a Case ID (or press Enter on it) to see the POs inside. Then <strong>Export to Excel</strong>.</li>
 </ol>
-
-</div>
-
-<div class="card">
-
+<h2>How cases are formed</h2>
+<p>POs are first grouped by supplier and date. For each supplier, POs whose windows overlap — even in a chain — are merged into one case. A case needs two or more POs. A case is listed only if its <strong>aggregate value is above the lowest threshold</strong> of your approval matrix.</p>
+<p>Cases are labelled by the number of days they span: Same Day, 1 Day, 2 Day, 3 Day, or Multi Day.</p>
+<h2>Escalation and risk level</h2>
+<p><strong>Escalation</strong> is “YES” when the case’s aggregate value needs a higher approval level than its largest single PO.</p>
+<table><thead><tr><th scope="col">Risk</th><th scope="col">Rule</th></tr></thead><tbody>
+<tr><td>LOW</td><td>The aggregate falls in the same approval band as the largest single PO.</td></tr>
+<tr><td>MEDIUM</td><td>The aggregate is in a higher band, but exceeds the largest PO’s band ceiling by less than 25%.</td></tr>
+<tr><td>HIGH</td><td>The aggregate exceeds that ceiling by 25% or more.</td></tr></tbody></table>
 <h2>Example</h2>
-
-<table>
-
-<tr>
-<th>PO Date</th>
-<th>Supplier</th>
-<th>PO Value</th>
-</tr>
-
-<tr>
-<td>13-Mar</td>
-<td>NARENDRA TRADING</td>
-<td>24,100</td>
-</tr>
-
-<tr>
-<td>13-Mar</td>
-<td>NARENDRA TRADING</td>
-<td>95,000</td>
-</tr>
-
-<tr>
-<td>14-Mar</td>
-<td>NARENDRA TRADING</td>
-<td>102,000</td>
-</tr>
-
-<tr>
-<td>16-Mar</td>
-<td>NARENDRA TRADING</td>
-<td>51,000</td>
-</tr>
-
-<tr>
-<td>18-Mar</td>
-<td>NARENDRA TRADING</td>
-<td>14,250</td>
-</tr>
-
-</table>
-
-<br>
-
-<p>
-With a ±3 day window, all five POs fall within overlapping windows of each other and are merged into a single case, <b>PS-001</b>, instead of five separate exceptions. The aggregate value (₹2,86,350) is then checked against the approval matrix to see if it required a higher approval level than the largest individual PO did on its own.
-</p>
-
-</div>
-
-<div class="card">
-
-<h2>Understanding Risk Levels</h2>
-
-<p><span class="badge badge-low">LOW</span> &nbsp; The aggregate value falls in the same approval band as the highest single PO — no real escalation.</p>
-
-<p><span class="badge badge-medium">MEDIUM</span> &nbsp; The aggregate value crosses into a higher approval band, but only marginally (under 25% over the lower band's ceiling).</p>
-
-<p><span class="badge badge-high">HIGH</span> &nbsp; The aggregate value crosses well into a higher approval band (25%+ over), indicating a likely deliberate split.</p>
-
-</div>
-
-<div class="card">
-
-<h2>Frequently Asked Questions</h2>
-
-<p><b>What counts as a "case"?</b></p>
-<p>A group of two or more POs to the same supplier whose dates fall within overlapping rolling windows of each other. Single, isolated POs are never flagged.</p>
-
-<p><b>How does the rolling window work?</b></p>
-<p>For every PO, the tool checks PO Date − N days to PO Date + N days for other POs from the same supplier. If windows overlap (even in a chain), all those POs are merged into one case.</p>
-
-<p><b>What is Approval Escalation?</b></p>
-<p>It occurs when the aggregate value of a case requires a higher approval authority than the highest individual PO in that case would have required on its own.</p>
-
-<p><b>Can I use my own approval matrix?</b></p>
-<p>Yes. You can type it in manually or upload an Excel file with From Amount, To Amount and Approval Level columns.</p>
-
-<p><b>Is my PO data uploaded anywhere?</b></p>
-<p>No. All processing happens entirely in your browser — no data is sent to any server.</p>
-
-</div>
-
-<a href="../index.html" class="btn">
-← Back To Home
-</a>
-
-</div>
-
+<p>Five POs to one supplier between 13 and 18 March, worth 24,100; 95,000; 102,000; 51,000 and 14,250, with a ±3-day window, form a single case, PS-001, with an aggregate of ₹2,86,350. That total is compared with the approval matrix to see whether a higher approval was needed.</p><h2>Frequently asked questions</h2><details><summary>Is a single PO ever flagged?</summary><p>No. A case needs at least two POs from the same supplier.</p></details><details><summary>Can I use my own approval matrix?</summary><p>Yes — type it in or upload an Excel file with From Amount, To Amount and Approval Level columns.</p></details><details><summary>Is my PO data uploaded anywhere?</summary><p>No. The file is processed in your browser tab. See the privacy note above for what the page itself loads from other servers.</p></details>
+</main>
+<footer class="g-foot">Checked against the tool’s source code on 31 October 2026. If the tool and this guide ever disagree, the tool is the reference — please tell Vizznity so the guide can be corrected.</footer>
 </body>
 </html>

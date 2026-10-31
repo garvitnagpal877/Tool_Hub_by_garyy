@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Combine Excel Sheets Tool — Guide — Tools by Vizznity</title>
+<meta name="description" content="How to use the Combine Excel Sheets Tool: choosing files, output options and limits.">
+<meta name="theme-color" content="#f7f6fc">
+<link rel="icon" type="image/png" href="../assets/tools-vizznity-icon-transparent.png">
+<link rel="stylesheet" href="../assets/vz-guide.css">
+</head>
+<body>
+<a class="vz-skip" href="#main">Skip to main content</a>
+<header class="g-top"><div class="g-top-in">
+  <a class="g-brand" href="../index.html"><img src="../assets/tools-vizznity-icon-transparent.png" alt="" width="34" height="34"><span>Tools by Vizznity</span></a>
+  <nav class="g-nav" aria-label="Guide navigation"><a href="../index.html">All tools</a><a href="../tools/combine-excel-sheets-tool.html">Open the tool</a><a href="../index.html#privacy">Privacy</a></nav>
+</div></header>
+<main id="main" tabindex="-1">
+<h1>Combine Excel Sheets Tool</h1>
+<p class="lead">Stack the first sheet of many Excel workbooks into one file — as separate tabs, or merged into a single sheet.</p>
+<div class="cta-row"><a class="btn" href="../tools/combine-excel-sheets-tool.html">Open Combine Excel Sheets Tool</a><a class="btn btn-alt" href="../index.html">Back to all tools</a></div>
+<div class="io">
+  <div><h2>You need</h2><p>A folder (or a set of files) of Excel workbooks: .xlsx, .xls, .xlsm or .xlsb. For the single-sheet option they should share the same column layout.</p></div>
+  <div><h2>You get</h2><p><code>Combined_Workbook.xlsx</code> (one tab per file) and/or <code>Merged_Single_Sheet.xlsx</code> (one sheet called “Combined”).</p></div>
+</div>
+<p class="note"><strong>Your file stays in your browser tab.</strong> The tool reads and processes it there and does not upload it. The page loads the SheetJS library from cdnjs.cloudflare.com, so it needs an internet connection to open. <a href="../index.html#privacy">How privacy works</a></p>
+<h2>How to use it</h2>
+<ol>
+<li>Click the upload box (or press Enter on it) to choose a <strong>folder</strong>, or drop Excel files onto it. To pick individual files, use <strong>Choose individual files instead of a folder</strong>. Some mobile browsers cannot choose folders; use the individual-files button there.</li>
+<li>Check the file list. Files are listed alphabetically by name, and that order is used in the output. Temporary Excel files starting with <code>~$</code> and non-Excel files are ignored.</li>
+<li>Press <strong>Combine Files</strong>. Each file shows its status, and a summary shows how many were processed, imported and failed.</li>
+<li>Download either <strong>Multiple Sheets (one tab per file)</strong> or <strong>Merged Into One Sheet</strong>. <strong>Clear</strong> resets the tool.</li>
+</ol>
+<h2>What each output contains</h2>
+<table><thead><tr><th scope="col">Output</th><th scope="col">Contents</th></tr></thead><tbody>
+<tr><td>Multiple sheets</td><td>The <strong>first sheet</strong> of each workbook becomes its own tab, named after the file. Characters Excel does not allow in tab names are replaced with “_”, names are cut to 31 characters, and duplicates get “_1”, “_2”, and so on.</td></tr>
+<tr><td>Merged into one sheet</td><td>The header row of the first file is kept once; every file’s remaining rows are added underneath, in the listed order. Columns are lined up by <strong>position</strong>, not by heading, so use it only when all files have the same column order.</td></tr>
+</tbody></table>
+<div class="note warn"><strong>Limits to be aware of.</strong>
+<ul><li>Only the first sheet of each workbook is used.</li>
+<li>Files that cannot be read, or whose first sheet is empty, are skipped and listed after the run.</li>
+<li>Fonts, colours, borders and number-format styling are not carried across. Column widths and merged cells are kept in the multiple-sheets output, but the single-sheet output contains values only.</li>
+<li>Please check date and number columns in the single-sheet output against your source files before you rely on it.</li></ul></div><h2>Frequently asked questions</h2><details><summary>Does it work offline?</summary><p>No. The page needs an internet connection to load the spreadsheet library when it opens. Your files are not uploaded.</p></details><details><summary>Why does my browser say “Upload”?</summary><p>That is the browser’s standard wording for choosing files. This tool only reads them in your browser tab.</p></details><details><summary>Are files in sub-folders included?</summary><p>Browsers generally pass along the files from sub-folders when you choose a folder. Check the file list before pressing Combine Files.</p></details>
+</main>
+<footer class="g-foot">Checked against the tool’s source code on 31 October 2026. If the tool and this guide ever disagree, the tool is the reference — please tell Vizznity so the guide can be corrected.</footer>
+</body>
+</html>

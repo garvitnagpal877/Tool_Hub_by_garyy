@@ -3,247 +3,51 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Excel Sheet Merger - User Guide</title>
-
-<style>
-
-:root{
-    --bg:#f7f6fc;
-    --surface:#ffffff;
-    --surface2:#f1eefb;
-    --border:#e3ddf5;
-    --accent:#6c63ff;
-    --accent2:#4b3fc7;
-    --text:#191830;
-    --text2:#5f5d78;
-}
-
-body{
-    background:var(--bg);
-    color:var(--text);
-    font-family:Segoe UI,sans-serif;
-    margin:0;
-    padding:30px;
-}
-
-.container{
-    max-width:1000px;
-    margin:auto;
-}
-
-.card{
-    background:var(--surface);
-    border:1px solid var(--border);
-    border-radius:12px;
-    padding:25px;
-    margin-bottom:20px;
-}
-
-h1{
-    margin-bottom:10px;
-}
-
-h2{
-    color:var(--accent2);
-}
-
-p,li{
-    color:var(--text2);
-    line-height:1.7;
-}
-
-.btn{
-    display:inline-block;
-    background:var(--accent);
-    color:white;
-    text-decoration:none;
-    padding:12px 20px;
-    border-radius:8px;
-    margin-top:10px;
-}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-}
-
-table th,
-table td{
-    border:1px solid var(--border);
-    padding:10px;
-}
-
-table th{
-    background:var(--surface2);
-}
-
-</style>
-
+<title>Excel Sheet Merger — Guide — Tools by Vizznity</title>
+<meta name="description" content="How to use the Excel Sheet Merger: match two sheets with exact, partial or fuzzy matching.">
+<meta name="theme-color" content="#f7f6fc">
+<link rel="icon" type="image/png" href="../assets/tools-vizznity-icon-transparent.png">
+<link rel="stylesheet" href="../assets/vz-guide.css">
 </head>
-
 <body>
-
-<div class="container">
-
+<a class="vz-skip" href="#main">Skip to main content</a>
+<header class="g-top"><div class="g-top-in">
+  <a class="g-brand" href="../index.html"><img src="../assets/tools-vizznity-icon-transparent.png" alt="" width="34" height="34"><span>Tools by Vizznity</span></a>
+  <nav class="g-nav" aria-label="Guide navigation"><a href="../index.html">All tools</a><a href="../tools/excel-merger.html">Open the tool</a><a href="../index.html#privacy">Privacy</a></nav>
+</div></header>
+<main id="main" tabindex="-1">
 <h1>Excel Sheet Merger</h1>
-
-<p>
-Merge two Excel sheets using Exact Match, Partial Match, Fuzzy Match and Multiple Key Columns.
-</p>
-
-<div class="card">
-
-<h2>Purpose</h2>
-
-<p>
-This tool helps combine data from two Excel sheets by matching one or more columns and returning selected information from another sheet.
-</p>
-
+<p class="lead">Match two sheets from the same workbook on one or more key columns and bring columns across, using exact, partial or fuzzy matching.</p>
+<div class="cta-row"><a class="btn" href="../tools/excel-merger.html">Open Excel Sheet Merger</a><a class="btn btn-alt" href="../index.html">Back to all tools</a></div>
+<div class="io">
+  <div><h2>You need</h2><p>One workbook (.xlsx, .xlsm, .xls or .csv) that contains <strong>both</strong> sheets you want to match.</p></div>
+  <div><h2>You get</h2><p><code>merged_output.xlsx</code> with a sheet named “Merged”. Match statistics and a preview of the first 200 rows appear on screen.</p></div>
 </div>
-
-<div class="card">
-
-<h2>Key Features</h2>
-
-<ul>
-<li>Exact Matching</li>
-<li>Partial Matching</li>
-<li>Fuzzy Matching</li>
-<li>Multiple Key Columns</li>
-<li>Duplicate Handling</li>
-<li>Inner Join</li>
-<li>Left Join</li>
-<li>Right Join</li>
-<li>Full Outer Join</li>
-<li>Excel Export</li>
-</ul>
-
-</div>
-
-<div class="card">
-
-<h2>How To Use</h2>
-
+<p class="note"><strong>Your file stays in your browser tab.</strong> The tool reads and processes it there and does not upload it. The page loads the SheetJS library from cdnjs.cloudflare.com, so it needs an internet connection to open. <a href="../index.html#privacy">How privacy works</a></p>
+<h2>How to use it</h2>
 <ol>
-
-<li>
-Upload Excel Workbook (.xlsx, .xlsm, .xls or .csv)
-</li>
-
-<li>
-Select Sheet 1 (Source Sheet)
-</li>
-
-<li>
-Select Sheet 2 (Lookup Sheet)
-</li>
-
-<li>
-Choose matching columns between both sheets
-</li>
-
-<li>
-Select Match Type:
-<ul>
-<li>Exact</li>
-<li>Partial</li>
-<li>Fuzzy</li>
-</ul>
-</li>
-
-<li>
-Choose Duplicate Handling:
-<ul>
-<li>Return All Matches</li>
-<li>First Match Only</li>
-</ul>
-</li>
-
-<li>
-Choose Merge Mode:
-<ul>
-<li>Inner Join</li>
-<li>Left Join</li>
-<li>Right Join</li>
-<li>Full Outer Join</li>
-</ul>
-</li>
-
-<li>
-Select columns to return from Sheet 2
-</li>
-
-<li>
-Click Run Merge
-</li>
-
-<li>
-Review results and download output file
-</li>
-
+<li>Choose your workbook (drag it onto the upload box or click it). All sheets are read.</li>
+<li>Pick <strong>Sheet 1 (Left)</strong> and <strong>Sheet 2 (Right)</strong>.</li>
+<li>Choose the <strong>number of matching columns</strong> (1, 2, 3 or a custom number) and pick the column from each sheet for every pair.</li>
+<li>Choose the <strong>match type</strong>: Exact, Partial or Fuzzy. For Fuzzy, set the threshold (it starts at 70%).</li>
+<li>Choose <strong>duplicate handling</strong>: return all matches, or first match only.</li>
+<li>Choose the <strong>merge mode</strong>: Inner, Left, Right or Full outer.</li>
+<li>Tick the columns to include from Sheet 2, then press <strong>Run Merge</strong>.</li>
+<li>Review the match statistics and preview, then press <strong>Download Merged Excel</strong>. <strong>New Merge</strong> clears everything.</li>
 </ol>
-
-</div>
-
-<div class="card">
-
+<h2>How matching works</h2>
+<table><thead><tr><th scope="col">Match type</th><th scope="col">A row matches when…</th></tr></thead><tbody>
+<tr><td>Exact</td><td>The key values are identical.</td></tr>
+<tr><td>Partial</td><td>One value contains the other, ignoring upper/lower case. “ABC” matches “ABC Pvt Ltd”.</td></tr>
+<tr><td>Fuzzy</td><td>The text similarity is at or above your threshold. Similarity is based on the number of character edits between the two values, after trimming spaces and ignoring case.</td></tr>
+</tbody></table>
+<p>With several key columns, <strong>every</strong> pair must match.</p>
+<div class="note warn"><strong>Good to know.</strong> Partial and fuzzy matching compare each row of Sheet 1 against the rows of Sheet 2, so they get slower as the sheets grow. Both sheets must be in the same workbook; to match across two files, first copy one sheet into the other workbook.</div>
 <h2>Example</h2>
-
-<table>
-
-<tr>
-<th>Sheet 1</th>
-<th>Sheet 2</th>
-</tr>
-
-<tr>
-<td>Vendor Code</td>
-<td>Vendor Name</td>
-</tr>
-
-<tr>
-<td>V001</td>
-<td>ABC Pvt Ltd</td>
-</tr>
-
-<tr>
-<td>V002</td>
-<td>XYZ Pvt Ltd</td>
-</tr>
-
-</table>
-
-<br>
-
-<p>
-The tool will match Vendor Code and return Vendor Name from Sheet 2.
-</p>
-
-</div>
-
-<div class="card">
-
-<h2>Frequently Asked Questions</h2>
-
-<p><b>What is Exact Match?</b></p>
-<p>Values must be identical.</p>
-
-<p><b>What is Partial Match?</b></p>
-<p>One value can contain another value.</p>
-
-<p><b>What is Fuzzy Match?</b></p>
-<p>Similar text values are matched even with minor spelling differences.</p>
-
-<p><b>Can I use multiple columns?</b></p>
-<p>Yes. You can match using 1, 2, 3 or custom number of columns.</p>
-
-</div>
-
-<a href="../index.html" class="btn">
-← Back To Home
-</a>
-
-</div>
-
+<div class="tw"><table><thead><tr><th scope="col">Sheet 1: Vendor Code</th><th scope="col">Sheet 2: Vendor Code</th><th scope="col">Sheet 2: Vendor Name</th></tr></thead><tbody>
+<tr><td>V001</td><td>V001</td><td>ABC Pvt Ltd</td></tr><tr><td>V002</td><td>V002</td><td>XYZ Pvt Ltd</td></tr></tbody></table></div>
+<p>Matching on Vendor Code and returning Vendor Name adds the vendor name next to each Sheet 1 row.</p><h2>Frequently asked questions</h2><details><summary>Can I match on more than one column?</summary><p>Yes — choose 1, 2, 3 or a custom number of key columns.</p></details><details><summary>What is the difference between the join modes?</summary><p>Inner keeps only matched rows. Left keeps every Sheet 1 row. Right keeps every Sheet 2 row. Full outer keeps all rows from both.</p></details><details><summary>What does “first match only” do?</summary><p>If several Sheet 2 rows match one Sheet 1 row, only the first is used. “Return all matches” produces one output row per match.</p></details>
+</main>
+<footer class="g-foot">Checked against the tool’s source code on 31 October 2026. If the tool and this guide ever disagree, the tool is the reference — please tell Vizznity so the guide can be corrected.</footer>
 </body>
 </html>

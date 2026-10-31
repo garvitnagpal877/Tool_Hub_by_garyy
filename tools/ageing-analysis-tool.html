@@ -3,7 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ageing Analysis Tool</title>
+<meta name="description" content="Build receivables, payables or inventory ageing reports in your browser, with custom day buckets, grace periods and bucket-wise summaries. Excel in, Excel out.">
+<meta name="theme-color" content="#f7f6fc">
+<link rel="icon" type="image/png" href="../assets/tools-vizznity-icon-transparent.png">
+<title>Ageing Analysis Tool — Tools by Vizznity</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   :root {
@@ -410,12 +413,16 @@
     .stats-grid { grid-template-columns: repeat(2, 1fr); }
   }
 </style>
+<link rel="stylesheet" href="../assets/vz-shared.css">
+<script src="../assets/vz-shared.js" defer></script>
 </head>
 <body>
+<a class="vz-skip" href="#vz-main">Skip to main content</a>
+<noscript><div class="vz-banner" role="alert"><div><strong>JavaScript is turned off.</strong> This tool needs JavaScript to read and process Excel files.</div></div></noscript>
 
 <header>
   <a href="../index.html" style="display:flex;align-items:center;gap:14px;text-decoration:none;color:inherit;">
-    <div class="logo">⏳</div>
+    <div class="logo" aria-hidden="true">⏳</div>
     <div>
     <h1>Ageing Analysis Tool</h1>
     <p>Upload · Configure · Calculate · Export</p>
@@ -426,7 +433,7 @@
     <div class="pill" id="pill2">2 Configure</div>
     <div class="pill" id="pill3">3 Results</div>
   </div>
-  <a href="../index.html" style="margin-left:14px;font-size:11px;color:var(--text3);text-decoration:none;white-space:nowrap;font-weight:600;">Tools · Vizznity</a>
+  <nav class="vz-header-links" aria-label="Tools by Vizznity"><a href="../index.html">All tools</a><a href="../docs/ageing-analysis-guide.html">User guide</a></nav>
 </header>
 
 <div class="app">
@@ -436,13 +443,14 @@
     <div class="card">
       <div class="card-title"><em class="badge">1</em>Load File</div>
       <div class="upload-zone" id="dropZone">
-        <input type="file" id="fileInput" accept=".xlsx,.xlsm,.xls,.csv">
-        <div class="upload-icon">📂</div>
+        <input type="file" aria-label="Choose an Excel or CSV file" id="fileInput" accept=".xlsx,.xlsm,.xls,.csv">
+        <div class="upload-icon" aria-hidden="true">📂</div>
         <h3>Drop Excel file here</h3>
         <p>or click to browse</p>
         <p style="margin-top:6px;font-size:11px;color:var(--text3);">.xlsx · .xlsm · .xls · .csv</p>
         <div id="fileBadge" class="file-badge hidden">✅ <span id="fileName"></span></div>
       </div>
+      <p class="vz-note"><strong>Your file stays in this browser tab.</strong> This tool reads and processes it here and does not upload it or send its contents anywhere. The page does load the SheetJS library from cdnjs.cloudflare.com when it opens, so it needs an internet connection to start. <a href="../index.html#privacy">How privacy works</a></p>
     </div>
 
     <div id="configPanel" class="hidden">
@@ -450,11 +458,11 @@
       <div class="card">
         <div class="card-title"><em class="badge">2</em>Data Settings</div>
         <div class="form-group">
-          <label>Source Sheet</label>
+          <label for="sheetSelect">Source Sheet</label>
           <select id="sheetSelect"></select>
         </div>
         <div class="form-group">
-          <label>Data Starts at Row</label>
+          <label for="startRow">Data Starts at Row</label>
           <input type="number" id="startRow" min="2" value="2" style="background-image:none;padding-right:12px;">
         </div>
       </div>
@@ -474,32 +482,32 @@
 
         <div id="method1Fields" class="form-block">
           <div class="form-group">
-            <label>Start Date Column</label>
+            <label for="colStart">Start Date Column</label>
             <select id="colStart"></select>
           </div>
           <div class="form-group">
-            <label>End Date Column</label>
+            <label for="colEnd">End Date Column</label>
             <select id="colEnd"></select>
           </div>
         </div>
 
         <div id="method23Fields" class="form-block hidden">
           <div class="form-group">
-            <label>Date Column</label>
+            <label for="colDateSingle">Date Column</label>
             <select id="colDateSingle"></select>
           </div>
         </div>
 
         <div id="method2Fields" class="form-block hidden">
           <div class="form-group">
-            <label>Fixed Date</label>
+            <label for="fixedDate">Fixed Date</label>
             <input type="date" id="fixedDate">
           </div>
         </div>
       </div>
 
       <div class="card">
-        <div class="card-title"><em class="badge">4</em>On-Time Days <span style="color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0;">(new)</span></div>
+        <div class="card-title"><em class="badge">4</em>On-Time Days</div>
         <div class="alert alert-info">
           Ageing only starts accruing once the on-time / grace period has passed. Example: with 30 on-time days, the first 30 days are not counted, and Ageing begins at day 31. Leave this off to calculate Ageing exactly as the original tool did.
         </div>
@@ -514,11 +522,11 @@
           </div>
         </div>
         <div id="onTimeFixedField" class="form-group hidden">
-          <label>On-Time Days (applies to every row)</label>
+          <label for="onTimeDaysFixed">On-Time Days (applies to every row)</label>
           <input type="number" id="onTimeDaysFixed" min="0" value="0" style="background-image:none;padding-right:12px;">
         </div>
         <div id="onTimeColumnField" class="form-group hidden">
-          <label>On-Time Days Column (e.g. payment terms / credit days)</label>
+          <label for="onTimeColumnSelect">On-Time Days Column (e.g. payment terms / credit days)</label>
           <select id="onTimeColumnSelect"></select>
         </div>
       </div>
@@ -526,7 +534,7 @@
       <div class="card">
         <div class="card-title"><em class="badge">5</em>Age Buckets</div>
         <div class="form-group">
-          <textarea id="bucketsInput" rows="2">0-30,31-60,61-90,91-180,181-999999</textarea>
+          <textarea aria-label="Age buckets, comma separated" id="bucketsInput" rows="2">0-30,31-60,61-90,91-180,181-999999</textarea>
           <p class="hint">Format: Lower-Upper, comma separated. Example: 0-30,31-60,61-90,91-180,181-999999</p>
         </div>
       </div>
@@ -537,7 +545,7 @@
           <label>Add a Rule</label>
           <div style="display:flex;gap:6px;">
             <select id="ruleColumn" style="flex:1;"></select>
-            <select id="ruleFunction" style="width:115px;">
+            <select aria-label="Summary function" id="ruleFunction" style="width:115px;">
               <option value="COUNT">Count</option>
               <option value="SUM">Sum</option>
               <option value="AVERAGE">Average</option>
@@ -561,10 +569,10 @@
 
   </aside>
 
-  <main class="main">
+  <main class="main" id="vz-main" tabindex="-1">
 
     <div id="welcomeMsg" class="empty">
-      <div class="icon">⏳</div>
+      <div class="icon" aria-hidden="true">⏳</div>
       <h3>Load an Excel file to get started</h3>
       <p>Upload your data — the tool will calculate Ageing, assign Age Buckets, and build a summary, the same way the original Ageing Analysis macro does.</p>
     </div>

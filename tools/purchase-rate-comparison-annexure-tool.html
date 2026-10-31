@@ -3,7 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Purchase Rate Comparison & Audit Annexure Generator</title>
+<meta name="description" content="Flag items bought from several suppliers in the same month above the lowest rate, quantify the excess cost and export a working, annexure and summary.">
+<meta name="theme-color" content="#f7f6fc">
+<link rel="icon" type="image/png" href="../assets/tools-vizznity-icon-transparent.png">
+<title>Purchase Rate Comparison &amp; Audit Annexure Generator — Tools by Vizznity</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   :root {
@@ -386,12 +389,16 @@
     header { flex-wrap: wrap; }
   }
 </style>
+<link rel="stylesheet" href="../assets/vz-shared.css">
+<script src="../assets/vz-shared.js" defer></script>
 </head>
 <body>
+<a class="vz-skip" href="#vz-main">Skip to main content</a>
+<noscript><div class="vz-banner" role="alert"><div><strong>JavaScript is turned off.</strong> This tool needs JavaScript to read and process Excel files.</div></div></noscript>
 
 <header>
   <a href="../index.html" style="display:flex;align-items:center;gap:14px;text-decoration:none;color:inherit;">
-    <div class="logo">📦</div>
+    <div class="logo" aria-hidden="true">📦</div>
     <div>
     <h1>Purchase Rate Comparison & Audit Annexure Generator</h1>
     <p>Upload · Configure · Analyze · Export</p>
@@ -402,7 +409,7 @@
     <div class="pill" id="pill2">2 Configure</div>
     <div class="pill" id="pill3">3 Results</div>
   </div>
-  <a href="../index.html" style="margin-left:14px;font-size:11px;color:var(--text3);text-decoration:none;white-space:nowrap;font-weight:600;">Tools · Vizznity</a>
+  <nav class="vz-header-links" aria-label="Tools by Vizznity"><a href="../index.html">All tools</a><a href="../docs/purchase-rate-comparison-guide.html">User guide</a></nav>
 </header>
 
 <div class="app">
@@ -412,13 +419,14 @@
     <div class="card">
       <div class="card-title"><em class="badge">1</em>Load PO Register</div>
       <div class="upload-zone" id="dropZone">
-        <input type="file" id="fileInput" accept=".xlsx,.xlsm,.xls,.csv">
-        <div class="upload-icon">📂</div>
+        <input type="file" aria-label="Choose an Excel or CSV file" id="fileInput" accept=".xlsx,.xlsm,.xls,.csv">
+        <div class="upload-icon" aria-hidden="true">📂</div>
         <h3>Drop PO Register here</h3>
         <p>or click to browse</p>
         <p style="margin-top:6px;font-size:11px;color:var(--text3);">.xlsx · .xlsm · .xls · .csv</p>
         <div id="fileBadge" class="file-badge hidden">✅ <span id="fileName"></span></div>
       </div>
+      <p class="vz-note"><strong>Your file stays in this browser tab.</strong> This tool reads and processes it here and does not upload it or send its contents anywhere. The page does load the SheetJS library from cdnjs.cloudflare.com when it opens, so it needs an internet connection to start. <a href="../index.html#privacy">How privacy works</a></p>
     </div>
 
     <div id="configPanel" class="hidden">
@@ -426,33 +434,33 @@
       <div class="card">
         <div class="card-title"><em class="badge">2</em>Data Settings</div>
         <div class="form-group">
-          <label>Source Sheet</label>
+          <label for="sheetSelect">Source Sheet</label>
           <select id="sheetSelect"></select>
         </div>
         <div class="form-group">
-          <label>Starting Row Number</label>
+          <label for="startRow">Starting Row Number</label>
           <input type="number" id="startRow" min="1" value="2" style="background-image:none;padding-right:12px;">
         </div>
       </div>
 
       <div class="card">
         <div class="card-title"><em class="badge">3</em>Mandatory Column Mapping</div>
-        <div class="form-group"><label>PoNo</label><select id="colPoNo"></select></div>
-        <div class="form-group"><label>PoDate</label><select id="colPoDate"></select></div>
-        <div class="form-group"><label>Supplier Code</label><select id="colSupplierCode"></select></div>
-        <div class="form-group"><label>SupplierName</label><select id="colSupplierName"></select></div>
-        <div class="form-group"><label>Item Code</label><select id="colItemCode"></select></div>
-        <div class="form-group"><label>ItemDescription</label><select id="colItemDesc"></select></div>
-        <div class="form-group"><label>Price</label><select id="colPrice"></select></div>
-        <div class="form-group"><label>Sum of Po.Qty</label><select id="colQty"></select></div>
+        <div class="form-group"><label for="colPoNo">PoNo</label><select id="colPoNo"></select></div>
+        <div class="form-group"><label for="colPoDate">PoDate</label><select id="colPoDate"></select></div>
+        <div class="form-group"><label for="colSupplierCode">Supplier Code</label><select id="colSupplierCode"></select></div>
+        <div class="form-group"><label for="colSupplierName">SupplierName</label><select id="colSupplierName"></select></div>
+        <div class="form-group"><label for="colItemCode">Item Code</label><select id="colItemCode"></select></div>
+        <div class="form-group"><label for="colItemDesc">ItemDescription</label><select id="colItemDesc"></select></div>
+        <div class="form-group"><label for="colPrice">Price</label><select id="colPrice"></select></div>
+        <div class="form-group"><label for="colQty">Sum of Po.Qty</label><select id="colQty"></select></div>
       </div>
 
       <div class="card">
         <div class="card-title"><em class="badge">4</em>Optional Column Mapping</div>
         <div class="alert alert-info" style="margin-bottom:14px;">Used for filtering only. Leave as "Not Available" if your file doesn't have these.</div>
-        <div class="form-group"><label>Key1</label><select id="colKey1"></select></div>
-        <div class="form-group"><label>ItemType</label><select id="colItemType"></select></div>
-        <div class="form-group"><label>Key2</label><select id="colKey2"></select></div>
+        <div class="form-group"><label for="colKey1">Key1</label><select id="colKey1"></select></div>
+        <div class="form-group"><label for="colItemType">ItemType</label><select id="colItemType"></select></div>
+        <div class="form-group"><label for="colKey2">Key2</label><select id="colKey2"></select></div>
 
         <button class="btn btn-primary" id="runBtn" disabled style="margin-top:16px;">
           <span id="runBtnTxt">▶ Run Rate Comparison Analysis</span>
@@ -464,10 +472,10 @@
 
   </aside>
 
-  <main class="main">
+  <main class="main" id="vz-main" tabindex="-1">
 
     <div id="welcomeMsg" class="empty">
-      <div class="icon">📊</div>
+      <div class="icon" aria-hidden="true">📊</div>
       <h3>Load a PO Register to get started</h3>
       <p>Upload Purchase Order data — the tool identifies same-item rate exceptions across suppliers, builds an audit-ready annexure, and quantifies potential excess procurement cost.</p>
     </div>
@@ -495,23 +503,23 @@
         <div class="card-title">🔍 Filters</div>
         <div class="filters-grid">
           <div class="form-group" style="margin-bottom:0;">
-            <label>Month</label>
+            <label for="filterMonth">Month</label>
             <select id="filterMonth"></select>
           </div>
           <div class="form-group" style="margin-bottom:0;">
-            <label>Supplier</label>
+            <label for="filterSupplier">Supplier</label>
             <select id="filterSupplier"></select>
           </div>
           <div class="form-group" style="margin-bottom:0;">
-            <label>Item Code</label>
+            <label for="filterItemCode">Item Code</label>
             <select id="filterItemCode"></select>
           </div>
           <div class="form-group hidden" id="filterKey1Wrap" style="margin-bottom:0;">
-            <label>Key1</label>
+            <label for="filterKey1">Key1</label>
             <select id="filterKey1"></select>
           </div>
           <div class="form-group hidden" id="filterItemTypeWrap" style="margin-bottom:0;">
-            <label>ItemType</label>
+            <label for="filterItemType">ItemType</label>
             <select id="filterItemType"></select>
           </div>
         </div>

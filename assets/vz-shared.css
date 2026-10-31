@@ -1,0 +1,105 @@
+/* ==========================================================================
+   Tools by Vizznity — shared enhancements
+   Loaded AFTER each page's own <style>, so it only adds to / overrides tokens.
+   Scope: accessibility, contrast, focus, reflow, trust notices, navigation.
+   It contains no tool logic.
+   ========================================================================== */
+
+/* ---- 1. Contrast: darken only the tokens that failed WCAG 2.2 AA (4.5:1) ----
+   Measured on #fff, #f7f6fc and #f1eefb. Original -> new:
+   #8886a0 -> #6b6986 | #1c9a6c -> #167b56 | #6c63ff -> #5a50ff
+   #c8791f -> #9c5e18 | #dc2626 -> #c62222 | #b45309 -> #a64a08            */
+:root{
+  --text3:#6b6986;            /* tools: hints, meta text            */
+  --ink-faint:#6b6986;        /* homepage: faint text               */
+  --success:#167b56;          /* tools + homepage                   */
+  --ok:#167b56;               /* combine tool                       */
+  --accent:#5a50ff;           /* brand purple, slightly deeper      */
+  --amber:#9c5e18;            /* homepage                           */
+  --danger:#c62222;           /* tools                              */
+  --err:#c62222;              /* combine tool                       */
+  --warn:#a64a08;             /* combine tool                       */
+  --warning:#a64a08;          /* tools                              */
+  --vz-focus:#2f26a8;
+}
+
+/* ---- 2. Visible keyboard focus (original CSS removed outlines) ---- */
+:where(a,button,input,select,textarea,summary,[tabindex]):focus-visible{
+  outline:3px solid var(--vz-focus) !important;
+  outline-offset:2px !important;
+}
+.upload-zone:has(input:focus-visible),
+.dropzone:focus-visible{
+  outline:3px solid var(--vz-focus);
+  outline-offset:3px;
+  border-color:var(--accent);
+}
+@supports not selector(:has(*)){
+  .upload-zone:focus-within{outline:3px solid var(--vz-focus);outline-offset:3px}
+}
+
+/* ---- 3. Utilities ---- */
+.vz-sr{position:absolute !important;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.vz-skip{
+  position:absolute;left:12px;top:-60px;z-index:20000;
+  background:#191830;color:#fff;padding:10px 16px;border-radius:8px;
+  font:600 14px/1.2 system-ui,-apple-system,"Segoe UI",sans-serif;text-decoration:none;
+}
+.vz-skip:focus{top:12px}
+[id="vz-main"]:focus{outline:none}
+
+/* ---- 4. Notices ---- */
+.vz-note{
+  font-size:12.5px;line-height:1.55;margin:10px 0 0;padding:10px 12px;border-radius:10px;
+  color:var(--text2,var(--text-dim,#5f5d78));
+  background:var(--surface2,var(--panel-2,#f1eefb));
+  border:1px solid var(--border,#e3ddf5);
+}
+.vz-note a{color:var(--accent2,#4b3fc7);font-weight:600}
+.vz-note--warn{background:#fff7e6;border-color:#efd39b;color:#5c3d06}
+.vz-note--warn a{color:#5c3d06}
+
+.vz-toast{
+  position:fixed;z-index:10000;top:16px;left:50%;transform:translateX(-50%);
+  width:min(560px,calc(100vw - 24px));display:flex;gap:12px;align-items:flex-start;
+  background:#fff;color:#191830;border:1px solid #e3ddf5;border-left:5px solid #a64a08;border-radius:12px;
+  box-shadow:0 14px 34px -10px rgba(25,24,48,.4);padding:14px 12px 14px 16px;
+  font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+.vz-toast__msg{flex:1;white-space:pre-line;overflow-wrap:anywhere}
+.vz-toast__close{
+  flex:none;min-width:32px;min-height:32px;border:1px solid #d9d3f0;background:#f1eefb;color:#191830;
+  border-radius:8px;font:600 16px/1 system-ui;cursor:pointer;
+}
+.vz-banner{
+  background:#fff1f1;color:#6e1111;border-bottom:2px solid #c62222;padding:12px 20px;
+  font:14px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;
+  display:flex;gap:12px 20px;flex-wrap:wrap;align-items:center;justify-content:space-between;
+}
+.vz-banner strong{color:#4d0c0c}
+.vz-banner button{
+  min-height:36px;padding:6px 16px;border-radius:8px;border:1px solid #c62222;background:#fff;color:#6e1111;
+  font:600 14px system-ui;cursor:pointer;
+}
+
+/* ---- 5. Navigation inside tool headers ---- */
+.vz-header-links{display:flex;gap:6px 16px;flex-wrap:wrap;align-items:center;margin-left:14px;white-space:nowrap}
+.vz-header-links a{
+  font-size:13px;font-weight:600;text-decoration:none;padding:6px 2px;
+  color:var(--accent2,#4b3fc7);border-bottom:1px solid transparent;
+}
+.vz-header-links a:hover{border-bottom-color:currentColor}
+
+/* ---- 6. Reduced motion ---- */
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto !important}
+  *,*::before,*::after{transition-duration:.01ms !important;animation-duration:.01ms !important;animation-iteration-count:1 !important}
+}
+
+/* ---- 7. Responsive reflow (WCAG 1.4.10) ---- */
+@media (max-width:640px){
+  body > header{flex-wrap:wrap;padding:12px 16px;gap:8px 12px}
+  .step-pills{margin-left:0;flex-wrap:wrap;width:100%}
+  .vz-header-links{margin-left:0;width:100%}
+  .table-wrap{max-width:100%}
+}
